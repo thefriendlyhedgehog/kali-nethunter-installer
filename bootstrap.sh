@@ -1,7 +1,7 @@
 #!/bin/sh
 
-GIT_ACCOUNT=offensive-security
-GIT_REPOSITORY=nethunter-devices
+GIT_ACCOUNT=kalilinux
+GIT_REPOSITORY=nethunter/build-scripts/kali-nethunter-devices
 
 ABORT() {
 	[ "$1" ] && echo "Error: $*"
@@ -59,9 +59,9 @@ printf "Would you like to use SSH authentication (faster, but requires a GitHub 
 read -r choice
 case $choice in
 	y*|Y*)
-		cloneurl="git@github.com:${GIT_ACCOUNT}/${GIT_REPOSITORY}" ;;
+		cloneurl="git@gitlab.com:${GIT_ACCOUNT}/${GIT_REPOSITORY}" ;;
 	*)
-		cloneurl="https://github.com/${GIT_ACCOUNT}/${GIT_REPOSITORY}.git" ;;
+		cloneurl="https://gitlab.com/${GIT_ACCOUNT}/${GIT_REPOSITORY}.git" ;;
 esac
 
 clonecmd="$clonecmd --branch $clonebranch $cloneurl devices"

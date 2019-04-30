@@ -55,11 +55,11 @@ python build.py -h
 ## How to add a new/unsupported device
 
 See the README.md located in the NetHunter Devices repository:  
-https://github.com/offensive-security/nethunter-devices
+https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices
 
 ## Device changelog
 
 You can view changes in the commit log of the NetHunter Devices repository:  
-https://github.com/offensive-security/nethunter-devices/commits
+https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices/commits
 
-Sat Oct 22 21:16:18 EST 2016
+Tue Apr 30 21:16:18 AEST 2019
