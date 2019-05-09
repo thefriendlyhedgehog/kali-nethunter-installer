@@ -171,14 +171,28 @@ print "SDK Version: $SDK"
 print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
-    #Starting with Oreo we can no longer install user apps so we install nethunter.apk as system app
+    # Starting with Oreo we can no longer install user apps so we install nethunter.apk as system app
     mkdir -p /system/priv-app/NetHunter
     cp $tmp/data/app/nethunter.apk /system/priv-app/NetHunter/
+
+    # and Term-nh.apk because nethunter.apk depends on it
+    mkdir -p /system/priv-app/NetHunter-Terminal
+    cp $tmp/data/app/Term-nh.apk /system/priv-app/NetHunter-Terminal/
+    unzip -qo /system/priv-app/NetHunter-Terminal/Term-nh.apk "lib/*" -d /system/priv-app/NetHunter-Terminal/
+    mv /system/priv-app/NetHunter-Terminal/lib/armeabi-v7a /system/priv-app/NetHunter-Terminal/lib/arm
+    mv /system/priv-app/NetHunter-Terminal/lib/arm64-v8a /system/priv-app/NetHunter-Terminal/lib/arm64
+
+    # and VNC-nh.apk because nethunter.apk depends on it
+    mkdir -p /system/priv-app/NetHunter-VNC
+    cp $tmp/data/app/VNC-nh.apk /system/priv-app/NetHunter-VNC/
 
     # And we copy the other apps to /sdcard/nh_files/cache/apk to be installed during nethunter init
     mkdir -p /sdcard/nh_files/cache/apk
     cp $tmp/data/app/*.apk /sdcard/nh_files/cache/apk/
+    # We couldn't move these apk above so we just remove them now
     rm /sdcard/nh_files/cache/apk/nethunter.apk
+    rm /sdcard/nh_files/cache/apk/Term-nh.apk
+    rm /sdcard/nh_files/cache/apk/VNC-nh.apk
 else
     installapp "NetHunter App" "nethunter.apk" "com.offsec.nethunter"
     installapp "NetHunter Terminal" "Term-nh.apk" "com.offsec.nhterm"

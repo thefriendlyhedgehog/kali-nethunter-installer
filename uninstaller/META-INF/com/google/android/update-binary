@@ -69,6 +69,16 @@ mount /data
 	rm -rf /system/priv-app/NetHunter
 }
 
+[ -d "/system/priv-app/NetHunter-Terminal" ] && {
+	print "@Removing Term-nh.apk"
+	rm -rf /system/priv-app/NetHunter-Terminal
+}
+
+[ -d "/system/priv-app/NetHunter-VNC" ] && {
+	print "@Removing VNC-nh.apk"
+	rm -rf /system/priv-app/NetHunter-VCN
+}
+
 [ -d "/data/data/com.offsec.nethunter" ] && {
 	print "@Removing NetHunter chroot/data"
 	rm -rf /data/data/com.offsec.nethunter
