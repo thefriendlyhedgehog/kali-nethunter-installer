@@ -201,7 +201,7 @@ def rootfs(forcedown, fs_size, nightly):
 	if nightly:
 		fs_host = 'https://build.nethunter.com/kalifs/kalifs-latest/'
 	else:
-		fs_host = 'https://images.offensive-security.com/'
+		fs_host = 'https://images.offensive-security.com/nethunter/'
 
 	fs_url = fs_host + fs_file
 
