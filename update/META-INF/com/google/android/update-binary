@@ -171,46 +171,30 @@ print "SDK Version: $SDK"
 print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
-    # Starting with Oreo we can no longer install user apps so we install nethunter.apk as system app
+    # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
     mkdir -p /system/priv-app/NetHunter
-    cp $tmp/data/app/nethunter.apk /system/priv-app/NetHunter/
+    cp $tmp/data/app/NetHunter.apk /system/priv-app/NetHunter/
 
-    # and Term-nh.apk because nethunter.apk depends on it
+    # and NetHunterTerminal.apk because nethunter.apk depends on it
     mkdir -p /system/priv-app/NetHunter-Terminal
-    cp $tmp/data/app/Term-nh.apk /system/priv-app/NetHunter-Terminal/
-    unzip -qo /system/priv-app/NetHunter-Terminal/Term-nh.apk "lib/*" -d /system/priv-app/NetHunter-Terminal/
+    cp $tmp/data/app/NetHunterTerminal.apk /system/priv-app/NetHunter-Terminal/
+    unzip -qo /system/priv-app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d /system/priv-app/NetHunter-Terminal/
     mv /system/priv-app/NetHunter-Terminal/lib/armeabi-v7a /system/priv-app/NetHunter-Terminal/lib/arm
     mv /system/priv-app/NetHunter-Terminal/lib/arm64-v8a /system/priv-app/NetHunter-Terminal/lib/arm64
 
-    # and VNC-nh.apk because nethunter.apk depends on it
+    # and NetHunterVNC.apk because nethunter.apk depends on it
     mkdir -p /system/priv-app/NetHunter-VNC
-    cp $tmp/data/app/VNC-nh.apk /system/priv-app/NetHunter-VNC/
+    cp $tmp/data/app/NetHunterVNC.apk /system/priv-app/NetHunter-VNC/
 
-    # And we copy the other apps to /sdcard/nh_files/cache/apk to be installed during nethunter init
-    mkdir -p /sdcard/nh_files/cache/apk
-    cp $tmp/data/app/*.apk /sdcard/nh_files/cache/apk/
-    # We couldn't move these apk above so we just remove them now
-    rm /sdcard/nh_files/cache/apk/nethunter.apk
-    rm /sdcard/nh_files/cache/apk/Term-nh.apk
-    rm /sdcard/nh_files/cache/apk/VNC-nh.apk
+    # and NetHunterStore.apk because we need it 
+    mkdir -p /system/priv-app/NetHunter-Store
+    cp $tmp/data/app/NetHunterStore.apk /system/priv-app/NetHunter-Store/
+
 else
-    installapp "NetHunter App" "nethunter.apk" "com.offsec.nethunter"
-    installapp "NetHunter Terminal" "Term-nh.apk" "com.offsec.nhterm"
-    installapp "NetHunter VNC" "VNC-nh.apk" "com.offsec.nhvnc"
-    installapp "cSploit" "cSploit.apk" "org.csploit.android"
-    installapp "DriveDroid" "Drivedroid.apk" "com.softwarebakery.drivedroid"
-    installapp "Hacker's Keyboard" "Hackerskeyboard.apk" "org.pocketworkstation.pckeyboard"
-    installapp "Hijacker" "Hijacker.apk" "com.hijacker"
-    installapp "Intercepter-NG" "Intercepter-NG.apk" "su.sniff.cepter"
-    installapp "OpenVPN" "OpenVPN.apk" "de.blinkt.openvpn"
-    installapp "RF Analyzer" "RFAnalyzer.apk" "com.mantz_it.rfanalyzer"
-    installapp "Router Keygen" "RouterKeygen.apk" "io.github.routerkeygen"
-    installapp "Shodan" "Shodan.apk" "io.shodan.app"
-    installapp "USB Keyboard" "USBKeyboard.apk" "remote.hid.keyboard.client"
-    ## The following apps are going to be installed from the play store:
-    #  - AndProx (once it supports Iceman firmware)
-    #  - Walrus
-    #  - WHID-Injector
+    installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
+    installapp "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
+    installapp "NetHunter VNC" "NetHunterVNC.apk" "com.offsec.nhvnc"
+    installapp "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
 fi
 print "Done installing apps"
 
