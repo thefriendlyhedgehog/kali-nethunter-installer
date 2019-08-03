@@ -20,15 +20,18 @@ dl_supersu = {
 	'stable': ['https://download.chainfire.eu/1220/SuperSU/SR5-SuperSU-v2.82-SR5-20171001224502.zip', '62ee48420cacedee53b89503aa43b5449d07946fe7174ee03fc118c23f65ea988a94e5ba76dff5afd61c19fe9b23260c4cee8e293839babdf1b263ffaabb92f3'],
 }
 
+##Install apps from the staging site so that we can prepare images before we go live with releases
 dl_apps = {
 	'NetHunterStore':
-                ['https://store.nethunter.com/NetHunterStore.apk', 'aba5e5b6e09db80e7a2b42c2271cba304b4ce588ac607319ad6ce1f8bad13e9a7be40ed3a66aac91b735cd43827b1e0eda6b3811f541c3a00c962dbf50c159ef'],
+                ['https://staging.nethunter.com/NetHunterStore.apk', '35fed79b55463f64c6b11d19df2ecb4ff099ef1dda1063b87eedaae3ebde32c3720e61cad2da73a46492d19180306adcf5f72d511da817712e1eed32068ec1ef'],
+	'NetHunterStorePrivilegedExtension':
+                ['https://staging.nethunter.com/NetHunterStorePrivilegedExtension.apk', 'b4f35bf24a5d6e4897cc2df70c61537104d73fe034110a373e65fe44b2e3ff5641239517a2d4dab95f0017f624b086cf6f017d8a5566e0f9cb8e0aae2a0537df'],
 	'NetHunter':
-                ['https://store.nethunter.com/NetHunter.apk', 'f2347b57fc1f06f6cadb9f4cfe241496e1119c613f01b41b8381337ec6e3848580f6d40f4f27d8ec99db396666be86825ed1fb0af72d3aa6690a30be7c4ec243'],
+                ['https://staging.nethunter.com/NetHunter.apk', 'a0c2bf1603c4b607de54586ecab8ae0600134499d50140d34ac2887c4c7be0dd6f5a8baa11c5164199f1031f2a981a8353e50fe10a45066844004d6ae23ba302'],
 	'NetHunterTerminal':
-		['https://store.nethunter.com/NetHunterTerminal.apk', 'c6f47ed62ce15985ce3bcb7edcaaad29d6a200e44f1cb5a72e9a970937bca4236d72e934fcd5d7d08846f703a83e1ad0d7c8580cd9b54aa02a42e12c721aedde'],
+		['https://staging.nethunter.com/NetHunterTerminal.apk', 'c6f47ed62ce15985ce3bcb7edcaaad29d6a200e44f1cb5a72e9a970937bca4236d72e934fcd5d7d08846f703a83e1ad0d7c8580cd9b54aa02a42e12c721aedde'],
 	'NetHunterVNC':
-		['https://store.nethunter.com/NetHunterVNC.apk', '1f81a85a040ddfedc98a6fcdecb5ef9153372c40b829fe12cbf2dd22cc1491ce1b6c4444ff8f865d124575e8315702686aef4a1d88985995581bc264fee61989'],
+		['https://staging.nethunter.com/NetHunterVNC.apk', '5a726714d5edf003b402b3d967119b41a34977d78b6c1046ffe6cbb06b9d4ba9f6338822883ce849dae40ee91ad881e3d8ecb46db4e2096e21ce8738d2638b69'],
 }
 
 def copytree(src, dst):

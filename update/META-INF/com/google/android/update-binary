@@ -39,7 +39,7 @@ abort() {
 }
 
 cleanup() {
-	rm /system/.rw
+	rm ${SYSTEM}/.rw
 	rm /data/.rw
 
 	umount /system
@@ -133,6 +133,12 @@ print "Starting the install process"
 
 mount /data
 mount /system
+SYSTEM="/system"
+# Modern devices use ${SYSTEM} as root ("/")
+system_as_root=`getprop ro.build.system_root_image`
+if [ "$system_as_root" == "true" ]; then
+    SYSTEM="/system/system"
+fi
 
 progress 0.1
 
@@ -166,29 +172,34 @@ progress 0.2
 
 progress 0.4
 
-SDK="$(grep 'ro.build.version.sdk' /system/build.prop | cut -d'=' -f2)"
+SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
 print "SDK Version: $SDK"
+
 print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
     # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
-    mkdir -p /system/priv-app/NetHunter
-    cp $tmp/data/app/NetHunter.apk /system/priv-app/NetHunter/
+    print "- Installing NetHunter.apk"
+    mkdir -p ${SYSTEM}/app/NetHunter
+    cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
 
     # and NetHunterTerminal.apk because nethunter.apk depends on it
-    mkdir -p /system/priv-app/NetHunter-Terminal
-    cp $tmp/data/app/NetHunterTerminal.apk /system/priv-app/NetHunter-Terminal/
-    unzip -qo /system/priv-app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d /system/priv-app/NetHunter-Terminal/
-    mv /system/priv-app/NetHunter-Terminal/lib/armeabi-v7a /system/priv-app/NetHunter-Terminal/lib/arm
-    mv /system/priv-app/NetHunter-Terminal/lib/arm64-v8a /system/priv-app/NetHunter-Terminal/lib/arm64
+    print "- Installing NetHunterTerminal.apk"
+    mkdir -p ${SYSTEM}/app/NetHunter-Terminal
+    cp $tmp/data/app/NetHunterTerminal.apk ${SYSTEM}/app/NetHunter-Terminal/
+    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d /system/app/NetHunter-Terminal/
+    mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a /system/app/NetHunter-Terminal/lib/arm
+    mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a /system/app/NetHunter-Terminal/lib/arm64
 
     # and NetHunterVNC.apk because nethunter.apk depends on it
-    mkdir -p /system/priv-app/NetHunter-VNC
-    cp $tmp/data/app/NetHunterVNC.apk /system/priv-app/NetHunter-VNC/
+    print "- Installing NetHunter-VNC.apk"
+    mkdir -p ${SYSTEM}/app/NetHunter-VNC
+    cp $tmp/data/app/NetHunterVNC.apk ${SYSTEM}/app/NetHunter-VNC/
 
     # and NetHunterStore.apk because we need it 
-    mkdir -p /system/priv-app/NetHunter-Store
-    cp $tmp/data/app/NetHunterStore.apk /system/priv-app/NetHunter-Store/
+    print "- Installing NetHunter-Store.apk"
+    mkdir -p ${SYSTEM}/app/NetHunter-Store
+    cp $tmp/data/app/NetHunterStore.apk ${SYSTEM}/app/NetHunter-Store/
 
 else
     installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
@@ -196,15 +207,28 @@ else
     installapp "NetHunter VNC" "NetHunterVNC.apk" "com.offsec.nhvnc"
     installapp "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
 fi
+## Installing privileged extension
+print "- Installing NetHunterStorePrivilegedExtension.apk"
+mkdir -p ${SYSTEM}/priv-app/NetHunterStorePrivilegedExtension
+cp $tmp/data/app/NetHunterStorePrivilegedExtension.apk ${SYSTEM}/priv-app/NetHunterStorePrivilegedExtension/
+if [ $SDK -ge 26 ]
+then
+	mkdir ${SYSTEM}/etc/permissions 
+	chmod 755 ${SYSTEM}/etc/permissions 
+        [ -d system/etc/permissions/permissions_com.offsec.nethunter.store.privileged.xml ] && {
+            install "${SYSTEM}/etc/permissions/permissions_com.offsec.nethunter.store.privileged.xml" 0755 0644
+        }
+
+fi
 print "Done installing apps"
 
 progress 0.5
 
 [ -f tools/freespace.sh ] && {
 	# This actually runs twice when the NetHunter kernel zip is included
-	print "Freeing up some space on /system"
+	print "Freeing up some space on ${SYSTEM}"
 	sh tools/freespace.sh ||
-		abort "Not enough free space on /system to continue!"
+		abort "Not enough free space on ${SYSTEM} to continue!"
 }
 
 print "Running busybox installer..."
@@ -219,39 +243,39 @@ progress 0.6
 
 [ -f system/media/bootanimation.zip ] && {
 	print "Installing NetHunter boot animation"
-	install "/system/media/bootanimation.zip" 0755 0644
+	install "/system/media/bootanimation.zip" 0755 0644 "${SYSTEM}/media/bootanimation.zip"
 }
 
 progress 0.7
 
 [ -d system/etc/nano ] && {
-	print "Copying nano highlights to /system/etc/nano"
-	install "/system/etc/nano" 0755 0644
+	print "Copying nano highlights to ${SYSTEM}/etc/nano"
+	install "/system/etc/nano" 0755 0644 "${SYSTEM}/etc/nano" 
 }
 
 [ -d system/etc/terminfo ] && {
-	print "Copying terminfo files to /system/etc/terminfo"
-	install "/system/etc/terminfo" 0755 0644
+	print "Copying terminfo files to ${SYSTEM}/etc/terminfo"
+	install "/system/etc/terminfo" 0755 0644 "${SYSTEM}/etc/terminfo"
 }
 
 [ -d system/lib ] && {
-	print "Copying 32-bit shared libraries to /system/lib"
-	install "/system/lib" 0755 0644
+	print "Copying 32-bit shared libraries to ${SYSTEM}/lib"
+	install "/system/lib" 0755 0644 "${SYSTEM}/lib"
 }
 
 [ -d system/lib64 ] && {
-	print "Copying 64-bit shared libraries to /system/lib64"
-	install "/system/lib64" 0755 0644
+	print "Copying 64-bit shared libraries to ${SYSTEM}/lib64"
+	install "/system/lib64" 0755 0644 "${SYSTEM}/lib64"
 }
 
 [ -d system/bin ] && {
-	print "Installing /system/bin binaries"
-	install "/system/bin" 0755 0755
+	print "Installing ${SYSTEM}/bin binaries"
+	install "/system/bin" 0755 0755 "${SYSTEM}/bin"
 }
 
 [ -d system/xbin ] && {
-	print "Installing /system/xbin binaries"
-	install "/system/xbin" 0755 0755
+	print "Installing ${SYSTEM}/xbin binaries"
+	install "/system/xbin" 0755 0755 "${SYSTEM}/xbin"
 }
 
 [ -d data/local ] && {
@@ -261,27 +285,32 @@ progress 0.7
 
 [ -d system/etc/init.d ] && {
 	print "Installing init.d scripts"
-	install "/system/etc/init.d" 0755 0755
+	install "/system/etc/init.d" 0755 0755 "${SYSTEM}/etc/init.d"
 	# Create userinit.d and userinit.sh if they don't already exist
 	mkdir -p "/data/local/userinit.d"
 	setperm 0755 0755 "/data/local/userinit.d"
-	[ -f "/data/local/userinit.sh" ] || echo "#!/system/bin/sh" > "/data/local/userinit.sh"
+	[ -f "/data/local/userinit.sh" ] || echo "#!${SYSTEM}/bin/sh" > "/data/local/userinit.sh"
 	chmod 0755 "/data/local/userinit.sh"
+}
+ 
+[ -d system/addon.d/80-nethunter.sh ] && {
+		print "Installing ${SYSTEM}/addon.d backup scripts"
+	install "/system/80-nethunter.sh" 0755 0755 "${SYSTEM}/80-nethunter.sh"
 }
 
 print "Symlinking Kali boot scripts"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "/system/bin/bootkali"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "/system/bin/bootkali_init"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "/system/bin/bootkali_login"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "/system/bin/bootkali_bash"
-symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "/system/bin/killkali"
+symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "${SYSTEM}/bin/bootkali"
+symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "${SYSTEM}/bin/bootkali_init"
+symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "${SYSTEM}/bin/bootkali_login"
+symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "${SYSTEM}/bin/bootkali_bash"
+symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "${SYSTEM}/bin/killkali"
 
 progress 0.8
 
 [ -d "$patchtmp" ] && {
 	print "Running kernel installer..."
 	sh "$patchtmp/META-INF/com/google/android/update-binary"
-	mount /system
+	mount /system 
 	mount /data
 }
 
