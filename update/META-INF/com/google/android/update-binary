@@ -172,23 +172,23 @@ print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
     # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
-    mkdir -p /system/priv-app/NetHunter
-    cp $tmp/data/app/NetHunter.apk /system/priv-app/NetHunter/
+    mkdir -p /system/app/NetHunter
+    cp $tmp/data/app/NetHunter.apk /system/app/NetHunter/
 
     # and NetHunterTerminal.apk because nethunter.apk depends on it
-    mkdir -p /system/priv-app/NetHunter-Terminal
-    cp $tmp/data/app/NetHunterTerminal.apk /system/priv-app/NetHunter-Terminal/
-    unzip -qo /system/priv-app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d /system/priv-app/NetHunter-Terminal/
-    mv /system/priv-app/NetHunter-Terminal/lib/armeabi-v7a /system/priv-app/NetHunter-Terminal/lib/arm
-    mv /system/priv-app/NetHunter-Terminal/lib/arm64-v8a /system/priv-app/NetHunter-Terminal/lib/arm64
+    mkdir -p /system/app/NetHunter-Terminal
+    cp $tmp/data/app/NetHunterTerminal.apk /system/app/NetHunter-Terminal/
+    unzip -qo /system/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d /system/app/NetHunter-Terminal/
+    mv /system/app/NetHunter-Terminal/lib/armeabi-v7a /system/app/NetHunter-Terminal/lib/arm
+    mv /system/app/NetHunter-Terminal/lib/arm64-v8a /system/app/NetHunter-Terminal/lib/arm64
 
     # and NetHunterVNC.apk because nethunter.apk depends on it
-    mkdir -p /system/priv-app/NetHunter-VNC
-    cp $tmp/data/app/NetHunterVNC.apk /system/priv-app/NetHunter-VNC/
+    mkdir -p /system/app/NetHunter-VNC
+    cp $tmp/data/app/NetHunterVNC.apk /system/app/NetHunter-VNC/
 
     # and NetHunterStore.apk because we need it 
-    mkdir -p /system/priv-app/NetHunter-Store
-    cp $tmp/data/app/NetHunterStore.apk /system/priv-app/NetHunter-Store/
+    mkdir -p /system/app/NetHunter-Store
+    cp $tmp/data/app/NetHunterStore.apk /system/app/NetHunter-Store/
 
 else
     installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
