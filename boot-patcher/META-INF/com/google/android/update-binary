@@ -19,6 +19,8 @@ else
 	[ "$console" ] || console=/proc/$$/fd/1
 fi
 
+SYSTEM="/system"
+
 tmp=/tmp/nethunter/boot-patcher
 
 print() {
@@ -37,7 +39,7 @@ abort() {
 }
 
 cleanup() {
-	rm /system/.rw
+	rm /$SYSTEM/.rw
 	rm /data/.rw
 
 	umount /system
@@ -106,13 +108,29 @@ print "##################################################"
 [ "$zip" ] && {
 	print "Unpacking the installer, this may take a while..."
 	extract "$zip" "$tmp"
+	print "Installer unpacked"
 }
 cd "$tmp"
 
-. env.sh
+chmod +x env
+. ./env.sh
 
-mount /system
+print "Mounting partitions"
 mount /data
+# Modern devices use ${SYSTEM} as root ("/")
+system_as_root=`getprop ro.build.system_root_image`
+if [ "$system_as_root" == "true" ]; then
+    umount /system
+    umount /system_root
+    [ -L /system_root ] && rm -f /system_root
+    mkdir /system_root 2>/dev/null
+    /sbin/mount /system
+    /sbin/mount --move /system /system_root
+    /sbin/mount -o bind /system_root/system /system
+else
+    mount /system
+fi
+print "Partitions mounted"
 
 setperm 0755 0755 tools
 
@@ -123,39 +141,39 @@ cp tools/busybox /sbin/busybox_nh
 
 [ -f tools/freespace.sh ] && {
 	# This actually runs twice when part of the NetHunter updater zip
-	print "Freeing up some space on /system"
+	print "Freeing up some space on $SYSTEM"
 	sh tools/freespace.sh ||
 		abort "Not enough free space on /system to continue!"
 }
 
 [ -d system/etc/firmware ] && {
-	print "Copying firmware to /system/etc/firmware"
-	install "/system/etc/firmware" 0755 0644
+	print "Copying firmware to $SYSTEM/etc/firmware"
+	install "/system/etc/firmware" 0755 0644 "$SYSTEM/etc/firmware"
 }
 
 [ -d system/etc/init.d ] && {
-	print "Copying init.d scripts to /system/etc/init.d"
-	install "/system/etc/init.d" 0755 0755
+	print "Copying init.d scripts to $SYSTEM/etc/init.d"
+	install "/system/etc/init.d" 0755 0755 "$SYSTEM/etc/init.d"
 }
 
 [ -d system/lib ] && {
-	print "Copying 32-bit shared libraries to /system/lib"
-	install "/system/lib" 0755 0644
+	print "Copying 32-bit shared libraries to $SYSTEM/lib"
+	install "/system/lib" 0755 0644 "$SYSTEM/lib"
 }
 
 [ -d system/lib64 ] && {
-	print "Copying 64-bit shared libraries to /system/lib64"
-	install "/system/lib64" 0755 0644
+	print "Copying 64-bit shared libraries to $SYSTEM/lib64"
+	install "/system/lib64" 0755 0644 "$SYSTEM/lib64"
 }
 
 [ -d system/bin ] && {
-	print "Installing /system/bin binaries"
-	install "/system/bin" 0755 0755
+	print "Installing $SYSTEM/bin binaries"
+	install "/system/bin" 0755 0755 "$SYSTEM/bin"
 }
 
 [ -d system/xbin ] && {
-	print "Installing /system/xbin binaries"
-	install "/system/xbin" 0755 0755
+	print "Installing $SYSTEM/xbin binaries"
+	install "/system/xbin" 0755 0755 "$SYSTEM/xbin"
 }
 
 [ -d data/local ] && {

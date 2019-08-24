@@ -40,6 +40,18 @@ abort() {
 
 ## start install methods
 
+## check if system has a A/B partition layout
+## we don't support this layout at the moment so we skip boot image patching
+check_ab() {
+        ab_update=`getprop ro.build.ab_update`
+        if [ "$ab_update" == "true" ]; then
+                print "A/B partition layout found."
+	        print "It is currently unsupported."
+                print "Skipping boot image patching."
+                print "Please flash kernel separately."
+                exit
+        fi
+} 
 # find the location of the boot block
 find_boot() {
 	verify_block() {
@@ -127,7 +139,12 @@ determine_ramdisk_format() {
 		*) abort "Unknown ramdisk compression format ($magicbytes)" ;;
 	esac
 	print "Detected ramdisk compression format: $rdformat"
-	command -v $decompress || abort "Unable to find archiver for $rdformat"
+        command -v $decompress || if echo "$decompress" | grep "gzip"
+        then
+            command -v gzip || abort "Unable to find archiver for $rdformat"
+        else
+            abort "Unable to find archiver for $rdformat"
+        fi
 
 	[ "$ramdisk_compression" ] && rdformat=$ramdisk_compression
 	case "$rdformat" in
@@ -142,7 +159,12 @@ determine_ramdisk_format() {
 			abort "XZ ramdisk compression is currently unsupported" ;;
 		*) abort "Unknown ramdisk compression format ($rdformat)" ;;
 	esac
-	command -v $compress || abort "Unable to find archiver for $rdformat"
+        command -v $compress || if echo "$compress" | grep "gzip"
+        then
+            command -v gzip || abort "Unable to find archiver for $rdformat"
+        else
+            abort "Unable to find archiver for $rdformat"
+        fi
 }
 
 # extract the old ramdisk contents
@@ -293,9 +315,11 @@ write_boot() {
 
 cd "$tmp" || abort "Failed to enter boot-patcher directory!"
 
-. env.sh
+. ./env.sh
 
 ## start boot image patching
+
+check_ab
 
 find_boot
 

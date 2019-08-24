@@ -126,18 +126,23 @@ print "####  ############# NetHunter ####################"
 }
 cd "$tmp"
 
-. env.sh
+. ./env.sh
 
 progress 0.0
 print "Starting the install process"
 
 mount /data
-mount /system
 SYSTEM="/system"
 # Modern devices use ${SYSTEM} as root ("/")
 system_as_root=`getprop ro.build.system_root_image`
 if [ "$system_as_root" == "true" ]; then
-    SYSTEM="/system/system"
+    [ -L /system_root ] && rm -f /system_root
+    mkdir /system_root 2>/dev/null
+    /sbin/mount /system
+    /sbin/mount --move /system /system_root
+    /sbin/mount -o bind /system_root/system /system
+else
+    mount /system
 fi
 
 progress 0.1
@@ -166,8 +171,6 @@ progress 0.2
 
 	sh tools/installsu.sh "$sutmp" "$supersu"
 
-	mount /data
-	mount /system
 }
 
 progress 0.4
@@ -187,9 +190,15 @@ if [ $SDK -ge 26 ]; then
     print "- Installing NetHunterTerminal.apk"
     mkdir -p ${SYSTEM}/app/NetHunter-Terminal
     cp $tmp/data/app/NetHunterTerminal.apk ${SYSTEM}/app/NetHunter-Terminal/
-    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d /system/app/NetHunter-Terminal/
-    mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a /system/app/NetHunter-Terminal/lib/arm
-    mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a /system/app/NetHunter-Terminal/lib/arm64
+    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
+    ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
+    [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
+        mkdir -p /tmp/NetHunter-Terminal/
+        unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
+        mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
+    }
+    mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
+    mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
 
     # and NetHunterVNC.apk because nethunter.apk depends on it
     print "- Installing NetHunter-VNC.apk"
@@ -215,8 +224,8 @@ if [ $SDK -ge 26 ]
 then
 	mkdir ${SYSTEM}/etc/permissions 
 	chmod 755 ${SYSTEM}/etc/permissions 
-        [ -d system/etc/permissions/permissions_com.offsec.nethunter.store.privileged.xml ] && {
-            install "${SYSTEM}/etc/permissions/permissions_com.offsec.nethunter.store.privileged.xml" 0755 0644
+        [ -d system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
+            install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
         }
 
 fi
@@ -289,7 +298,7 @@ progress 0.7
 	# Create userinit.d and userinit.sh if they don't already exist
 	mkdir -p "/data/local/userinit.d"
 	setperm 0755 0755 "/data/local/userinit.d"
-	[ -f "/data/local/userinit.sh" ] || echo "#!${SYSTEM}/bin/sh" > "/data/local/userinit.sh"
+	[ -f "/data/local/userinit.sh" ] || echo "#!/system/bin/sh" > "/data/local/userinit.sh"
 	chmod 0755 "/data/local/userinit.sh"
 }
  
@@ -310,7 +319,6 @@ progress 0.8
 [ -d "$patchtmp" ] && {
 	print "Running kernel installer..."
 	sh "$patchtmp/META-INF/com/google/android/update-binary"
-	mount /system 
 	mount /data
 }
 
