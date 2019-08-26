@@ -4,7 +4,7 @@
 tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 cd "$tmp"
-. env.sh
+. ./env.sh
 
 wp=/data/system/users/0/wallpaper
 wpinfo=${wp}_info.xml
@@ -19,9 +19,13 @@ print() {
 
 res=$(tools/screenres)
 
-if [ ! "$res" ]; then
-	print "Can't get screen resolution from kernel! Skipping..."
-	exit 1
+if [ ! "$res" ] || [[ "$res" == *"failed"* ]] || [ -f "wallpaper/resolution.txt" ]; then
+	if [ -f "wallpaper/resolution.txt" ]; then
+		res=$(cat wallpaper/resolution.txt)
+	else
+                print "Can't get screen resolution from kernel! Skipping..."
+	        exit 1
+	fi
 fi
 
 print "Found screen resolution: $res"

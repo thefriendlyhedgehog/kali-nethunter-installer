@@ -288,11 +288,32 @@ def configfile(file_name, values):
 	file_handle.write(file_string)
 	file_handle.close()
 
+def configfile_pure(file_name, values):
+        # Same as "configfile" but without apostrophies
+	# Open file as read only and copy to string
+	file_handle = open(file_name, 'r')
+	file_string = file_handle.read()
+	file_handle.close()
+
+	# Replace values of variables
+	for key, value in values.iteritems():
+		# Quote value if not already quoted
+		if value and not (value[0] == value[-1] and (value[0] == '"' or value[0] == "'")):
+			value = '%s' % value
+
+		file_string = (re.sub('^' + re.escape(key) + '=.*$', key + '=' + value, file_string, flags=re.M))
+
+	# Open file as writable and save the updated values
+	file_handle = open(file_name, 'w')
+	file_handle.write(file_string)
+	file_handle.close()
+
 def setupkernel():
 	global Config
 	global Device
 	global OS
 	global LibDir
+        global Flasher
 
 	out_path = os.path.join('tmp_out', 'boot-patcher')
 
@@ -317,22 +338,49 @@ def setupkernel():
 		})
 		# There's nothing left to configure
 		return
-
-	# Set up variables in the kernel installer script
 	print('Kernel: Configuring installer script for ' + Device)
-	configfile(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'), {
-		'kernel_string':readkey('kernelstring', 'NetHunter kernel'),
-		'kernel_author':readkey('author', 'Unknown'),
-		'kernel_version':readkey('version', '1.0'),
-		'device_names':readkey('devicenames')
-	})
 
-	# Set up variables in boot-patcher.sh
-	print('Kernel: Configuring boot-patcher script for ' + Device)
-	configfile(os.path.join(out_path, 'boot-patcher.sh'), {
-		'boot_block':readkey('block'),
-		'ramdisk_compression':readkey('ramdisk', 'gzip')
-	})
+        if Flasher == 'anykernel':
+                # Replace Lazy Flasher with AnyKernel3
+	        print('Replacing NetHunter Flasher with AnyKernel3')
+                shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
+	        # Set up variables in the anykernel script
+                devicenames = readkey('devicenames')
+	        configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
+		        'kernel.string':readkey('kernelstring', 'NetHunter kernel'),
+                        'do.modules':readkey('modules', '0'),
+                        'block':readkey('block')+';',
+                        'ramdisk_compression':readkey('ramdisk', 'auto') + ';',
+        	})
+                i = 1
+                for devicename in devicenames.split(','):
+                        key = 'device.name' + str(i)
+	                configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
+                                key:devicename
+        	})
+                        i += 1
+
+	        configfile_pure(os.path.join(out_path, 'banner'), {
+		        '   Kernel':readkey('kernelstring', 'NetHunter kernel'),
+                        '   Version':readkey('version', '1.0'),
+		        '   Author':readkey('author', 'Unkown')
+        	})
+
+        else:
+	        # Set up variables in the kernel installer script
+	        configfile(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'), {
+		        'kernel_string':readkey('kernelstring', 'NetHunter kernel'),
+		        'kernel_author':readkey('author', 'Unknown'),
+		        'kernel_version':readkey('version', '1.0'),
+		        'device_names':readkey('devicenames')
+        	})
+
+	        # Set up variables in boot-patcher.sh
+	        print('Kernel: Configuring boot-patcher script for ' + Device)
+	        configfile(os.path.join(out_path, 'boot-patcher.sh'), {
+		        'boot_block':readkey('block'),
+		        'ramdisk_compression':readkey('ramdisk', 'gzip')
+	        })
 
 	device_path = os.path.join('devices', OS, Device)
 
@@ -394,6 +442,7 @@ def setupkernel():
 
 def setupupdate():
 	global Arch
+        global Resolution
 
 	out_path = 'tmp_out'
 
@@ -415,6 +464,13 @@ def setupupdate():
 	configfile(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'), {
 		'supersu':readkey('supersu')
 	})
+
+        # Overwrite screen resolution if defined in devices.cfg
+        if Resolution:
+                file_name=os.path.join(out_path, 'wallpaper', 'resolution.txt')
+                file_handle = open(file_name, 'w')
+                file_handle.write(Resolution)
+                file_handle.close()
 
 def cleanup(domsg):
 	if os.path.exists('tmp_out'):
@@ -450,6 +506,8 @@ def main():
 	global LibDir
 	global IgnoredFiles
 	global TimeStamp
+        global Flasher
+        global Resolution
 
 	supersu_beta = False
 
@@ -516,6 +574,13 @@ def main():
 		done()
 	elif not args.uninstaller:
 		abort('No valid arguments supplied. Try -h or --help')
+
+        Flasher = readkey('flasher')
+        Flasher = Flasher.replace('"', "")
+	print('Flasher: ' + Flasher)
+        Resolution = readkey('resolution')
+        Resolution = Resolution.replace('"', "")
+	print('Resolution: ' + Resolution)
 
 	# If we found a device, set architecture and parse android OS release
 	if args.device:

@@ -17,6 +17,7 @@ fi
 
 tmp=/tmp/nethunter
 patchtmp=$tmp/boot-patcher
+export home=$patchtmp
 sutmp=/tmp/supersu
 
 progress() {
@@ -39,12 +40,12 @@ abort() {
 }
 
 cleanup() {
-	rm ${SYSTEM}/.rw
-	rm /data/.rw
+	##rm ${SYSTEM}/.rw
+	##rm /data/.rw
 
-	umount /system
+	##umount /system
 
-	[ "$zip" ] && rm /tmp/console
+	##[ "$zip" ] && rm /tmp/console
 }
 
 install() {
