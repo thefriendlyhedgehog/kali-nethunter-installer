@@ -29,7 +29,7 @@ dl_apps = {
 	'NetHunter':
                 ['https://staging.nethunter.com/NetHunter.apk', 'a0c2bf1603c4b607de54586ecab8ae0600134499d50140d34ac2887c4c7be0dd6f5a8baa11c5164199f1031f2a981a8353e50fe10a45066844004d6ae23ba302'],
 	'NetHunterTerminal':
-		['https://staging.nethunter.com/NetHunterTerminal.apk', 'c6f47ed62ce15985ce3bcb7edcaaad29d6a200e44f1cb5a72e9a970937bca4236d72e934fcd5d7d08846f703a83e1ad0d7c8580cd9b54aa02a42e12c721aedde'],
+		['https://staging.nethunter.com/NetHunterTerminal.apk', 'd3783e2f1677d467370571096f1443b3f0fa3f756a5402e00957485f15aa24b3bfe4085996d5a88bb4676445c0bf5a78788c24ccf29f6e93dbce793b421a8138'],
 	'NetHunterVNC':
 		['https://staging.nethunter.com/NetHunterVNC.apk', '5a726714d5edf003b402b3d967119b41a34977d78b6c1046ffe6cbb06b9d4ba9f6338822883ce849dae40ee91ad881e3d8ecb46db4e2096e21ce8738d2638b69'],
 }
