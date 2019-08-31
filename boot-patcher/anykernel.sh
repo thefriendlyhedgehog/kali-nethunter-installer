@@ -35,7 +35,7 @@ ramdisk_compression=;
 
 ## NetHunter additions
 
-SYSTEM="/system"
+SYSTEM="/system";
 
 setperm() {
 	find "$3" -type d -exec chmod "$1" {} \;
@@ -43,40 +43,40 @@ setperm() {
 }
 
 install() {
-	setperm "$2" "$3" "$home$1"
+	setperm "$2" "$3" "$home$1";
 	if [ "$4" ]; then
-		cp -r "$home$1" "$(dirname "$4")/"
-		return
-	fi
-	cp -r "$home$1" "$(dirname "$1")/"
+		cp -r "$home$1" "$(dirname "$4")/";
+		return;
+	fi;
+	cp -r "$home$1" "$(dirname "$1")/";
 }
 
 [ -d $home/system/etc/firmware ] && {
-	install "/system/etc/firmware" 0755 0644 "$SYSTEM/etc/firmware"
+	install "/system/etc/firmware" 0755 0644 "$SYSTEM/etc/firmware";
 }
 
 [ -d $home/system/etc/init.d ] && {
-	install "/system/etc/init.d" 0755 0755 "$SYSTEM/etc/init.d"
+	install "/system/etc/init.d" 0755 0755 "$SYSTEM/etc/init.d";
 }
 
 [ -d $home/system/lib ] && {
-	install "/system/lib" 0755 0644 "$SYSTEM/lib"
+	install "/system/lib" 0755 0644 "$SYSTEM/lib";
 }
 
 [ -d $home/system/lib64 ] && {
-	install "/system/lib64" 0755 0644 "$SYSTEM/lib64"
+	install "/system/lib64" 0755 0644 "$SYSTEM/lib64";
 }
 
 [ -d $home/system/bin ] && {
-	install "/system/bin" 0755 0755 "$SYSTEM/bin"
+	install "/system/bin" 0755 0755 "$SYSTEM/bin";
 }
 
 [ -d $home/system/xbin ] && {
-	install "/system/xbin" 0755 0755 "$SYSTEM/xbin"
+	install "/system/xbin" 0755 0755 "$SYSTEM/xbin";
 }
 
 [ -d $home/data/local ] && {
-	install "/data/local" 0755 0644
+	install "/data/local" 0755 0644;
 }
 
 ## End NetHunter additions
@@ -103,12 +103,12 @@ fi;
 
 # nethunter part
 if [ ! "$(grep /init.nethunter.rc $ramdisk/init.rc)" ]; then
-  insert_after_last "$ramdisk/init.rc" "import .*\.rc" "import /init.nethunter.rc"
-fi
+  insert_after_last "$ramdisk/init.rc" "import .*\.rc" "import /init.nethunter.rc";
+fi;
 
 if [ ! "$(grep /dev/hidg* $ramdisk/ueventd.rc)" ]; then
-  insert_after_last "$ramdisk/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root"
-fi
+  insert_after_last "$ramdisk/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root";
+fi;
 
 # end ramdisk changes
 

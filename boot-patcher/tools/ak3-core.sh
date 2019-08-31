@@ -3,8 +3,8 @@
 
 ##OUTFD=$1;
 ## NetHuner additions
-OUTFD=$(cat /tmp/console)
-[ "$OUTFD" ] || OUTFD=/proc/$$/fd/1
+OUTFD=$(cat /tmp/console);
+[ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
 
 # set up working directory variables
 test "$home" || home=$PWD;
@@ -463,8 +463,8 @@ remove_section() {
 
 insert_after_last() {
 	grep -q "^$3$" "$1" || {
-		line=$(($(grep -n "^[[:space:]]*$2[[:space:]]*$" "$1" | tail -1 | cut -d: -f1) + 1))
-		sed -i "${line}i$3" "$1"
+		line=$(($(grep -n "^[[:space:]]*$2[[:space:]]*$" "$1" | tail -1 | cut -d: -f1) + 1));
+		sed -i "${line}i$3" "$1";
 	}
 }
 
