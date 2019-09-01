@@ -582,6 +582,9 @@ def main():
         Resolution = Resolution.replace('"', "")
 	print('Resolution: ' + Resolution)
 
+        if args.kernel and Flasher == 'anykernel':
+                abort('Kernel installer is not supported for AnyKernel. Please create normal image without filesystem instead')
+
 	# If we found a device, set architecture and parse android OS release
 	if args.device:
 		Arch = readkey('arch', 'armhf')

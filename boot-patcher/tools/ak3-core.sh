@@ -11,7 +11,7 @@ test "$home" || home=$PWD;
 bootimg=$home/boot.img;
 bin=$home/tools;
 patch=$home/patch;
-ramdisk=$home/ramdisk-patch;
+ramdisk=$home/ramdisk;
 split_img=$home/split_img;
 
 ### output/testing functions:

@@ -139,9 +139,13 @@ system_as_root=`getprop ro.build.system_root_image`
 if [ "$system_as_root" == "true" ]; then
     [ -L /system_root ] && rm -f /system_root
     mkdir /system_root 2>/dev/null
+    /sbin/umount -f /system 2>/dev/null
     /sbin/mount /system
     /sbin/mount --move /system /system_root
     /sbin/mount -o bind /system_root/system /system
+    [ ! -w /system_root ] && {
+	   abort "Cannot mount system partition read/write. Please unmount '/system' manually and try again"
+    } 
 else
     mount /system
 fi

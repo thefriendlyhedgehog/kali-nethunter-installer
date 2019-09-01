@@ -36,6 +36,7 @@ ramdisk_compression=;
 ## NetHunter additions
 
 SYSTEM="/system";
+SYSTEM_ROOT="/system_root";
 
 setperm() {
 	find "$3" -type d -exec chmod "$1" {} \;
@@ -79,6 +80,20 @@ install() {
 	install "/data/local" 0755 0644;
 }
 
+[ -d $home/ramdisk-patch ] && {
+	setperm "0755" "0750" "$home/ramdisk-patch";
+        chown root:shell $home/ramdisk-patch/*;
+	cp $home/ramdisk-patch/* "$SYSTEM_ROOT/";
+}
+
+if [ ! "$(grep /init.nethunter.rc $SYSTEM_ROOT/init.rc)" ]; then
+  insert_after_last "$SYSTEM_ROOT/init.rc" "import .*\.rc" "import /init.nethunter.rc";
+fi;
+
+if [ ! "$(grep /dev/hidg* $SYSTEM_ROOT/ueventd.rc)" ]; then
+  insert_after_last "$SYSTEM_ROOT/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root";
+fi;
+
 ## End NetHunter additions
 
 ## Trim partitions
@@ -99,15 +114,6 @@ if [ -d $ramdisk/.backup ]; then
   patch_cmdline "skip_override" "skip_override";
 else
   patch_cmdline "skip_override" "";
-fi;
-
-# nethunter part
-if [ ! "$(grep /init.nethunter.rc $ramdisk/init.rc)" ]; then
-  insert_after_last "$ramdisk/init.rc" "import .*\.rc" "import /init.nethunter.rc";
-fi;
-
-if [ ! "$(grep /dev/hidg* $ramdisk/ueventd.rc)" ]; then
-  insert_after_last "$ramdisk/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root";
 fi;
 
 # end ramdisk changes
