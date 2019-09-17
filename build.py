@@ -27,7 +27,7 @@ dl_apps = {
 	'NetHunterStorePrivilegedExtension':
                 ['https://staging.nethunter.com/NetHunterStorePrivilegedExtension.apk', 'b4f35bf24a5d6e4897cc2df70c61537104d73fe034110a373e65fe44b2e3ff5641239517a2d4dab95f0017f624b086cf6f017d8a5566e0f9cb8e0aae2a0537df'],
 	'NetHunter':
-                ['https://staging.nethunter.com/NetHunter.apk', 'a0c2bf1603c4b607de54586ecab8ae0600134499d50140d34ac2887c4c7be0dd6f5a8baa11c5164199f1031f2a981a8353e50fe10a45066844004d6ae23ba302'],
+                ['https://staging.nethunter.com/NetHunter.apk', '47baddce8f5676e506621d538d7e418f4bf8ea468699ef2f38b1ba491783f8c36703f8de89cb3f06df8a78aa126881d367a4d8d20a9759fbaf2c8c6b22ed2f15'],
 	'NetHunterTerminal':
 		['https://staging.nethunter.com/NetHunterTerminal.apk', 'd3783e2f1677d467370571096f1443b3f0fa3f756a5402e00957485f15aa24b3bfe4085996d5a88bb4676445c0bf5a78788c24ccf29f6e93dbce793b421a8138'],
 	'NetHunterVNC':
@@ -164,7 +164,7 @@ def supersu(forcedown, beta):
 def allapps(forcedown):
 	global dl_apps
 
-	app_path = os.path.join('update', 'data', 'app')
+	app_path = os.path.join('update', 'data', 'local', 'app')
 
 	if forcedown:
 		print('Force redownloading all apps')
