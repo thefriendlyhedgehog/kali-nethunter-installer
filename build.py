@@ -164,7 +164,7 @@ def supersu(forcedown, beta):
 def allapps(forcedown):
 	global dl_apps
 
-	app_path = os.path.join('update', 'data', 'local', 'app')
+	app_path = os.path.join('update', 'data', 'app')
 
 	if forcedown:
 		print('Force redownloading all apps')
