@@ -40,12 +40,13 @@ abort() {
 }
 
 cleanup() {
-	##rm ${SYSTEM}/.rw
-	##rm /data/.rw
+    echo "Cleaning up..."
+	rm ${SYSTEM}/.rw
+	rm /data/.rw
 
-	##umount /system
+	umount /system
 
-	##[ "$zip" ] && rm /tmp/console
+	[ "$zip" ] && rm /tmp/console
 }
 
 install() {
