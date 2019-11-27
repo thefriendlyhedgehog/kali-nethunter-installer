@@ -206,10 +206,20 @@ if [ $SDK -ge 26 ]; then
     mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
     mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
 
-    # and NetHunterVNC.apk because nethunter.apk depends on it
-    print "- Installing NetHunter-VNC.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter-VNC
-    cp $tmp/data/app/NetHunterVNC.apk ${SYSTEM}/app/NetHunter-VNC/
+    # and NetHunterKeX.apk because nethunter.apk depends on it
+    print "- Installing NetHunter-KeX.apk"
+    mkdir -p ${SYSTEM}/app/NetHunter-KeX
+    cp $tmp/data/app/NetHunterKeX.apk ${SYSTEM}/app/NetHunter-KeX/
+    unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
+    ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
+    [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
+        mkdir -p /tmp/NetHunter-KeX/
+        unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
+        mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
+    }
+    mv ${SYSTEM}/app/NetHunter-KeX/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-KeX/lib/arm
+    mv ${SYSTEM}/app/NetHunter-KeX/lib/arm64-v8a ${SYSTEM}/app/NetHunter-KeX/lib/arm64
+
 
     # and NetHunterStore.apk because we need it 
     print "- Installing NetHunter-Store.apk"
@@ -219,7 +229,7 @@ if [ $SDK -ge 26 ]; then
 else
     installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
     installapp "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
-    installapp "NetHunter VNC" "NetHunterVNC.apk" "com.offsec.nhvnc"
+    installapp "NetHunter KeX" "NetHunterKeX.apk" "com.offsec.nethunter.kex"
     installapp "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
 fi
 ## Installing privileged extension
