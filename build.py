@@ -27,11 +27,11 @@ dl_apps = {
 	'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', 'b4f35bf24a5d6e4897cc2df70c61537104d73fe034110a373e65fe44b2e3ff5641239517a2d4dab95f0017f624b086cf6f017d8a5566e0f9cb8e0aae2a0537df'],
 	'NetHunter':
-                ['https://store.nethunter.com/NetHunter.apk', '47baddce8f5676e506621d538d7e418f4bf8ea468699ef2f38b1ba491783f8c36703f8de89cb3f06df8a78aa126881d367a4d8d20a9759fbaf2c8c6b22ed2f15'],
+                ['https://store.nethunter.com/NetHunter.apk', '893e9da26f31934ffdf8747db1650d443d0e4a3dc6b49394ae7bd2d634029697ed58eaf202fb073d382b16ae93d66ec30f6c22a9e77742ad7bf5790d783caf30'],
 	'NetHunterTerminal':
 		['https://store.nethunter.com/NetHunterTerminal.apk', 'd3783e2f1677d467370571096f1443b3f0fa3f756a5402e00957485f15aa24b3bfe4085996d5a88bb4676445c0bf5a78788c24ccf29f6e93dbce793b421a8138'],
-	'NetHunterVNC':
-		['https://store.nethunter.com/NetHunterVNC.apk', '5a726714d5edf003b402b3d967119b41a34977d78b6c1046ffe6cbb06b9d4ba9f6338822883ce849dae40ee91ad881e3d8ecb46db4e2096e21ce8738d2638b69'],
+	'NetHunterKeX':
+		['https://store.nethunter.com/NetHunterKeX.apk', 'b4c9ce17a89eda65aa572948f03f4593918d35dde31fd5af3bf5d66f6c830bc4729e97f1b629c95118ef827655454bb32709d352ea1a387c5735a399d7a9e95c'],
 }
 
 def copytree(src, dst):
