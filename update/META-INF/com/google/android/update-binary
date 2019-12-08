@@ -240,7 +240,7 @@ if [ $SDK -ge 26 ]
 then
 	mkdir ${SYSTEM}/etc/permissions 
 	chmod 755 ${SYSTEM}/etc/permissions 
-        [ -d system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
+        [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
             install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
         }
 
