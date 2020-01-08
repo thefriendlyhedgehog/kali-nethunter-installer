@@ -38,13 +38,14 @@ do_install() {
 	mkdir -p "$NHSYS"
 
 	# HACK 1/2: Rename to kali-armhf until NetHunter App supports searching for best available arch
-	CHROOT="$NHSYS/kali-armhf"
-	#CHROOT="$NHSYS/kali-$FS_ARCH"
+	CHROOT="$NHSYS/kali-armhf" # Legacy rootfs directory prior to 2020.1
+	ROOTFS="$NHSYS/kalifs"     # New symlink allowing to swap chroots via nethunter app on the fly
 
 	# Remove previous chroot
 	[ -d "$CHROOT" ] && {
 		print "Removing previous chroot..."
 		rm -rf "$CHROOT"
+		rm -f "$ROOTFS"
 	}
 
 	# Extract new chroot
@@ -61,8 +62,9 @@ do_install() {
 		exit 1
 	}
 
-	# HACK 2/2: Rename to kali-armhf until NetHunter App supports searching for best available arch
+	# HACK 2/2: Rename to kali-armhf for legacy reasons and create a link to be used by apps effective 2020.1
 	mv "$NHSYS/kali-$FS_ARCH" "$CHROOT"
+        ln -s "$CHROOT" "$ROOTFS"
 
 	mkdir -m 0755 "$CHROOT/dev"
 	print "Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
