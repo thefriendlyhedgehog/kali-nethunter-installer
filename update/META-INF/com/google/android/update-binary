@@ -189,8 +189,8 @@ print "Installing apps:"
 if [ $SDK -ge 26 ]; then
     # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
     print "- Installing NetHunter.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter
-    cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
+    mkdir -p ${SYSTEM}/priv-app/NetHunter
+    cp $tmp/data/app/NetHunter.apk ${SYSTEM}/priv-app/NetHunter/
 
     # and NetHunterTerminal.apk because nethunter.apk depends on it
     print "- Installing NetHunterTerminal.apk"
@@ -240,7 +240,7 @@ if [ $SDK -ge 26 ]
 then
 	mkdir ${SYSTEM}/etc/permissions 
 	chmod 755 ${SYSTEM}/etc/permissions 
-        [ -d system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
+        [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
             install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
         }
 

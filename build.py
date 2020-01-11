@@ -25,7 +25,7 @@ dl_apps = {
 	'NetHunterStore':
                 ['https://store.nethunter.com/NetHunterStore.apk', '35fed79b55463f64c6b11d19df2ecb4ff099ef1dda1063b87eedaae3ebde32c3720e61cad2da73a46492d19180306adcf5f72d511da817712e1eed32068ec1ef'],
 	'NetHunterStorePrivilegedExtension':
-                ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', 'b4f35bf24a5d6e4897cc2df70c61537104d73fe034110a373e65fe44b2e3ff5641239517a2d4dab95f0017f624b086cf6f017d8a5566e0f9cb8e0aae2a0537df'],
+                ['https://staging.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
 	'NetHunter':
                 ['https://store.nethunter.com/NetHunter.apk', '893e9da26f31934ffdf8747db1650d443d0e4a3dc6b49394ae7bd2d634029697ed58eaf202fb073d382b16ae93d66ec30f6c22a9e77742ad7bf5790d783caf30'],
 	'NetHunterTerminal':
@@ -314,6 +314,7 @@ def setupkernel():
 	global OS
 	global LibDir
         global Flasher
+        global args
 
 	out_path = os.path.join('tmp_out', 'boot-patcher')
 
@@ -343,7 +344,10 @@ def setupkernel():
         if Flasher == 'anykernel':
                 # Replace Lazy Flasher with AnyKernel3
 	        print('Replacing NetHunter Flasher with AnyKernel3')
-                shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
+                if args.kernel:
+                        shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel_only'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
+                else:
+                        shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
 	        # Set up variables in the anykernel script
                 devicenames = readkey('devicenames')
 	        configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
@@ -409,6 +413,12 @@ def setupkernel():
 	if os.path.exists(dtb_location):
 		print('Found DTB image at: ' + dtb_location)
 		shutil.copy(dtb_location, os.path.join(out_path, 'dtb.img'))
+
+	# Copy dtb if it exists
+	dtb_location = os.path.join(device_path, 'dtb')
+	if os.path.exists(dtb_location):
+		print('Found DTB file at: ' + dtb_location)
+		shutil.copy(dtb_location, os.path.join(out_path, 'dtb'))
 
 	# Copy any patch.d scripts
 	patchd_path = os.path.join(device_path, 'patch.d')
@@ -508,6 +518,7 @@ def main():
 	global TimeStamp
         global Flasher
         global Resolution
+        global args
 
 	supersu_beta = False
 
@@ -583,8 +594,8 @@ def main():
         Resolution = Resolution.replace('"', "")
 	print('Resolution: ' + Resolution)
 
-        if args.kernel and Flasher == 'anykernel':
-                abort('Kernel installer is not supported for AnyKernel. Please create normal image without filesystem instead')
+        ##if args.kernel and Flasher == 'anykernel':
+        ##        abort('Kernel installer is not supported for AnyKernel. Please create normal image without filesystem instead')
 
 	# If we found a device, set architecture and parse android OS release
 	if args.device:

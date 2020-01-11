@@ -4,7 +4,7 @@ OUT_DIR="/media/re4son/dev/Nethunter/${RELEASE}/images/"
 
 # Gemini PDA Nougat:
 # ------------------
-python build.py -d gemini4g_p1 -o -fs full -r ${RELEASE} && mv *.zip ${OUT_DIR}
+python build.py -d gemini4g_p1 -n -fs full -r ${RELEASE} && mv *.zip ${OUT_DIR}
 
 # Galaxy Tab S4 LTE Oreo:
 # -------------------------
@@ -70,9 +70,13 @@ python build.py -d oneplus2cm -o -fs full -r ${RELEASE} && mv *.zip ${OUT_DIR}
 # -----------------
 python build.py -d oneplus2cm -p -fs full -r ${RELEASE} && mv *.zip ${OUT_DIR}
 
-# Oneplus 7 OOS:
+# Oneplus 7 OOS 9:
 # -----------------
 python build.py -d oneplus7-oos -p -fs full -r ${RELEASE} && mv *.zip ${OUT_DIR}
+
+# Oneplus 7 OOS 10:
+# -----------------
+python build.py -d oneplus7-oos -q -fs full -r ${RELEASE} && mv *.zip ${OUT_DIR}
 
 # Samsung Galaxy S6 Edge LOS 14.1:
 # ---------------------------------
