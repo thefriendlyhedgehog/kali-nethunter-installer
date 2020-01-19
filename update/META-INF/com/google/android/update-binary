@@ -63,7 +63,7 @@ install() {
 installapp() {
 	installto=/data/app/
 	if [ "$3" ]; then
-		for appdir in "/data/app/$3"*; do
+		for appdir in "/data/app/$3-"*; do
 			[ -d "$appdir" ] || continue
 			echo "Found app directory: $appdir"
 			if [ ! -f /data/data/com.android.vending/databases/localappstate.db ]; then
