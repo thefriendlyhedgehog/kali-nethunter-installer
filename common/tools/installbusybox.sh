@@ -17,7 +17,7 @@ xbin=/system/xbin
 
 print "Installing busybox..."
 rm -f $xbin/busybox_nh
-cp "$tmp/tools/busybox" $xbin/busybox_nh
+cp "$tmp/tools/busybox_nh" $xbin/busybox_nh
 chmod 0755 $xbin/busybox_nh
 $xbin/busybox_nh --install -s $xbin
 

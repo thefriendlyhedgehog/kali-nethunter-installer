@@ -63,7 +63,7 @@ install() {
 installapp() {
 	installto=/data/app/
 	if [ "$3" ]; then
-		for appdir in "/data/app/$3"*; do
+		for appdir in "/data/app/$3-"*; do
 			[ -d "$appdir" ] || continue
 			echo "Found app directory: $appdir"
 			if [ ! -f /data/data/com.android.vending/databases/localappstate.db ]; then
@@ -188,10 +188,19 @@ print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
     # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
-    print "- Installing NetHunter.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter
-    cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
 
+    # Android 10 causes permission issues with access to external storage. We can fix that by setting 
+    # "android:requestLegacyExternalStorage" to "true" but it only works for user apps so we won't install nethunter app on Android 10.
+    # The user has to install it manually from the store for now.
+    if [ $SDK -lt 29 ]; then
+        print "- Installing NetHunter.apk"
+        mkdir -p ${SYSTEM}/app/NetHunter
+        cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
+    else
+	print "! NOT installing NetHunter.apk on Android 10."
+        print "! Please install manually from the store."
+	A10="true"
+    fi
     # and NetHunterTerminal.apk because nethunter.apk depends on it
     print "- Installing NetHunterTerminal.apk"
     mkdir -p ${SYSTEM}/app/NetHunter-Terminal
@@ -240,7 +249,7 @@ if [ $SDK -ge 26 ]
 then
 	mkdir ${SYSTEM}/etc/permissions 
 	chmod 755 ${SYSTEM}/etc/permissions 
-        [ -d system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
+        [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
             install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
         }
 
@@ -344,9 +353,18 @@ print "Running Kali chroot installer..."
 sh tools/installchroot.sh "$zip"
 
 cleanup
-print "************************************************"
-print "*       Kali NetHunter is now installed!       *"
-print "*   Don't forget to start the NetHunter app    *"
-print "*       to finish setting everything up!       *"
-print "************************************************"
+if [ $A10 == "true" ]; then
+    print "***************************************************"
+    print "*         Kali NetHunter is almost ready.         *"
+    print "*                                                 *"
+    print "*    Please install the NetHunter App from the    *"
+    print "*   NetHunter Store to finish the installation!   *"
+    print "***************************************************"
+else
+    print "************************************************"
+    print "*       Kali NetHunter is now installed!       *"
+    print "*   Don't forget to start the NetHunter app    *"
+    print "*       to finish setting everything up!       *"
+    print "************************************************"
+fi
 progress 1.0
