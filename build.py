@@ -648,7 +648,11 @@ def main():
 		rootfs(args.forcedown, args.rootfs, args.nightly)
 
 	# Set file name tag depending on the options chosen
-	file_tag = Device
+	if args.release:
+		file_tag = args.release
+	else:
+		file_tag = TimeStamp
+	file_tag += Device
 	if args.device:
 		file_tag += '-' + OS
 	else:
@@ -659,10 +663,6 @@ def main():
 		file_tag += '-rooted'
 	if args.rootfs:
 		file_tag += '-kalifs-' + args.rootfs
-	if args.release:
-		file_tag += '-' + args.release
-	else:
-		file_tag += '-' + TimeStamp
 
 	# Don't include wallpaper or boot animation if --nobrand is specified
 	if args.nobrand:
