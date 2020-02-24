@@ -188,19 +188,9 @@ print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
     # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
-
-    # Android 10 causes permission issues with access to external storage. We can fix that by setting 
-    # "android:requestLegacyExternalStorage" to "true" but it only works for user apps so we won't install nethunter app on Android 10.
-    # The user has to install it manually from the store for now.
-    if [ $SDK -lt 29 ]; then
-        print "- Installing NetHunter.apk"
-        mkdir -p ${SYSTEM}/app/NetHunter
-        cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
-    else
-	print "! NOT installing NetHunter.apk on Android 10."
-        print "! Please install manually from the store."
-	A10="true"
-    fi
+    print "- Installing NetHunter.apk"
+    mkdir -p ${SYSTEM}/app/NetHunter
+    cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
     # and NetHunterTerminal.apk because nethunter.apk depends on it
     print "- Installing NetHunterTerminal.apk"
     mkdir -p ${SYSTEM}/app/NetHunter-Terminal
@@ -353,18 +343,10 @@ print "Running Kali chroot installer..."
 sh tools/installchroot.sh "$zip"
 
 cleanup
-if [ $A10 == "true" ]; then
-    print "***************************************************"
-    print "*         Kali NetHunter is almost ready.         *"
-    print "*                                                 *"
-    print "*    Please install the NetHunter App from the    *"
-    print "*   NetHunter Store to finish the installation!   *"
-    print "***************************************************"
-else
-    print "************************************************"
-    print "*       Kali NetHunter is now installed!       *"
-    print "*   Don't forget to start the NetHunter app    *"
-    print "*       to finish setting everything up!       *"
-    print "************************************************"
-fi
+print "************************************************"
+print "*       Kali NetHunter is now installed!       *"
+print "*   Don't forget to start the NetHunter app    *"
+print "*       to finish setting everything up!       *"
+print "************************************************"
+
 progress 1.0
