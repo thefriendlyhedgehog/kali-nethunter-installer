@@ -260,7 +260,7 @@ if [ "$(file_getprop anykernel.sh do.modules)" == 1 ]; then
   $bb mount -o rw,remount -t auto /system;
   $bb mount -o rw,remount -t auto /vendor 2>/dev/null;
   cd $home/modules;
-  for module in $(find . -name '*.ko'); do
+  for module in $(find . -name '*.ko' -o -name 'modules.*'); do
     modtarget=$(echo $module | $bb cut -c2-);
     if [ ! -e $modtarget ]; then
       case $module in
