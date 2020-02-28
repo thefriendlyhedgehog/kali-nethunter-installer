@@ -83,7 +83,7 @@ install() {
 [ -d $home/ramdisk-patch ] && {
 	setperm "0755" "0750" "$home/ramdisk-patch";
         chown root:shell $home/ramdisk-patch/*;
-	cp $home/ramdisk-patch/* "$SYSTEM_ROOT/";
+	cp -rp $home/ramdisk-patch/* "$SYSTEM_ROOT/";
 }
 
 if [ ! "$(grep /init.nethunter.rc $SYSTEM_ROOT/init.rc)" ]; then
