@@ -4,7 +4,11 @@ import requests
 import zipfile
 import fnmatch
 import shutil
-import ConfigParser
+try:
+	import configparser
+except ImportError:
+	## Python 2 compatibility
+	import ConfigParser
 import re
 import argparse
 import datetime
@@ -23,11 +27,11 @@ dl_supersu = {
 ##Install apps from the staging site so that we can prepare images before we go live with releases
 dl_apps = {
 	'NetHunterStore':
-                ['https://store.nethunter.com/NetHunterStore.apk', '35fed79b55463f64c6b11d19df2ecb4ff099ef1dda1063b87eedaae3ebde32c3720e61cad2da73a46492d19180306adcf5f72d511da817712e1eed32068ec1ef'],
+		['https://store.nethunter.com/NetHunterStore.apk', '35fed79b55463f64c6b11d19df2ecb4ff099ef1dda1063b87eedaae3ebde32c3720e61cad2da73a46492d19180306adcf5f72d511da817712e1eed32068ec1ef'],
 	'NetHunterStorePrivilegedExtension':
-                ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
+		['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
 	'NetHunter':
-        ['https://store.nethunter.com/repo/com.offsec.nethunter_2020020300.apk', '4990e90890cd34abffdf09130e22f4e09836589b9ffee72e91d17076a1298d5ed3f9929a4e9c338a14cba6ac27207897c1d9ebf5bf45c6f2ee2fc9f448b3f768'],
+	['https://store.nethunter.com/repo/com.offsec.nethunter_2020020300.apk', '4990e90890cd34abffdf09130e22f4e09836589b9ffee72e91d17076a1298d5ed3f9929a4e9c338a14cba6ac27207897c1d9ebf5bf45c6f2ee2fc9f448b3f768'],
 	'NetHunterTerminal':
 		['https://store.nethunter.com/NetHunterTerminal.apk', 'c6cc09b3266074d80aaf79d307671fcdc8b478198e4b69f1c6caa49b02604fe0e08e100964c3533efe6b8eb2a632e028168b28105ca5d70ff37ecc7a058c19c4'],
 	'NetHunterKeX':
@@ -90,14 +94,18 @@ def download(url, file_name, verify_sha):
 				status = r"%10d" % dl_bytes
 
 			status = status + chr(8) * (len(status) + 1)
-			print status,
-		print
+			try:
+				print (status, " ")
+			except:
+				## Python 2 compatibility
+				print (status,)
+		print()
 		download_ok = True
 	except requests.exceptions.RequestException as e:
-		print
+		print()
 		print('Error: ' + str(e))
 	except KeyboardInterrupt:
-		print
+		print()
 		print('Download cancelled')
 
 	f.flush()
@@ -124,7 +132,7 @@ def download(url, file_name, verify_sha):
 		if os.path.isfile(file_name):
 			os.remove(file_name)
 		# Better debug what file cannot be downloaded.
-		abort('There was a problem downloading the file "' + file_name  + '"')
+		abort('There was a problem downloading the file "' + file_name	+ '"')
 
 def supersu(forcedown, beta):
 	global dl_supersu
@@ -195,8 +203,8 @@ def rootfs(forcedown, fs_size, nightly):
 	##if Arch == 'arm64':
 	##	fs_arch = 'armhf'
 	##else:
-       	##      fs_arch = Arch
-       	fs_arch = Arch
+	##	fs_arch = Arch
+	fs_arch = Arch
 
 	fs_file = 'kalifs-' + fs_arch + '-' + fs_size + '.tar.xz'
 	fs_path = os.path.join('rootfs', fs_file)
@@ -225,9 +233,9 @@ def addrootfs(fs_size, dst):
 	global Arch
 
 	# temporary hack until arm64 support is completed
-        ## Update 2019-01-25: Disable workaround to use proper arm64 rootfs as it should be fully working now, Re4son
+	## Update 2019-01-25: Disable workaround to use proper arm64 rootfs as it should be fully working now, Re4son
 	##if Arch == 'arm64':
-        ##		fs_arch = 'armhf'
+	##		fs_arch = 'armhf'
 	##else:
 	##	fs_arch = Arch
 	fs_arch = Arch
@@ -289,14 +297,14 @@ def configfile(file_name, values):
 	file_handle.close()
 
 def configfile_pure(file_name, values):
-        # Same as "configfile" but without apostrophies
+	# Same as "configfile" but without apostrophies
 	# Open file as read only and copy to string
 	file_handle = open(file_name, 'r')
 	file_string = file_handle.read()
 	file_handle.close()
 
 	# Replace values of variables
-	for key, value in values.iteritems():
+	for key, value in values.items():
 		# Quote value if not already quoted
 		if value and not (value[0] == value[-1] and (value[0] == '"' or value[0] == "'")):
 			value = '%s' % value
@@ -313,8 +321,8 @@ def setupkernel():
 	global Device
 	global OS
 	global LibDir
-        global Flasher
-        global args
+	global Flasher
+	global args
 
 	out_path = os.path.join('tmp_out', 'boot-patcher')
 
@@ -341,50 +349,50 @@ def setupkernel():
 		return
 	print('Kernel: Configuring installer script for ' + Device)
 
-        if Flasher == 'anykernel':
-                # Replace Lazy Flasher with AnyKernel3
-	        print('Replacing NetHunter Flasher with AnyKernel3')
-                if args.kernel:
-                        shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel_only'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
-                else:
-                        shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
-	        # Set up variables in the anykernel script
-                devicenames = readkey('devicenames')
-	        configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
-		        'kernel.string':readkey('kernelstring', 'NetHunter kernel'),
-                        'do.modules':readkey('modules', '0'),
-                        'block':readkey('block')+';',
-                        'ramdisk_compression':readkey('ramdisk', 'auto') + ';',
-        	})
-                i = 1
-                for devicename in devicenames.split(','):
-                        key = 'device.name' + str(i)
-	                configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
-                                key:devicename
-        	})
-                        i += 1
+	if Flasher == 'anykernel':
+		# Replace Lazy Flasher with AnyKernel3
+		print('Replacing NetHunter Flasher with AnyKernel3')
+		if args.kernel:
+			shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel_only'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
+		else:
+			shutil.move(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary-anykernel'), os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'))
+		# Set up variables in the anykernel script
+		devicenames = readkey('devicenames')
+		configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
+			'kernel.string':readkey('kernelstring', 'NetHunter kernel'),
+			'do.modules':readkey('modules', '0'),
+			'block':readkey('block')+';',
+			'ramdisk_compression':readkey('ramdisk', 'auto') + ';',
+		})
+		i = 1
+		for devicename in devicenames.split(','):
+			key = 'device.name' + str(i)
+			configfile_pure(os.path.join(out_path, 'anykernel.sh'), {
+				key:devicename
+		})
+			i += 1
 
-	        configfile_pure(os.path.join(out_path, 'banner'), {
-		        '   Kernel':readkey('kernelstring', 'NetHunter kernel'),
-                        '   Version':readkey('version', '1.0'),
-		        '   Author':readkey('author', 'Unkown')
-        	})
+		configfile_pure(os.path.join(out_path, 'banner'), {
+			'   Kernel':readkey('kernelstring', 'NetHunter kernel'),
+			'   Version':readkey('version', '1.0'),
+			'   Author':readkey('author', 'Unkown')
+		})
 
-        else:
-	        # Set up variables in the kernel installer script
-	        configfile(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'), {
-		        'kernel_string':readkey('kernelstring', 'NetHunter kernel'),
-		        'kernel_author':readkey('author', 'Unknown'),
-		        'kernel_version':readkey('version', '1.0'),
-		        'device_names':readkey('devicenames')
-        	})
+	else:
+		# Set up variables in the kernel installer script
+		configfile(os.path.join(out_path, 'META-INF', 'com', 'google', 'android', 'update-binary'), {
+			'kernel_string':readkey('kernelstring', 'NetHunter kernel'),
+			'kernel_author':readkey('author', 'Unknown'),
+			'kernel_version':readkey('version', '1.0'),
+			'device_names':readkey('devicenames')
+		})
 
-	        # Set up variables in boot-patcher.sh
-	        print('Kernel: Configuring boot-patcher script for ' + Device)
-	        configfile(os.path.join(out_path, 'boot-patcher.sh'), {
-		        'boot_block':readkey('block'),
-		        'ramdisk_compression':readkey('ramdisk', 'gzip')
-	        })
+		# Set up variables in boot-patcher.sh
+		print('Kernel: Configuring boot-patcher script for ' + Device)
+		configfile(os.path.join(out_path, 'boot-patcher.sh'), {
+			'boot_block':readkey('block'),
+			'ramdisk_compression':readkey('ramdisk', 'gzip')
+		})
 
 	device_path = os.path.join('devices', OS, Device)
 
@@ -452,7 +460,7 @@ def setupkernel():
 
 def setupupdate():
 	global Arch
-        global Resolution
+	global Resolution
 
 	out_path = 'tmp_out'
 
@@ -475,12 +483,12 @@ def setupupdate():
 		'supersu':readkey('supersu')
 	})
 
-        # Overwrite screen resolution if defined in devices.cfg
-        if Resolution:
-                file_name=os.path.join(out_path, 'wallpaper', 'resolution.txt')
-                file_handle = open(file_name, 'w')
-                file_handle.write(Resolution)
-                file_handle.close()
+	# Overwrite screen resolution if defined in devices.cfg
+	if Resolution:
+		file_name=os.path.join(out_path, 'wallpaper', 'resolution.txt')
+		file_handle = open(file_name, 'w')
+		file_handle.write(Resolution)
+		file_handle.close()
 
 def cleanup(domsg):
 	if os.path.exists('tmp_out'):
@@ -516,9 +524,9 @@ def main():
 	global LibDir
 	global IgnoredFiles
 	global TimeStamp
-        global Flasher
-        global Resolution
-        global args
+	global Flasher
+	global Resolution
+	global args
 
 	supersu_beta = False
 
@@ -532,7 +540,7 @@ def main():
 
 	# Read devices.cfg, get device names
 	try:
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser(strict=False)
 		Config.read(devices_cfg)
 		devicenames = Config.sections()
 	except:
@@ -587,15 +595,15 @@ def main():
 	elif not args.uninstaller:
 		abort('No valid arguments supplied. Try -h or --help')
 
-        Flasher = readkey('flasher')
-        Flasher = Flasher.replace('"', "")
+	Flasher = readkey('flasher')
+	Flasher = Flasher.replace('"', "")
 	print('Flasher: ' + Flasher)
-        Resolution = readkey('resolution')
-        Resolution = Resolution.replace('"', "")
+	Resolution = readkey('resolution')
+	Resolution = Resolution.replace('"', "")
 	print('Resolution: ' + Resolution)
 
-        ##if args.kernel and Flasher == 'anykernel':
-        ##        abort('Kernel installer is not supported for AnyKernel. Please create normal image without filesystem instead')
+	##if args.kernel and Flasher == 'anykernel':
+	##	  abort('Kernel installer is not supported for AnyKernel. Please create normal image without filesystem instead')
 
 	# If we found a device, set architecture and parse android OS release
 	if args.device:
@@ -659,11 +667,7 @@ def main():
 		rootfs(args.forcedown, args.rootfs, args.nightly)
 
 	# Set file name tag depending on the options chosen
-	if args.release:
-		file_tag = args.release
-	else:
-		file_tag = TimeStamp
-	file_tag += Device
+	file_tag = Device
 	if args.device:
 		file_tag += '-' + OS
 	else:
@@ -674,6 +678,10 @@ def main():
 		file_tag += '-rooted'
 	if args.rootfs:
 		file_tag += '-kalifs-' + args.rootfs
+	if args.release:
+		file_tag += '-' + args.release
+	else:
+		file_tag += '-' + TimeStamp
 
 	# Don't include wallpaper or boot animation if --nobrand is specified
 	if args.nobrand:

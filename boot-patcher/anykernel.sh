@@ -8,7 +8,7 @@
 properties() { '
 kernel.string=
 do.devicecheck=1
-do.modules=
+do.modules=1
 do.cleanup=0
 do.cleanuponabort=0
 device.name1=
@@ -83,7 +83,7 @@ install() {
 [ -d $home/ramdisk-patch ] && {
 	setperm "0755" "0750" "$home/ramdisk-patch";
         chown root:shell $home/ramdisk-patch/*;
-	cp $home/ramdisk-patch/* "$SYSTEM_ROOT/";
+	cp -rp $home/ramdisk-patch/* "$SYSTEM_ROOT/";
 }
 
 if [ ! "$(grep /init.nethunter.rc $SYSTEM_ROOT/init.rc)" ]; then
