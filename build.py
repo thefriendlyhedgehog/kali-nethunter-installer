@@ -663,7 +663,7 @@ def main():
 		file_tag = args.release
 	else:
 		file_tag = TimeStamp
-	file_tag += Device
+	file_tag += '-' + Device
 	if args.device:
 		file_tag += '-' + OS
 	else:
