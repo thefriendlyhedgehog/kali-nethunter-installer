@@ -354,6 +354,7 @@ def setupkernel():
 		        'kernel.string':readkey('kernelstring', 'NetHunter kernel'),
                         'do.modules':readkey('modules', '0'),
                         'block':readkey('block')+';',
+                        'is_slot_device':readkey('slot_device', '1') + ';',
                         'ramdisk_compression':readkey('ramdisk', 'auto') + ';',
         	})
                 i = 1
