@@ -80,9 +80,10 @@ umount_all() {
 restore_env() {
   test "$savedpath" && export LD_LIBRARY_PATH="$savedpath";
   test "$savedpre" && export LD_PRELOAD="$savedpre";
-  umount_all;
-  ($bb mv -f /system_link /system;
-  $bb mv -f /system_root_link /system_root) 2>/dev/null;
+  test "$savedlibdir" && export LIBDIR="$savedlibdir";
+  ##umount_all;
+  ##($bb mv -f /system_link /system;
+  ##$bb mv -f /system_root_link /system_root) 2>/dev/null;
 }
 abort() {
   ui_print "$@";
@@ -165,8 +166,12 @@ ui_print " " "AnyKernel3 by osm0sis @ xda-developers" " " " ";
 
 savedpath="$LD_LIBRARY_PATH";
 savedpre="$LD_PRELOAD";
+savedlibdir="$LIBDIR";
 unset LD_LIBRARY_PATH;
 unset LD_PRELOAD;
+unset LIBDIR;
+## Let's test if that breaks something and switch back if it does (e.g. on Xiaomi Mi 9T)
+ls / >/dev/null 2>&1 || export LD_LIBRARY_PATH=${savedpath}
 
 if [ ! "$(getprop 2>/dev/null)" ]; then
   getprop() {
