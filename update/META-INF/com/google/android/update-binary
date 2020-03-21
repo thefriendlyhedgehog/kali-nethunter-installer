@@ -159,6 +159,10 @@ if [ "$system_as_root" == "true" ]; then
     [ ! -w /system_root ] && {
 	   abort "Cannot mount system partition read/write. Please unmount '/system' manually and try again"
     } 
+elif [ "$ANDROID_ROOT" == "/system_root" ]; then
+	print "[ANDROID_ROOT] = $ANDROID_ROOT"
+	/sbin/mount -o remount,rw /system_root
+	/sbin/mount -o bind /system_root/system /system
 else
     mount /system
 fi
