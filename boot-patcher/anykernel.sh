@@ -80,6 +80,12 @@ install() {
 	install "/data/local" 0755 0644;
 }
 
+[ -d $home/vendor/etc/init ] && {
+        mount /vendor;
+        chmod 644 $home/vendor/etc/init/*;
+	cp -r $home/vendor/etc/init/* /vendor/etc/init/;
+}
+
 [ -d $home/ramdisk-patch ] && {
 	setperm "0755" "0750" "$home/ramdisk-patch";
         chown root:shell $home/ramdisk-patch/*;

@@ -40,11 +40,11 @@ abort() {
 }
 
 cleanup() {
-    echo "Cleaning up..."
-	rm ${SYSTEM}/.rw
-	rm /data/.rw
-
-	umount /system
+        print "Cleaning up..."
+        rm ${SYSTEM}/.rw
+        rm /data/.rw
+        /sbin/umount -f /system 2>/dev/null
+        /sbin/umount -f /system_root 2>/dev/null
 
 	[ "$zip" ] && rm /tmp/console
 }
@@ -138,15 +138,31 @@ SYSTEM="/system"
 # Modern devices use ${SYSTEM} as root ("/")
 system_as_root=`getprop ro.build.system_root_image`
 if [ "$system_as_root" == "true" ]; then
+    print "[system as root] =  $system_as_root"
     [ -L /system_root ] && rm -f /system_root
     mkdir /system_root 2>/dev/null
     /sbin/umount -f /system 2>/dev/null
     /sbin/mount /system
-    /sbin/mount --move /system /system_root
-    /sbin/mount -o bind /system_root/system /system
+    if [ $? eq 0 ]; then
+        ## system is in fstab
+        print "[/system] is in fstab, mounting"
+        /sbin/mount --move /system /system_root
+        /sbin/mount -o bind /system_root/system /system
+    else
+        ## system is not in fstab, let's mount it manually
+        print "[/system] is not in fstab, mounting manually"
+        /sbin/umount -f /system_root
+        test -e /dev/block/bootdevice/by-name/system || local slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
+        /sbin/mount -o rw -t auto /dev/block/bootdevice/by-name/system$slot /system_root
+        /sbin/mount -o bind /system_root/system /system
+    fi
     [ ! -w /system_root ] && {
 	   abort "Cannot mount system partition read/write. Please unmount '/system' manually and try again"
     } 
+elif [ "$ANDROID_ROOT" == "/system_root" ]; then
+	print "[ANDROID_ROOT] = $ANDROID_ROOT"
+	/sbin/mount -o remount,rw /system_root
+	/sbin/mount -o bind /system_root/system /system
 else
     mount /system
 fi
