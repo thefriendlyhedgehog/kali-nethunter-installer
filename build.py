@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import os, sys
 import requests
@@ -32,7 +32,7 @@ dl_apps = {
         'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
         'NetHunter':
-        ['https://store.nethunter.com/repo/com.offsec.nethunter_2020020300.apk', '4990e90890cd34abffdf09130e22f4e09836589b9ffee72e91d17076a1298d5ed3f9929a4e9c338a14cba6ac27207897c1d9ebf5bf45c6f2ee2fc9f448b3f768'],
+        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2020020001.apk', '22fcef6552c71dae32c4dc1deeb755b3b4926b924790ae0c8fa5d1589818a902c41cd5bf42a650fc3c0f05fb9ca3896c3a030ddce12214ac6abb8462d84fd7fe'],
         'NetHunterTerminal':
                 ['https://store.nethunter.com/NetHunterTerminal.apk', 'c6cc09b3266074d80aaf79d307671fcdc8b478198e4b69f1c6caa49b02604fe0e08e100964c3533efe6b8eb2a632e028168b28105ca5d70ff37ecc7a058c19c4'],
         'NetHunterKeX':
@@ -455,6 +455,13 @@ def setupkernel():
         if os.path.exists(local_path):
                 print('Found additional /data/local files at: ' + local_path)
                 copytree(local_path, os.path.join(out_path, 'data', 'local'))
+
+        # Copy any /vendor/ folder files
+        vendor_path = os.path.join(device_path, 'vendor')
+        if os.path.exists(vendor_path):
+                print('Found additional /vendor/ files at: ' + vendor_path)
+                copytree(vendor_path, os.path.join(out_path, 'vendor'))
+
 
 def setupupdate():
         global Arch
