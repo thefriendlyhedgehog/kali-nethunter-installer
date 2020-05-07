@@ -80,12 +80,6 @@ install() {
 	install "/data/local" 0755 0644;
 }
 
-[ -d $home/vendor/etc/init ] && {
-        mount /vendor;
-        chmod 644 $home/vendor/etc/init/*;
-	cp -r $home/vendor/etc/init/* /vendor/etc/init/;
-}
-
 [ -d $home/ramdisk-patch ] && {
 	setperm "0755" "0750" "$home/ramdisk-patch";
         chown root:shell $home/ramdisk-patch/*;
@@ -99,6 +93,12 @@ fi;
 if [ ! "$(grep /dev/hidg* $SYSTEM_ROOT/ueventd.rc)" ]; then
   insert_after_last "$SYSTEM_ROOT/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root";
 fi;
+
+ui_print "Applying additional anykernel installation patches";
+for p in $(find ak_patches/ -type f); do
+  ui_print "Applying $p";
+  . $p;
+done
 
 ## End NetHunter additions
 

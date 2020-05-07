@@ -32,7 +32,7 @@ dl_apps = {
         'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
         'NetHunter':
-        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2020020001.apk', '22fcef6552c71dae32c4dc1deeb755b3b4926b924790ae0c8fa5d1589818a902c41cd5bf42a650fc3c0f05fb9ca3896c3a030ddce12214ac6abb8462d84fd7fe'],
+        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2020022100.apk', '011caee62331bd4ed2216772fcb41e5533313ce9b766665119f4664b13c1e2d03d7493f99b4368fdb2d6dc925f54b0e6ee00a8c969a9d831d64e55413ae87049'],
         'NetHunterTerminal':
                 ['https://store.nethunter.com/NetHunterTerminal.apk', 'c6cc09b3266074d80aaf79d307671fcdc8b478198e4b69f1c6caa49b02604fe0e08e100964c3533efe6b8eb2a632e028168b28105ca5d70ff37ecc7a058c19c4'],
         'NetHunterKeX':
@@ -456,11 +456,11 @@ def setupkernel():
                 print('Found additional /data/local files at: ' + local_path)
                 copytree(local_path, os.path.join(out_path, 'data', 'local'))
 
-        # Copy any /vendor/ folder files
-        vendor_path = os.path.join(device_path, 'vendor')
-        if os.path.exists(vendor_path):
-                print('Found additional /vendor/ files at: ' + vendor_path)
-                copytree(vendor_path, os.path.join(out_path, 'vendor'))
+        # Copy any AnyKernel3 additions 
+        ak_patches_path = os.path.join(device_path, 'ak_patches')
+        if os.path.exists(ak_patches_path):
+                print('Found additional AnyKernel3 patches at: ' + ak_patches_path)
+                copytree(ak_patches_path, os.path.join(out_path, 'ak_patches'))
 
 
 def setupupdate():
