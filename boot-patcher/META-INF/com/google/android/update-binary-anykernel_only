@@ -2,8 +2,16 @@
 # AnyKernel3 Backend (DO NOT CHANGE)
 # osm0sis @ xda-developers
 
-OUTFD=/proc/self/fd/$2;
+##OUTFD=/proc/self/fd/$2;
 ZIPFILE="$3";
+
+console=/proc/$$/fd/$2
+# write the location of the console buffer to /tmp/console for other scripts to use
+echo "$console" > /tmp/console
+
+
+OUTFD=$(cat /tmp/console)
+[ "$OUTFD" ] || OUTFD=/proc/$$/fd/1
 
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true || BOOTMODE=false;
 $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
