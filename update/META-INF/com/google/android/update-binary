@@ -143,7 +143,7 @@ if [ "$system_as_root" == "true" ]; then
     mkdir /system_root 2>/dev/null
     /sbin/umount -f /system 2>/dev/null
     /sbin/mount /system
-    if [ $? eq 0 ]; then
+    if [ $? = 0 ]; then
         ## system is in fstab
         print "[/system] is in fstab, mounting"
         /sbin/mount --move /system /system_root
