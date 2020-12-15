@@ -7,7 +7,7 @@
 # begin properties
 properties() { '
 kernel.string=
-do.devicecheck=0#Use do.devicecheck=1 while using boot-patcher standalone
+do.devicecheck=0#Use value 1 while using boot-patcher standalone
 do.modules=1
 do.systemless=0#Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
 do.cleanup=0
@@ -115,10 +115,6 @@ for p in $(find ak_patches/ -type f); do
 done;
 
 ## End NetHunter additions
-
-## Trim partitions
-fstrim -v /cache;
-fstrim -v /data;
 
 
 ## AnyKernel file attributes
