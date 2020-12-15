@@ -146,7 +146,7 @@ chmod +x env
 
 print "- Mounting partitions"
 mount_all;
-
+print "- Partitions mounted"
 setperm 0755 0755 tools
 
 #Install additional busybox applets to /sbin in case something is missing during installation
