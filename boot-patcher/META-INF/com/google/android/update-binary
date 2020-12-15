@@ -123,7 +123,7 @@ print "########### NetHunter Kernel Installer ###########"
 else 
 
 print "##################################################"
-print "            NetHunter Kernel Installer"
+print "          A/B and A Devices Boot-patcher
 if [ "$generic" ]; then
 	print "  for $generic devices - ramdisk modifications only"
 fi
