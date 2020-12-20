@@ -15,7 +15,7 @@ else
 	[ "$console" ] || console=/proc/$$/fd/1
 fi
 
-test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
+test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 SYSTEM="/system"
 
 tmp=/tmp/nethunter/boot-patcher
@@ -123,7 +123,7 @@ print "########### NetHunter Kernel Installer ###########"
 else 
 
 print "##################################################"
-print "          A/B and A Devices Boot-patcher
+print "          A/B and A Devices Boot-patcher"
 if [ "$generic" ]; then
 	print "  for $generic devices - ramdisk modifications only"
 fi
@@ -143,8 +143,8 @@ chmod 755 $BB
 
 chmod +x env
 . ./env.sh
-
-print "- Mounting partitions"
+#we need to mount system here as disabled it in update-binary-anykernel
+print "- Mounting partitions for Boot-Patching"
 mount_all;
 print "- Partitions mounted"
 setperm 0755 0755 tools
