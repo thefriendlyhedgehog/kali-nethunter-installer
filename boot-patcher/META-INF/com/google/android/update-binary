@@ -82,7 +82,11 @@ mount_all() {
 }
 
 cleanup() {
-	[ "$zip" ] && rm /tmp/console
+       if [ "$zip" ]; then
+       rm /tmp/console
+       cd $(dirname $tmp)
+       rm -rf $tmp
+       fi
 }
 
 install() {
@@ -167,5 +171,5 @@ sh tools/installbusybox.sh
 print "- Running boot image patcher..."
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
 
-cleanup
 print "- Boot image patching complete"
+cleanup
