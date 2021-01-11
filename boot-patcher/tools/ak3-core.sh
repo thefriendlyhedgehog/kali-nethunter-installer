@@ -487,6 +487,8 @@ flash_boot() {
   fi;
   if [ $? != 0 ]; then
     abort "Flashing image failed. Aborting...";
+  else
+    ui_print "Flashed New BootImage";
   fi;
 }
 
@@ -525,7 +527,6 @@ flash_dtbo() {
 write_boot() {
 ui_print "- Repacking ramdisk";
   repack_ramdisk;
-ui_print "- Flashing new boot image";
   flash_boot;
   flash_dtbo;
 }

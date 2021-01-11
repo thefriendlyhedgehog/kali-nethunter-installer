@@ -5,6 +5,7 @@ tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 . "$tmp/env.sh"
 
+
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
@@ -15,6 +16,7 @@ print() {
 
 # Free space we require on /system (in Megabytes)
 SpaceRequired=50
+SYSTEM="/system"
 
 MoveableApps="
 QuickOffice
@@ -47,33 +49,42 @@ LiveWallpapersPicker
 
 IFS="
 "
-
 MNT=/system
 SA=$MNT/app
 DA=/data/app
+AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
+#twrp df from /sbin doesn't has -m flag so we use busybox instead and use df from it
+BB=$tmp/tools/busybox #Use Busybox from tools
+chmod 755 $BB #make busybox executable
+FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 
-UpdateFreeSpace() {
-	FreeSpace=$(df -m "$MNT" | awk -vmnt="$MNT" '
-		$6 == mnt { print $4; exit }
-		$5 == mnt { print $3; exit }
-	')
-	# magical number checking hax
-	[ "${FreeSpace##*[!0-9]*}" ] && return
+case $AndroidV in 
+       4) android_ver="kitkat";;
+       5) android_ver="lolipop";;
+       6) android_ver="marshmallow";;
+       7) android_ver="nougat";;
+       8) android_ver="oreo";;
+       9) android_ver="pie";;
+      10) android_ver="Q";;
+      11) android_ver="R";;
+esac
 
-	print "Warning: Could not get free space, continuing anyway!"
+if [ -z $FreeSpace ]; then
+	print "Warning: Could not get free space status, continuing anyway!"
 	exit 0
-}
-
-UpdateFreeSpace
+else 
+print "Free space (before): $FreeSpace MB"
+fi
 
 if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
 	exit 0
-fi
-
-print "Free space (before): $FreeSpace MB"
-
+else 
+if [ "$AndroidV" -gt "7" ];then 
+print "Android Version: $android_ver"
+print "Starting from Oreo,we can't move apps from /system to /data, continuing anyway!"
+exit 0
+else
 for app in $MoveableApps; do
-	UpdateFreeSpace
 	if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
 		break
 	fi
@@ -105,3 +116,5 @@ if [ ! "$FreeSpace" -gt "$SpaceRequired" ]; then
 fi
 
 exit 0
+fi
+fi
