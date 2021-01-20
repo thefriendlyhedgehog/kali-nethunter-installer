@@ -21,6 +21,11 @@ cp "$tmp/tools/busybox_nh" $xbin/busybox_nh
 chmod 0755 $xbin/busybox_nh
 $xbin/busybox_nh --install -s $xbin
 
+print "Installing legacy busybox as fall back..."
+rm -f $xbin/busybox_nh-1.25
+cp "$tmp/tools/busybox_nh-1.25" $xbin/busybox_nh-1.25
+chmod 0755 $xbin/busybox_nh-1.25
+
 [ -e $xbin/busybox ] || {
 	print "$xbin/busybox not found! Symlinking..."
 	ln -s $xbin/busybox_nh $xbin/busybox
