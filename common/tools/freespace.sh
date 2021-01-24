@@ -14,6 +14,15 @@ print() {
 	echo
 }
 
+get_bb() {
+    cd $tmp/tools
+    BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
+    chmod 755 $BB #make busybox executable
+    echo $BB
+    cd - >/dev/null
+}
+
 # Free space we require on /system (in Megabytes)
 SpaceRequired=50
 SYSTEM="/system"
@@ -54,13 +63,8 @@ SA=$MNT/app
 DA=/data/app
 AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
 #twrp df from /sbin doesn't has -m flag so we use busybox instead and use df from it
-cd $tmp/tools
-BB_latest=`(ls -V busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
-BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
-chmod 755 $BB #make busybox executable
-cd - >/dev/null
+BB=$(get_bb)
 FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
-
 case $AndroidV in 
        4) android_ver="kitkat";;
        5) android_ver="lolipop";;
