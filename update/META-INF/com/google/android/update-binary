@@ -103,9 +103,36 @@ symlink() {
 }
 
 mount() {
-	mountpoint -q "$1" || /sbin/busybox mount -o rw "$1" || abort "Unable to mount $1 as rw!"
-	>> "$1/.rw" && return || /sbin/busybox mount -o remount,rw "$1"
+	mountpoint -q "$1" || /sbin/busybox_nh mount -o rw "$1" || abort "Unable to mount $1 as rw!"
+	>> "$1/.rw" && return || /sbin/busybox_nh mount -o remount,rw "$1"
 	>> "$1/.rw" && return || abort "Unable to write to $1!"
+}
+
+get_bb() {
+    cd $tmp/tools
+    BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
+    chmod 755 $BB #make busybox executable
+    echo $BB
+    cd - >/dev/null
+}
+
+install_recovery_bb() {
+    # To identify the latest busybox version, we need the command "ls -v" which is not supported by all twrp versions
+    # We will pick the best available busybox version and use that to run "ls -v" to pick the latest version for the recovery partition
+    cd $tmp/tools
+
+    # Try to pick the latest version of busybox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
+    recovery_bb=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    cp $recovery_bb busybox_tmp
+    setperm 0755 0755 busybox_tmp
+
+    # Now that we picked a reasonably current busybox, use that to copy the absolute latest to the recovery partition using "ls -v"
+    nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
+    print "Installing $nethunter_bb applets to /sbin"
+    cp $nethunter_bb /sbin/busybox_nh
+    /sbin/busybox_nh --install /sbin
+    cd - >/dev/null
 }
 
 print "##################################################"
@@ -132,6 +159,10 @@ cd "$tmp"
 
 progress 0.0
 print "Starting the installation"
+
+setperm 0755 0755 tools
+
+install_recovery_bb
 
 mount /data
 SYSTEM="/system"
@@ -173,22 +204,6 @@ progress 0.1
 	abort "Your data partition appears to be empty. Please complete the Android setup wizard before installing Kali NetHunter!"
 }
 
-setperm 0755 0755 tools
-
-# Install additional busybox applets to /sbin in case something is missing during installation
-# To identify the latest busybox version, we need the command "ls -v" which is not supported by all twrp versions
-# We will pick the best available busybox version and use that to run "ls -v" to pick the latest version for the recovery partition
-cd $tmp/tools
-# Try to pick the latest version of busybox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
-recovery_bb=$(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-* | tail -n 1)
-cp $recovery_bb busybox_tmp
-setperm 0755 0755 busybox_tmp
-# Now that we picked a reasonably current busybox, use that to copy the absolute latest to the recovery partition using "ls -v"
-nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
-print "Installing $nethunter_bb applets to /sbin"
-cp $nethunter_bb /sbin/busybox_nh
-/sbin/busybox_nh --install /sbin
-cd $tmp
 
 print "Checking for previous versions of NetHunter"
 sh tools/previnstall.sh

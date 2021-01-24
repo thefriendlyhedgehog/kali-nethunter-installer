@@ -25,7 +25,7 @@ done
 
 cd $xbin
 rm -f busybox_nh
-busybox_nh=$(/sbin/busybox_nh ls -v busybox_nh-* 2>/dev/null | tail -n 1)
+busybox_nh=`(/sbin/busybox_nh ls -v busybox_nh-* || ls busybox_nh-*) | tail -n 1`
 print "Setting $busybox_nh as default"
 ln -s $xbin/$busybox_nh busybox_nh
 $xbin/busybox_nh --install -s $xbin
