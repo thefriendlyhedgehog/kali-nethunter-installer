@@ -13,7 +13,7 @@
 ## ./prep-release.py -i <input file> -o <output directory> -r <release>
 ##
 ## E.g.:
-## ./prep-release.py -i devices/devices.cfg -o /opt/re4son/NetHunter/2020.3/images -r 2020.3
+## ./prep-release.py -i devices/devices.cfg -o /opt/re4son/dev/NetHunter/2020.3/images -r 2020.3
 
 import yaml # install pyyaml
 import getopt, os, stat, sys
