@@ -384,10 +384,15 @@ print "Running Kali chroot installer..."
 sh tools/installchroot.sh "$zip"
 
 cleanup
+print " "
 print "************************************************"
 print "*       Kali NetHunter is now installed!       *"
-print "*   Don't forget to start the NetHunter app    *"
+print "*==============================================*"
+print "*   Please update the NetHunter app via the    *"
+print "*   NetHunter Store to work around an Android  *"
+print "*   permission issue and run the NetHunter app *"
 print "*       to finish setting everything up!       *"
 print "************************************************"
+print " "
 
 progress 1.0
