@@ -32,7 +32,7 @@ dl_apps = {
         'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
         'NetHunter':
-        ['https://store.nethunter.com/NetHunter.apk', 'f2a92c1f8a8c7ab6a2c1569fad649a84c8c300c186555b8d7f1436960bf0b4bde2a7208d89ba84fee9e9a53fc1ef61eabc09d310bb842e67e331e4b02c5c6f64'],
+        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2021010500.apk', '7d88484e91924e6cd65b837fe207c12297671f9ceb3022704581f4453d894c5489521cd70c798be3e84e886b4803d87abe9771f521896cf0d28afa66248c9d1d'],
         'NetHunterTerminal':
                 ['https://store.nethunter.com/NetHunterTerminal.apk', 'e1a89ce86df25d95112a0f8c4dd795db7cd92ff362da36b0f939d5ddf7981d46d3da7f92edf075f370b1a22a9faff087bd01af9053dbf8ce70a7bf067b061ff8'],
         'NetHunterKeX':
@@ -564,6 +564,7 @@ def main():
         parser.add_argument('--oreo', '-o', action='store_true', help='Android 8')
         parser.add_argument('--pie', '-p', action='store_true', help='Android 9')
         parser.add_argument('--ten', '-q', action='store_true', help='Android 10')
+        parser.add_argument('--eleven', '-R', action='store_true', help='Android 11')
         parser.add_argument('--forcedown', '-f', action='store_true', help='Force redownloading')
         parser.add_argument('--uninstaller', '-u', action='store_true', help='Create an uninstaller')
         parser.add_argument('--kernel', '-k', action='store_true', help='Build kernel installer only')
@@ -637,10 +638,13 @@ def main():
                 if args.ten:
                         OS = 'ten'
                         i += 1
+                if args.eleven:
+                        OS = 'eleven'
+                        i += 1
                 if i == 0:
-                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten')
+                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven')
                 elif i > 1:
-                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten')
+                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven')
 
                 if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal'):
                         abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal')
