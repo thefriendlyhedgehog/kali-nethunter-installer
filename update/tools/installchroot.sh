@@ -15,6 +15,19 @@ print() {
 	echo
 }
 
+
+get_bb() {
+    cd $tmp/tools
+    BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
+    chmod 755 $BB #make busybox executable
+    echo $BB
+    cd - >/dev/null
+}
+
+BB=$(get_bb)
+
+
 NHSYS=/data/local/nhsystem
 #ref:https://developer.android.com/ndk/guides/abis and wikipedia
 arch="$(getprop ro.product.cpu.abi)"
@@ -92,7 +105,6 @@ check_space() {
     fdata=$($BB df -m /data | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
     if [ -z $fdata ]; then
 	print "Warning: Could not get free space status on /data, continuing anyway!"
-	exit 0
 	
     else
     

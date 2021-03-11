@@ -199,7 +199,11 @@ chmod +x env
 #we need to mount system here as it is disabled in update-binary-anykernel
 print "- Mounting partitions for Boot-Patching"
 mount_all;
-print "- Partitions mounted"
+if [ $? != 0 ]; then 
+abort "Cannot mount system partition read/write. Please mount '/system' manually and try again" 
+else 
+print "partitions mounted." 
+fi
 setperm 0755 0755 tools
 
 if [ "$ZIPFILE" ]; then 
