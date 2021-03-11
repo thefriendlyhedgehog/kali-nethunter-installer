@@ -2,7 +2,6 @@
 ## osm0sis @ xda-developers
 ##Modified for NetHunter
 
-##OUTFD=$1;
 ## NetHunter additions
 OUTFD=$(cat /tmp/console);
 [ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
@@ -43,7 +42,6 @@ file_getprop() {
 
 #Nethunter Addition for automatic boot and slot detection
 #cherrypicked from topjhonwu's magisk util_functions.sh
-#for reference: https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
@@ -404,7 +402,7 @@ flash_boot() {
           magisk_patched=$?;
         fi;
         if [ $((magisk_patched & 3)) -eq 1 ]; then
-          ui_print "- Magisk detected! Patching kernel so reflashing Magisk is not necessary...";
+          ui_print " " "- Magisk detected! Patching kernel so reflashing Magisk is not necessary...";
           comp=$($bin/magiskboot decompress kernel 2>&1 | grep -v 'raw' | sed -n 's;.*\[\(.*\)\];\1;p');
           ($bin/magiskboot split $kernel || $bin/magiskboot decompress $kernel kernel) 2>/dev/null;
           if [ $? != 0 -a "$comp" ]; then
@@ -449,7 +447,7 @@ flash_boot() {
   cd $home;
   if [ -f "$bin/futility" -a -d "$bin/chromeos" ]; then
     if [ -f "$split_img/chromeos" ]; then
-      echo "Signing with CHROMEOS..." >&2;
+      echo "- Signing with CHROMEOS..." >&2;
       $bin/futility vbutil_kernel --pack boot-new-signed.img --keyblock $bin/chromeos/kernel.keyblock --signprivate $bin/chromeos/kernel_data_key.vbprivk --version 1 --vmlinuz boot-new.img --bootloader $bin/chromeos/empty --config $bin/chromeos/empty --arch arm --flags 0x1;
     fi;
     test $? != 0 && signfail=1;
@@ -488,7 +486,7 @@ flash_boot() {
   if [ $? != 0 ]; then
     abort "Flashing image failed. Aborting...";
   else
-    ui_print "Flashed New BootImage";
+    ui_print "- Flashed New BootImage";
   fi;
 }
 
@@ -520,7 +518,9 @@ flash_dtbo() {
     fi;
     if [ $? != 0 ]; then
       abort "Flashing dtbo failed. Aborting...";
-    fi;
+    else 
+      ui_print "- Flashed Dtbo";
+      fi;
   fi;
 }
 ### write_boot (repack ramdisk then build, sign and write image and dtbo)
@@ -777,92 +777,8 @@ ab_slot;
 get_flags;
 find_boot_image;
 ui_print "- Target Image: $BOOTIMAGE";
-
-  ##slot detection enabled by is_slot_device=1 or auto (from anykernel.sh)
-  ##case $is_slot_device in
-  ##1|auto)
-  ##slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
-  ##test "$slot" || slot=$(grep -o 'androidboot.slot_suffix=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2);
-  ##if [ ! "$slot" ]; then
-  ##slot=$(getprop ro.boot.slot 2>/dev/null);
-  ##test "$slot" || slot=$(grep -o 'androidboot.slot=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2);
-  ##test "$slot" && slot=_$slot;
-  ##fi;
-  ##if [ "$slot" ]; then
-  ##if [ -d /postinstall/tmp -a ! "$slot_select" ]; then
-  ##slot_select=inactive;
-  ##fi;
-  ##case $slot_select in
-  ##inactive)
-  ##case $slot in
-  ##_a) slot=_b;;
-  ##_b) slot=_a;;
-  ##esac;
-  ##;;
-  ##esac;
-  ##fi;
-  ##if [ ! "$slot" -a "$is_slot_device" == 1 ]; then
-  ##abort "Unable to determine active boot slot. Aborting...";
-  ##fi;
-  ##;;
-  ##esac;
-
-  ##target block partition detection enabled by block=boot recovery or auto (from anykernel.sh)
-  ##case $block in
-  ##auto|"") block=boot;;
-  ##esac;
-  ##case $block in
-  ##boot|recovery)
-  ##case $block in
-  ##boot) parttype="ramdisk boot BOOT LNX android_boot bootimg KERN-A kernel KERNEL";;
-  ##recovery) parttype="ramdisk_recovery recovery RECOVERY SOS android_recovery";;
-  ##esac;
-  ##for name in $parttype; do
-  ##for part in $name$slot $name; do
-  ##if [ "$(grep -w "$part" /proc/mtd 2> /dev/null)" ]; then
-  ##mtdmount=$(grep -w "$part" /proc/mtd);
-  ##mtdpart=$(echo $mtdmount | cut -d\" -f2);
-  ##if [ "$mtdpart" == "$part" ]; then
-  ##mtdname=$(echo $mtdmount | cut -d: -f1);
-  ##else
-  ##abort "Unable to determine mtd $block partition. Aborting...";
-  ##fi;
-  ##if [ -e /dev/mtd/$mtdname ]; then
-  ##target=/dev/mtd/$mtdname;
-  ##fi;
-  ##elif [ -e /dev/block/by-name/$part ]; then
-  ##target=/dev/block/by-name/$part;
-  ##elif [ -e /dev/block/bootdevice/by-name/$part ]; then
-  ##target=/dev/block/bootdevice/by-name/$part;
-  ##elif [ -e /dev/block/platform/*/by-name/$part ]; then
-  ##target=/dev/block/platform/*/by-name/$part;
-  ##elif [ -e /dev/block/platform/*/*/by-name/$part ]; then
-  ##target=/dev/block/platform/*/*/by-name/$part;
-  ##elif [ -e /dev/$part ]; then
-  ##target=/dev/$part;
-  ##fi;
-  ##test "$target" && break 2;
-  ##done;
-  ##done;
-  ##if [ "$target" ]; then
-  ##block=$(ls $target 2>/dev/null);
-  ##else
-  ##abort "Unable to determine $block partition. Aborting...";
-  ##fi;
-  ##;;
-  ##*)
-  ##if [ "$slot" ]; then
-  ##test -e "$block$slot" && block=$block$slot;
-  ##fi;
-  ##;;
-  ##esac;
-  ##if [ ! "$no_block_display" ]; then
-  ##ui_print "$block";
-  ##fi;
-
-
 }
-###
+
 
 ### end methods
 

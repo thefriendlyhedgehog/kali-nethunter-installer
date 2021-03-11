@@ -6,7 +6,7 @@ generic="arm64"
 ## end build generated variables
 
 if [ "$3" ]; then
-	zip=$3
+	ZIPFILE=$3
 	console=/proc/$$/fd/$2
 	# write the location of the console buffer to /tmp/console for other scripts to use
 	echo "$console" > /tmp/console
@@ -29,7 +29,7 @@ abort() {
 		print "Error: $1"
 		print "Aborting..."
 	}
-	cleanup
+	restore_env
 	print "Failed to patch boot image!"
 	exit 1
 }
@@ -48,7 +48,6 @@ is_mounted() { $BB mount | $BB grep -q " $1 "; }
 mount_all() {
   if ! is_mounted /data; then
     $BB mount /data;
-    UMOUNT_DATA=1;
   fi;
   setup_mountpoint $ANDROID_ROOT;
   if ! is_mounted $ANDROID_ROOT; then
@@ -82,7 +81,8 @@ mount_all() {
 }
 
 cleanup() {
-       if [ "$zip" ]; then
+       if [ "$ZIPFILE" ]; then
+       print "Cleaning up..."
        rm /tmp/console
        cd $(dirname $tmp)
        rm -rf $tmp
@@ -138,7 +138,27 @@ install_recovery_bb() {
     cd - >/dev/null
 }
 
-if [ "$zip" ]; then
+restore_env() { 
+   if [ ! -d /tmp/nethunter/boot-patcher ]; then
+    $BB umount /system
+    $BB umount -l /system
+   if [ -e /system_root ]; then
+      $BB umount /system_root
+      $BB umount -l /system_root
+    fi
+  fi
+  
+  (for dir in /system /system_root; do
+  if [ -L "${dir}_link" ]; then
+  rmdir $dir
+  $BB mv -f ${dir}_link $dir
+  fi
+  done) 2>/dev/null
+  cleanup
+}
+
+
+if [ "$ZIPFILE" ]; then
 print "##################################################"
 print "##                                              ##"
 print "##  88      a8P         db        88        88  ##"
@@ -163,10 +183,9 @@ print "##################################################"
 fi
 
 # Unpack the installer
-[ "$zip" ] && {
-	print "- Unpacking the installer, this may take a while..."
-	extract "$zip" "$tmp"
-	print "- Installer unpacked"
+[ "$ZIPFILE" ] && {
+	print "Unpacking the installer, this may take a while..."
+	extract "$ZIPFILE" "$tmp"
 }
 cd "$tmp"
 
@@ -183,9 +202,24 @@ mount_all;
 print "- Partitions mounted"
 setperm 0755 0755 tools
 
+if [ "$ZIPFILE" ]; then 
+print "Running busybox installer..." 
+sh tools/installbusybox.sh #run only once 
+fi 
+
+if [ "$ZIPFILE" ]; then 
+print "Running kernel installer..." 
+else 
+print "Running boot image patcher..." 
+fi 
 
 print "- Running boot image patcher..."
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
 
-print "- Boot image patching complete"
-cleanup
+if [ "$ZIPFILE" ]; then
+print "Kernel Installed Successfully" 
+else 
+print "Boot image patching completed"; 
+fi 
+
+restore_env 

@@ -5,7 +5,6 @@
 #Lines starting with ## leftout for boot-patcher(chroot)
 
 
-##OUTFD=/proc/self/fd/$2;
 ZIPFILE="$3";
 
 ## NetHuner additions
@@ -17,9 +16,7 @@ $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMO
 
 $BOOTMODE && DIR=/sdcard || DIR=$(dirname "$ZIPFILE");
 
-##test -d /postinstall/tmp && POSTINSTALL=/postinstall;
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
-
 test "$home" || home=/tmp/nethunter/boot-patcher;
 
 ui_print() {
@@ -68,23 +65,21 @@ setup_mountpoint() {
 is_mounted() { $BB mount | $BB grep -q " $1 "; }
 umount_all() {
   (umount_apex;
-  if [ ! -d /tmp/nethunter ]; then
-  ##$BB umount /system;
-  ##$BB umount -l /system;  
-  if [ -e /system_root ]; then
-    $BB umount /system_root;
-    $BB umount -l /system_root; 
-  fi;
+  if [ ! -d /postinstall/tmp ]; then
+    $BB umount /system;
+    $BB umount -l /system;
+   if [ -e /system_root ]; then
+      $BB umount /system_root;
+      $BB umount -l /system_root;
+    fi;
   fi;
   umount /vendor;
   umount -l /vendor;
-  ##if [ "$UMOUNT_DATA" ]; then
-  ##$BB umount /data;
-  ##$BB umount -l /data;
-  ##fi
-) 2>/dev/null;
+  if is_mounted /data; then
+    $BB umount /data;
+    $BB umount -l /data;
+  fi) 2>/dev/null;
 }
-
 mount_apex() {
   test -d /system/apex || return 1;
   local apex dest loop minorx num;
@@ -137,7 +132,6 @@ umount_apex() {
 mount_all() {
   if ! is_mounted /data; then
     $BB mount /data;
-    UMOUNT_DATA=1;
   fi;
   $BB mount -o ro -t auto /vendor 2>/dev/null;
   setup_mountpoint $ANDROID_ROOT;
@@ -177,16 +171,13 @@ mount_all() {
 setup_env() {
   $BOOTMODE && return 1;
   $BB mount -o bind /dev/urandom /dev/random;
-  $BB mount -o ro -t auto /vendor 2>/dev/null;
   if [ -L /etc ]; then
     setup_mountpoint /etc;
     $BB cp -af /etc_link/* /etc;
-    $BB sed -i 's; / ; /system_root ;' /etc/fstab;
+    $BB sed -i 's; / ; /system_root ;' /etc/fstab 2>/dev/null;
   fi;
-  #umount_all;
-  #mount_all;
-  umount_apex;
-  mount_apex;
+  umount_all 2>/dev/null;
+  mount_all 2>/dev/null;
   OLD_LD_PATH=$LD_LIBRARY_PATH;
   OLD_LD_PRE=$LD_PRELOAD;
   OLD_LD_CFG=$LD_CONFIG_FILE;
@@ -245,7 +236,7 @@ do_devicecheck() {
   for testname in $(file_getprop anykernel.sh 'device.name.*'); do
     for devicename in $device $product $vendordevice $vendorproduct; do
       if [ "$devicename" == "$testname" ]; then
-        ui_print "- $testname";
+        ui_print "$testname" " ";
         match=1;
         break 2;
       fi;
@@ -255,7 +246,6 @@ do_devicecheck() {
     abort "- Unsupported device. Aborting...";
   fi;
 }
-
 do_versioncheck() {
   test "$(file_getprop anykernel.sh supported.versions)" || return 1;
   local android_ver hi_ver lo_ver parsed_ver supported supported_ver;
@@ -278,7 +268,7 @@ do_versioncheck() {
     done;
   fi;
   if [ "$supported" ]; then
-    ui_print "- $android_ver" " ";
+    ui_print "$android_ver" " ";
   else
     abort "- Unsupported Android version. Aborting...";
   fi;
@@ -301,9 +291,9 @@ do_levelcheck() {
     hi_lvl=9999-99;
   fi;
   if echo -e "$hi_lvl\n$lo_lvl\n$parsed_lvl" | $BB sort -g | $BB grep -n "$parsed_lvl" | $BB grep -q '^2:'; then
-    ui_print "- $android_lvl";
+    ui_print "$android_lvl" " ";
   else
-    abort "- Unsupported Android security patch level. Aborting...";
+    abort " " "Unsupported Android security patch level. Aborting...";
   fi;
 }
 dump_moduleinfo() {
@@ -330,7 +320,7 @@ do_modules() {
   local block modcon moddir modtarget module slot umask;
   if [ "$(file_getprop anykernel.sh do.systemless)" == 1 ]; then
     cd $home/modules;
-    ui_print "- Creating kernel helper Magisk module...";
+    ui_print " " "Creating kernel helper Magisk module...";
     if [ -d /data/adb/magisk -a -f $home/split_img/.magisk ]; then
       umask=$(umask);
       umask 022;
@@ -345,11 +335,11 @@ do_modules() {
       cp -f $home/vertmp $moddir/version;
       umask $umask;
     else
-      ui_print "Magisk installation not found. Skipped!";
+      ui_print "- Magisk installation not found. Skipped!";
     fi;
   else
     cd $home/modules;
-    ui_print "- Pushing modules...";
+    ui_print " " "- Pushing modules...";
     if [ -d /dev/block/mapper ]; then
       for block in system vendor; do
         for slot in "" _a _b; do
@@ -381,7 +371,7 @@ do_modules() {
       ## Adjusted for NetHunter: Remove old modules directories
       if [ "$do_clean" = true ]; then
 	existing_moddir=$(echo $modtarget | $BB sed 's/lib\/modules\/.*$/lib\/modules\//')
-        ui_print "- Removing existing modules directories in ${existing_moddir}";
+        ui_print " " "- Removing existing modules directories in ${existing_moddir}";
         rm -rf ${existing_moddir}/../modules
         do_clean=false
       fi
@@ -405,17 +395,10 @@ do_modules() {
   cd $home;
 }
 
-#show_progress 1.34 4;
+
 ui_print "";
-##cleanup;
 mkdir -p $home/bin;
 cd $home;
-
-##unzip -o "$ZIPFILE";
-
-##if [ $? != 0 -o ! "$(ls tools)" ]; then
-##abort "Unzip failed. Aborting...";
-##fi;
 
 for ARCH32 in x86 arm; do
   if [ -d $home/tools/$ARCH32 ]; then
@@ -436,14 +419,9 @@ if [ $? != 0 -o -z "$(ls bin)" ]; then
   abort "Busybox setup failed. Aborting...";
 fi;
 
-##if [ -f banner ]; then
-##ui_printfile banner;
-##ui_print " ";
-##fi;
-
 KERNEL_STRING="$(file_getprop anykernel.sh kernel.string)";
 if [ ! -z $KERNEL_STRING ];then
-ui_print "- $KERNEL_STRING";
+ui_print "$KERNEL_STRING" " ";
 fi;
 
 if [ -f version ]; then
@@ -451,7 +429,7 @@ if [ -f version ]; then
   ui_printfile version;
   ui_print " ";
 fi;
-ui_print "- AnyKernel3 by osm0sis @ xda-developers";
+ui_print "AnyKernel3 by osm0sis @ xda-developers";
 
 setup_env;
 
@@ -459,7 +437,7 @@ do_devicecheck;
 do_versioncheck;
 do_levelcheck;
 
-ui_print "- Installing...";
+ui_print "Installing...";
 CORE=$($BB grep -oE 'ak.*core.sh' anykernel.sh);
 test -f tools/$CORE || $BB ln -s $home/tools/ak*-core.sh $home/tools/$CORE;
 PATH="$home/bin:$PATH" home=$home $BB ash anykernel.sh $2;
@@ -475,10 +453,6 @@ debugging;
 
 restore_env;
 
-#modified for nethunter
-##if [ "$(file_getprop anykernel.sh do.cleanup)" == 1 ]; then
-##cleanup;
-##fi;
-
-##ui_print "Done!";
-
+if [ "$(file_getprop anykernel.sh do.cleanup)" == 1 ]; then
+cleanup;
+fi;
