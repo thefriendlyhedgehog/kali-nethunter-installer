@@ -346,9 +346,11 @@ progress 0.5
 
 [ -f tools/freespace.sh ] && {
 	# This actually runs twice when the NetHunter kernel zip is included
-	print "Freeing up some space on ${SYSTEM}"
-	sh tools/freespace.sh ||
+
+ sh tools/freespace.sh
+ if [ "$?" == "1" ];then
 		abort "Not enough free space on ${SYSTEM} to continue!"
+ fi
 }
 
 print "Running busybox installer..."
@@ -430,7 +432,6 @@ progress 0.8
 [ -d "$patchtmp" ] && {
 	print "Running kernel installer..."
 	sh "$patchtmp/META-INF/com/google/android/update-binary"
-	mount /data
 }
 
 progress 0.9
