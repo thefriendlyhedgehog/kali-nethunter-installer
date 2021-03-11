@@ -212,12 +212,12 @@ sh tools/installbusybox.sh #run only once
 fi 
 
 if [ "$ZIPFILE" ]; then 
-print "Running kernel installer..." 
+print "- Running kernel installer..." 
 else 
-print "Running boot image patcher..." 
+print "- Running boot image patcher..." 
 fi 
 
-print "- Running boot image patcher..."
+
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
 
 if [ "$ZIPFILE" ]; then
