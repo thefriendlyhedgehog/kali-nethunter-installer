@@ -29,60 +29,13 @@ abort() {
 		print "Error: $1"
 		print "Aborting..."
 	}
-	restore_env
+	cleanup
 	print "Failed to patch boot image!"
 	exit 1
 }
 
-#reference: https://github.com/osm0sis/AnyKernel3/blob/master/META-INF/com/google/android/update-binary#L33+L40
-setup_mountpoint() {
-  test -L $1 && $BB mv -f $1 ${1}_link;
-  if [ ! -d $1 ]; then
-    rm -f $1;
-    mkdir -p $1;
-  fi;
-}
-is_mounted() { $BB mount | $BB grep -q " $1 "; }
-
-#for reference: https://github.com/osm0sis/AnyKernel3/blob/master/META-INF/com/google/android/update-binary#L91+L127
-mount_all() {
-  if ! is_mounted /data; then
-    $BB mount /data;
-  fi;
-  setup_mountpoint $ANDROID_ROOT;
-  if ! is_mounted $ANDROID_ROOT; then
-    $BB mount -o rw -t auto $ANDROID_ROOT 2>/dev/null;
-  fi;
-  case $ANDROID_ROOT in
-    /system_root) setup_mountpoint /system;;
-    /system)
-      if ! is_mounted /system && ! is_mounted /system_root; then
-        setup_mountpoint /system_root;
-        $BB mount -o rw -t auto /system_root;
-      elif [ -f /system/system/build.prop ]; then
-        setup_mountpoint /system_root;
-        $BB mount --move /system /system_root;
-      fi;
-      if [ $? != 0 ]; then
-        $BB umount /system;
-        $BB umount -l /system 2>/dev/null;
-        test -e /dev/block/bootdevice/by-name/system || local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
-        $BB mount -o rw -t auto /dev/block/bootdevice/by-name/system$slot /system_root;
-      fi;
-    ;;
-  esac;
-  if is_mounted /system_root; then
-    if [ -f /system_root/build.prop ]; then
-      $BB mount -o bind /system_root /system;
-    else
-      $BB mount -o bind /system_root/system /system;
-    fi;
-  fi;
-}
-
 cleanup() {
        if [ "$ZIPFILE" ]; then
-       print "Cleaning up..."
        rm /tmp/console
        cd $(dirname $tmp)
        rm -rf $tmp
@@ -138,26 +91,6 @@ install_recovery_bb() {
     cd - >/dev/null
 }
 
-restore_env() { 
-   if [ ! -d /tmp/nethunter/boot-patcher ]; then
-    $BB umount /system
-    $BB umount -l /system
-   if [ -e /system_root ]; then
-      $BB umount /system_root
-      $BB umount -l /system_root
-    fi
-  fi
-  
-  (for dir in /system /system_root; do
-  if [ -L "${dir}_link" ]; then
-  rmdir $dir
-  $BB mv -f ${dir}_link $dir
-  fi
-  done) 2>/dev/null
-  cleanup
-}
-
-
 if [ "$ZIPFILE" ]; then
 print "##################################################"
 print "##                                              ##"
@@ -184,8 +117,9 @@ fi
 
 # Unpack the installer
 [ "$ZIPFILE" ] && {
-	print "Unpacking the installer, this may take a while..."
+	print "- Unpacking the installer, this may take a while..."
 	extract "$ZIPFILE" "$tmp"
+	print "- Installer unpacked"
 }
 cd "$tmp"
 
@@ -196,34 +130,17 @@ chmod +x env
 # Install busybox applets if they haven't been installed by the NetHunter installer already
 [ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
-#we need to mount system here as it is disabled in update-binary-anykernel
-print "- Mounting partitions for Boot-Patching"
-mount_all;
-if [ $? != 0 ]; then 
-abort "Cannot mount system partition read/write. Please mount '/system' manually and try again" 
-else 
-print "partitions mounted." 
-fi
 setperm 0755 0755 tools
 
-if [ "$ZIPFILE" ]; then 
-print "Running busybox installer..." 
-sh tools/installbusybox.sh #run only once 
-fi 
-
-if [ "$ZIPFILE" ]; then 
+if [ "$ZIPFILE" ]; then
+print "Running busybox installer..."
+sh tools/installbusybox.sh #run only 
 print "- Running kernel installer..." 
-else 
-print "- Running boot image patcher..." 
-fi 
-
-
+else                  
+print "- Running boot image patcher..."                     
+fi
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
 
-if [ "$ZIPFILE" ]; then
-print "Kernel Installed Successfully" 
-else 
-print "Boot image patching completed"; 
-fi 
+print "- Boot image patching complete"
+cleanup
 
-restore_env 

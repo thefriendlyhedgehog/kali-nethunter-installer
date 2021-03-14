@@ -2,6 +2,7 @@
 ## osm0sis @ xda-developers
 ##Modified for NetHunter
 
+##OUTFD=$1;
 ## NetHunter additions
 OUTFD=$(cat /tmp/console);
 [ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
@@ -42,6 +43,7 @@ file_getprop() {
 
 #Nethunter Addition for automatic boot and slot detection
 #cherrypicked from topjhonwu's magisk util_functions.sh
+#for reference: https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
@@ -402,7 +404,7 @@ flash_boot() {
           magisk_patched=$?;
         fi;
         if [ $((magisk_patched & 3)) -eq 1 ]; then
-          ui_print " " "- Magisk detected! Patching kernel so reflashing Magisk is not necessary...";
+          ui_print "- Magisk detected! Patching kernel so reflashing Magisk is not necessary...";
           comp=$($bin/magiskboot decompress kernel 2>&1 | grep -v 'raw' | sed -n 's;.*\[\(.*\)\];\1;p');
           ($bin/magiskboot split $kernel || $bin/magiskboot decompress $kernel kernel) 2>/dev/null;
           if [ $? != 0 -a "$comp" ]; then
@@ -460,7 +462,7 @@ flash_boot() {
       *) avbtype=boot;;
     esac;
     if [ "$(/system/bin/dalvikvm -Xnoimage-dex2oat -cp $bin/boot_signer-dexed.jar com.android.verity.BootSignature -verify boot.img 2>&1 | grep VALID)" ]; then
-      echo "Signing with AVBv1..." >&2;
+      echo "- Signing with AVBv1..." >&2;
       /system/bin/dalvikvm -Xnoimage-dex2oat -cp $bin/boot_signer-dexed.jar com.android.verity.BootSignature /$avbtype boot-new.img $pk8 $cert boot-new-signed.img;
     fi;
   fi;
@@ -518,9 +520,8 @@ flash_dtbo() {
     fi;
     if [ $? != 0 ]; then
       abort "Flashing dtbo failed. Aborting...";
-    else 
-      ui_print "- Flashed Dtbo";
-      fi;
+    else
+      ui_print "- Flashed New Dtbo";
   fi;
 }
 ### write_boot (repack ramdisk then build, sign and write image and dtbo)
@@ -778,7 +779,7 @@ get_flags;
 find_boot_image;
 ui_print "- Target Image: $BOOTIMAGE";
 }
-
+###
 
 ### end methods
 
