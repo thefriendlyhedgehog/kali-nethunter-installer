@@ -485,7 +485,7 @@ do_devicecheck;
 do_versioncheck;
 do_levelcheck;
 
-ui_print "Installing...";
+ui_print "- Installing...";
 CORE=$($BB grep -oE 'ak.*core.sh' anykernel.sh);
 [ -f tools/$CORE ] || $BB ln -s $home/tools/ak*-core.sh $home/tools/$CORE;
 PATH="$home/bin:$PATH" home=$home $BB ash anykernel.sh $2;

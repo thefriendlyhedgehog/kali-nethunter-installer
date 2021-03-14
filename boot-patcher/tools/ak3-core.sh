@@ -71,7 +71,6 @@ ab_slot() {
     SLOT=`grep_cmdline androidboot.slot`
     [ -z $SLOT ] || SLOT=_${SLOT}
   fi
-  [ -z $SLOT ] || ui_print "- A/B device Detected. Current slot: $SLOT"
  }
 
 find_block() {
@@ -504,8 +503,9 @@ flash_dtbo() {
     fi;
   done;
 
+  ab_slot;
   if [ "$dtbo" ]; then
-    dtboblock=/dev/block/bootdevice/by-name/dtbo$slot;
+    dtboblock=/dev/block/bootdevice/by-name/dtbo$SLOT;
     if [ ! -e "$dtboblock" ]; then
       abort "dtbo partition could not be found. Aborting...";
     fi;
@@ -522,6 +522,7 @@ flash_dtbo() {
       abort "Flashing dtbo failed. Aborting...";
     else
       ui_print "- Flashed New Dtbo";
+    fi;
   fi;
 }
 ### write_boot (repack ramdisk then build, sign and write image and dtbo)
@@ -774,6 +775,8 @@ setup_ak() {
 #NetHunter Addition 
 #Check device is either A/B or A only
 ab_slot;
+[ -z $SLOT ] || ui_print "- A/B device Detected. Current slot: $SLOT"
+
 #find boot image using find block,get_flags and find_boot_image function
 get_flags;
 find_boot_image;
