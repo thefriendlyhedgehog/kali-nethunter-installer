@@ -99,23 +99,6 @@ do_install() {
 	exit 0
 }
 
-#check free space in /data before chroot installation
-check_space() {
-   #Determine Free space before installing the chroot & abort if fdata is less then 8000 mb
-    fdata=$($BB df -m /data | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
-    if [ -z $fdata ]; then
-	print "Warning: Could not get free space status on /data, continuing anyway!"
-	
-    else
-    
-    if [ ! "$fdata" -gt "8000" ]; then
-    print "Warning: You don't have enough space in your DATA partition for chroot installation."
-    print "Aborting chroot installation..."
-    exit 1
-    fi
-    fi
-}
-
 # Check zip for kalifs-* first
 [ -f "$ZIPFILE" ] && {
 	KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
@@ -124,7 +107,7 @@ check_space() {
 
 	FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
 	FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
-	check_space && verify_fs && do_install "$ZIPFILE"
+        verify_fs && do_install "$ZIPFILE"
 }
 
 # Check these locations in priority order
@@ -135,7 +118,7 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
 		[ -s "$KALIFS" ] || continue
 		FS_ARCH=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
 		FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $3}')
-		check_space && verify_fs && do_install
+		verify_fs && do_install
 	done
 
 	# Check location for kalifs-[size].tar.xz name format
@@ -143,7 +126,7 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
 		[ -f "$KALIFS" ] || continue
 		FS_ARCH=armhf
 		FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
-		check_space && verify_fs && do_install
+		verify_fs && do_install
 	done
 
 done
