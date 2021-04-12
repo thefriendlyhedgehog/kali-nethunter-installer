@@ -327,6 +327,21 @@ cd "$tmp"
 
 . ./env.sh
 
+[ -e /dev/block/mapper ] && {
+    print " "
+    print "********** Dynamic Device Detected **********"
+    print " "
+    print "This NetHunter package cannot be"
+    print "installed on this device via recovery"
+    print "Please Flash this file via Magisk Manager"
+    print "as Module And ensure, You have USB DEBUGGUNG"
+    print "enabled via ADB"
+    print " "
+    print "******* NetHunter Installation failed *******"
+    exit 1
+}
+
+
 progress 0.0
 print "Starting the installation"
 
