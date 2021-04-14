@@ -387,14 +387,102 @@ do_install() {
 	# HACK 1/2: Rename According FS_ARCH cause NetHunter App supports searching for best available arch
 	CHROOT="$NHSYS/kali-$FS_ARCH" # Legacy rootfs directory prior to 2020.1
 	ROOTFS="$NHSYS/kalifs"     # New symlink allowing to swap chroots via nethunter app on the fly
-    PRECHROOT="$NHSYS/kali-armhf" # previous chroot location 
-    PRECHROOT1="$NHSYS/kali-arm64" # Possible Second location
-    
-	# Remove previous chroot
-	[ -d "$PRECHROOT" -o -d "$PRECHROOT1" ] && {
-	    ui_print "Previous Chroot Detected!!Removing..."
-		rm -rf "$PRECHROOT"
-		rm -f "$ROOTFS"
+    PRECHROOT=`find /data/local/nhsystem -type d -iname kali-* | head -n 1` # previous chroot location 
+        
+# Remove previous chroot
+[ -d "$PRECHROOT" ] && {
+ui_print "Previous Chroot Detected!!"
+
+f_kill_pids() {
+    local lsof_full=$(lsof | awk '{print $1}' | grep -c '^lsof')
+    if [ "${lsof_full}" -eq 0 ]; then
+        local pids=$(lsof | grep "$PRECHROOT" | awk '{print $1}' | uniq)
+    else
+        local pids=$(lsof | grep "$PRECHROOT" | awk '{print $2}' | uniq)
+    fi
+    if [ -n "${pids}" ]; then
+        kill -9 ${pids} 2> /dev/null
+        return $?
+    fi
+    return 0
+}
+
+f_restore_setup() {
+    ## set shmmax to 128mb to free memory ##
+    sysctl -w kernel.shmmax=134217728 2>/dev/null
+
+    ## remove all the remaining chroot vnc session pid and log files..##
+    rm -rf $PRECHROOT/tmp/.X11* $PRECHROOT/tmp/.X*-lock $PRECHROOT/root/.vnc/*.pid $PRECHROOT/root/.vnc/*.log > /dev/null 2>&1
+}
+
+f_umount_fs() {
+    isAllunmounted=0
+    if mountpoint -q $PRECHROOT/$1; then
+        if umount -f $PRECHROOT/$1; then
+            if [ ! "$1" = "dev/pts" -a ! "$1" = "dev/shm" ]; then
+                if ! rm -rf $PRECHROOT/$1; then
+                      isAllunmounted=1
+                fi
+            fi
+        else
+            isAllunmounted=1
+        fi
+    else
+        if [ -d $PRECHROOT/$1 ]; then
+            if ! rm -rf $PRECHROOT/$1; then
+                  isAllunmounted=1
+            fi
+        fi
+    fi
+
+}
+
+f_dir_umount() {
+    sync
+    ui_print "[!] Killing all running pids.."
+    f_kill_pids
+    f_restore_setup
+    ui_print "[!] Removing all fs mounts.."
+    for i in "dev/pts" "dev/shm" dev proc sys system sdcard ; do
+        f_umount_fs "$i"
+    done
+}
+
+f_is_mntpoint() {
+    if [ -d "$PRECHROOT" ]; then
+        mountpoint -q "$PRECHROOT" && return 0
+        return 1
+    fi
+}
+
+do_umount() {
+     f_is_mntpoint
+     res=$?
+     case $res in
+           1) f_dir_umount ;;
+           *) return 0 ;;
+     esac
+
+if [ -z "$(cat /proc/mounts | grep $PRECHROOT)" ]; then
+    ui_print "[+] All done."
+    isAllunmounted=0
+else
+    ui_print "[-] there are still mounted points not unmounted yet."
+    isAllunmounted=1
+fi
+
+return $isAllunmounted
+}
+
+do_umount;
+[ $? == 1 ] && { 
+    ui_print "[-] Aborting Chroot Installations"
+    ui_print "[-] Remove the Previous Chroot and install manually the new chroot"
+    return 1
+}
+    ui_print "Removing Previous chroot.."
+	rm -rf "$PRECHROOT"
+	rm -f "$ROOTFS"
 	}
 
 	# Extract new chroot
