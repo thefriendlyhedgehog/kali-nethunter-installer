@@ -41,6 +41,8 @@ ui_print() {
     echo "$1";
 }
 
+file_getprop() { grep "^$2" "$1" | head -n1 | cut -d= -f2-; }
+
 set_perm() {
   chown $2:$3 $1 || return 1
   chmod $4 $1 || return 1
