@@ -62,7 +62,7 @@ do_install() {
 	# HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter App supports searching these directory after first boot
 	CHROOT="$NHSYS/kali-$nh_arch" # Legacy rootfs directory prior to 2020.1
 	ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via nethunter app on the fly
-    PRECHROOT="$NHSYS/kali-armhf" #Old chroot location prior to 2020.1
+	PRECHROOT=`find $NHSYS -type d -iname kali-* | head -n 1`  #Generic previous chroot location
     
 	# Remove previous chroot
 	[ -d "$PRECHROOT" ] && {
@@ -108,11 +108,11 @@ check_space() {
 	
     else
     
-    if [ ! "$fdata" -gt "8000" ]; then
+    [ ! "$fdata" -gt "8000" ] && {
     print "Warning: You don't have enough space in your DATA partition for chroot installation."
     print "Aborting chroot installation..."
     exit 1
-    fi
+    }
     fi
 }
 
