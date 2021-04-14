@@ -439,10 +439,10 @@ f_umount_fs() {
 
 f_dir_umount() {
     sync
-    ui_print "[!] Killing all running pids.."
+    ui_print "Killing all running pids.."
     f_kill_pids
     f_restore_setup
-    ui_print "[!] Removing all fs mounts.."
+    ui_print "Removing all fs mounts.."
     for i in "dev/pts" "dev/shm" dev proc sys system sdcard ; do
         f_umount_fs "$i"
     done
@@ -464,10 +464,10 @@ do_umount() {
      esac
 
 if [ -z "$(cat /proc/mounts | grep $PRECHROOT)" ]; then
-    ui_print "[+] All done."
+    ui_print "All done."
     isAllunmounted=0
 else
-    ui_print "[-] there are still mounted points not unmounted yet."
+    ui_print "there are still mounted points not unmounted yet."
     isAllunmounted=1
 fi
 
@@ -476,8 +476,8 @@ return $isAllunmounted
 
 do_umount;
 [ $? == 1 ] && { 
-    ui_print "[-] Aborting Chroot Installations"
-    ui_print "[-] Remove the Previous Chroot and install manually the new chroot"
+    ui_print "Aborting Chroot Installations.."
+    ui_print "Remove the Previous Chroot and install the new chroot via NetHunter App"
     return 1
 }
     ui_print "Removing Previous chroot.."
