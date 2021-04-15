@@ -528,16 +528,16 @@ do_umount;
 
 do_chroot;
 
-print " "
-print "************************************************"
-print "*       Kali NetHunter is now installed!       *"
-print "*==============================================*"
-print "*   Please update the NetHunter app via the    *"
-print "*   NetHunter Store to work around an Android  *"
-print "*   permission issue and run the NetHunter app *"
-print "*       to finish setting everything up!       *"
-print "************************************************"
-print " "
+ui_print " "
+ui_print "************************************************"
+ui_print "*       Kali NetHunter is now installed!       *"
+ui_print "*==============================================*"
+ui_print "*   Please update the NetHunter app via the    *"
+ui_print "*   NetHunter Store to work around an Android  *"
+ui_print "*   permission issue and run the NetHunter app *"
+ui_print "*       to finish setting everything up!       *"
+ui_print "************************************************"
+ui_print " "
 
 
 # Random Important Magisk Stuff (Don't Remove)
