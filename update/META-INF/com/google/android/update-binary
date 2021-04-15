@@ -334,10 +334,11 @@ cd "$tmp"
     print "This NetHunter package cannot be"
     print "installed on this device via recovery"
     print "Please Flash this file via Magisk Manager"
-    print "as Module And ensure, You have USB DEBUGGUNG"
-    print "enabled via ADB"
+    print "as Module And ensure, You have USB DEBUGGING"
+    print "enabled for using ADB"
     print " "
     print "******* NetHunter Installation failed *******"
+    cleanup 
     exit 1
 }
 

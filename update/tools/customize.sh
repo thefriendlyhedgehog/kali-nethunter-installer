@@ -164,7 +164,7 @@ pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
 # and NetHunterStore.apk because we need it 
 ui_print "- Installing NetHunter-Store.apk"
-pm install $TMP/data/app/NetHunterStore.apk &>/dev/null
+pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 ## Installing privileged extension as system app
 # We don't need privileged extension apk in dynamic devices
