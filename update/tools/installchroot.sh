@@ -5,7 +5,7 @@ tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 . "$tmp/env.sh"
 
-ZIPFILE=$1
+zip=$1
 
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
@@ -15,7 +15,7 @@ print() {
 	echo
 }
 
-
+NHSYS=/data/local/nhsystem
 get_bb() {
     cd $tmp/tools
     BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
@@ -27,17 +27,18 @@ get_bb() {
 
 BB=$(get_bb)
 
+# Get Best Possible ARCH 
+ARCH=`cat /system/build.prop  | $BB dos2unix | $BB sed -n "s/^ro.product.cpu.abi=//p" 2>/dev/null | head -n 1`
 
-NHSYS=/data/local/nhsystem
-#ref:https://developer.android.com/ndk/guides/abis and wikipedia
-arch="$(getprop ro.product.cpu.abi)"
-case $arch in
-     armeabi-v7a|armv7*) nh_arch="armhf" ;;
-     arm64-v8a|arm64*|armv8l) nh_arch="arm64" ;;
-     x86|x86_32) nh_arch="i386" ;; 
-     x86_64) nh_arch="amd64" ;;
-     *) return 1 ;;
+
+case $ARCH in 
+    arm64*) NH_ARCH=arm64 ;;
+    arm*) NH_ARCH=armhf ;;
+    x86_64) NH_ARCH=amd64 ;;
+    x86*) NH_ARCH=i386 ;;
+    *) print "Unkown architecture Detected.Aborting Chroot Installation..." && exit 1 ;;
 esac
+
 
 verify_fs() {
 	# valid architecture?
@@ -60,14 +61,14 @@ do_install() {
 	mkdir -p "$NHSYS"
 
 	# HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter App supports searching these directory after first boot
-	CHROOT="$NHSYS/kali-$nh_arch" # Legacy rootfs directory prior to 2020.1
+	
+	CHROOT="$NHSYS/kali-$NH_ARCH" # Legacy rootfs directory prior to 2020.1
 	ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via nethunter app on the fly
-	PRECHROOT=`find $NHSYS -type d -iname kali-* | head -n 1`  #Generic previous chroot location
-    
+	PRECHROOT=`$BB find $NHSYS -type d -iname kali-* | head -n 1`  #Generic previous chroot location
+
 	# Remove previous chroot
 	[ -d "$PRECHROOT" ] && {
-		print "Previous Chroot Detected!"
-		print "Removing previous chroot..."
+		print "Previous Chroot Detected!!Removing..."
 		rm -rf "$PRECHROOT"
 		rm -f "$ROOTFS"
 	}
@@ -77,7 +78,7 @@ do_install() {
 	if [ "$1" ]; then
 		unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 	else
-		$BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+	    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 	fi
 
 	[ $? = 0 ] || {
@@ -86,7 +87,8 @@ do_install() {
 		exit 1
 	}
 
-	# HACK 2/2: Rename to kali-(arm64,armhf,amd64,i386) based on env.sh for legacy reasons and create a link to be used by apps effective 2020.1
+# HACK 2/2: Rename to kali-(arm64,armhf,amd64,i386) based on $NH_ARCH for legacy reasons and create a link to be used by apps effective 2020.1
+
 	mv "$NHSYS/kali-$FS_ARCH" "$CHROOT"
         ln -sf "$CHROOT" "$ROOTFS"
 
@@ -99,32 +101,15 @@ do_install() {
 	exit 0
 }
 
-#check free space in /data before chroot installation
-check_space() {
-   #Determine Free space before installing the chroot & abort if fdata is less then 8000 mb
-    fdata=$($BB df -m /data | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
-    if [ -z $fdata ]; then
-	print "Warning: Could not get free space status on /data, continuing anyway!"
-	
-    else
-    
-    [ ! "$fdata" -gt "8000" ] && {
-    print "Warning: You don't have enough space in your DATA partition for chroot installation."
-    print "Aborting chroot installation..."
-    exit 1
-    }
-    fi
-}
-
 # Check zip for kalifs-* first
-[ -f "$ZIPFILE" ] && {
-	KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
+[ -f "$zip" ] && {
+	KALIFS=$(unzip -lqq "$zip" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
 	# Check other locations if zip didn't contain a kalifs-*
 	[ "$KALIFS" ] || return
 
 	FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
 	FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
-	check_space && verify_fs && do_install "$ZIPFILE"
+	verify_fs && do_install "$zip"
 }
 
 # Check these locations in priority order
@@ -135,7 +120,7 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
 		[ -s "$KALIFS" ] || continue
 		FS_ARCH=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
 		FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $3}')
-		check_space && verify_fs && do_install
+		verify_fs && do_install
 	done
 
 	# Check location for kalifs-[size].tar.xz name format
@@ -143,7 +128,7 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
 		[ -f "$KALIFS" ] || continue
 		FS_ARCH=armhf
 		FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
-		check_space && verify_fs && do_install
+		verify_fs && do_install
 	done
 
 done
