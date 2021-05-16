@@ -1,0 +1,7 @@
+id=Kali-NetHunter
+name=Kali-NetHunter for Android Dynamic
+version=1.0.0
+versionCode=10010
+author=Nethunter-Team @ gitlab
+description=Kali-NetHunter apps ,binary ,firmwares ,wallpapers ,chroot for Android Dynamic Devices
+template=1510

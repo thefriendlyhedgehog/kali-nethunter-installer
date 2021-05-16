@@ -37,5 +37,6 @@ rm -rf /data/data/com.offsec.nethunter
 rm -rf /data/app/com.offsec.nethunter
 rm -f /data/app/NetHunter.apk
 rm -f /data/app/nethunter.apk
+rm -rf /system/app/NetHunter
 
 sleep 3

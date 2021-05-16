@@ -6,7 +6,7 @@ supersu=
 ## end build generated variables
 
 if [ "$3" ]; then
-	zip=$3
+	ZIPFILE=$3
 	console=/proc/$$/fd/$2
 	# write the location of the console buffer to /tmp/console for other scripts to use
 	echo "$console" > /tmp/console
@@ -15,6 +15,7 @@ else
 	[ "$console" ] || console=/proc/$$/fd/1
 fi
 
+test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 tmp=/tmp/nethunter
 patchtmp=$tmp/boot-patcher
 export home=$patchtmp
@@ -34,19 +35,17 @@ abort() {
 		print "Error: $1"
 		print "Aborting..."
 	}
-	cleanup
+	restore_env
 	print "Failed to install Kali NetHunter!"
 	exit 1
 }
 
 cleanup() {
-        print "Cleaning up..."
-        rm ${SYSTEM}/.rw
-        rm /data/.rw
-        /sbin/umount -f /system 2>/dev/null
-        /sbin/umount -f /system_root 2>/dev/null
-
-	[ "$zip" ] && rm /tmp/console
+    [ "$ZIPFILE" ] && {
+       rm /tmp/console 
+    }
+    cd $(dirname $tmp)
+    rm -rf $tmp
 }
 
 install() {
@@ -102,10 +101,124 @@ symlink() {
 	ln -s "$1" "$2"
 }
 
-mount() {
-	mountpoint -q "$1" || /sbin/busybox mount -o rw "$1" || abort "Unable to mount $1 as rw!"
-	>> "$1/.rw" && return || /sbin/busybox mount -o remount,rw "$1"
-	>> "$1/.rw" && return || abort "Unable to write to $1!"
+setup_mountpoint() {
+  test -L $1 && $BB mv -f $1 ${1}_link
+  if [ ! -d $1 ]; then
+    rm -f $1
+    mkdir -p $1
+  fi
+}
+
+is_mounted() { 
+           $BB mount | $BB grep -q " $1 "
+}
+
+mount_all() {
+  if ! is_mounted /data; then
+    $BB mount /data
+  fi
+  setup_mountpoint $ANDROID_ROOT
+  if ! is_mounted $ANDROID_ROOT; then
+    $BB mount -o rw -t auto $ANDROID_ROOT 2>/dev/null
+  fi
+  case $ANDROID_ROOT in
+    /system_root) setup_mountpoint /system;;
+    /system)
+      if ! is_mounted /system && ! is_mounted /system_root; then
+        setup_mountpoint /system_root
+        $BB mount -o rw -t auto /system_root
+      elif [ -f /system/system/build.prop ]; then
+        setup_mountpoint /system_root
+        $BB mount --move /system /system_root
+      fi
+      
+      if [ $? != 0 ]; then
+        $BB umount /system
+        $BB umount -l /system 2>/dev/null
+        test -e /dev/block/bootdevice/by-name/system || local slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
+        $BB mount -o rw -t auto /dev/block/bootdevice/by-name/system$slot /system_root
+      fi
+    ;;
+  esac
+  if is_mounted /system_root; then
+    if [ -f /system_root/build.prop ]; then
+      $BB mount -o bind /system_root /system
+    else
+      $BB mount -o bind /system_root/system /system
+    fi
+  fi
+}
+
+umount_all() {
+  (if [ ! -d /tmp/nethunter ]; then
+    $BB umount /system
+    $BB umount -l /system
+   if [ -e /system_root ]; then
+      $BB umount /system_root
+      $BB umount -l /system_root
+   fi
+   fi
+ 
+   if is_mounted /data; then
+    $BB umount /data
+    $BB umount -l /data
+   fi) 2>/dev/null
+}
+
+setup_env() {
+  if [ -L /etc ]; then
+    setup_mountpoint /etc
+    $BB cp -af /etc_link/* /etc
+    $BB sed -i 's; / ; /system_root ;' /etc/fstab
+  fi
+  umount_all
+  print "Mounting Partitions..."
+  mount_all
+  if [ $? != 0]; then
+     abort "Cannot mount system partition read/write. Please mount '/system' manually and try again"
+  fi
+}
+
+restore_env() {
+  local dir
+  umount_all
+  test -L /etc_link && $BB rm -rf /etc/*
+  (for dir in /system /system_root /etc; do
+    if [ -L "${dir}_link" ]; then
+      rmdir $dir
+      $BB mv -f ${dir}_link $dir
+    fi
+  done) 2>/dev/null
+  
+  print "Cleaning Up..."
+  cleanup
+}
+
+get_bb() {
+    cd $tmp/tools
+    BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
+    chmod 755 $BB #make busybox executable
+    echo $BB
+    cd - >/dev/null
+}
+
+install_recovery_bb() {
+    # To identify the latest busybox version, we need the command "ls -v" which is not supported by all twrp versions
+    # We will pick the best available busybox version and use that to run "ls -v" to pick the latest version for the recovery partition
+    cd $tmp/tools
+
+    # Try to pick the latest version of busybox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
+    recovery_bb=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    cp $recovery_bb busybox_tmp
+    setperm 0755 0755 busybox_tmp
+
+    # Now that we picked a reasonably current busybox, use that to copy the absolute latest to the recovery partition using "ls -v"
+    nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
+    print "Installing $nethunter_bb applets to /sbin"
+    cp $nethunter_bb /sbin/busybox_nh
+    /sbin/busybox_nh --install /sbin
+    cd - >/dev/null
 }
 
 print "##################################################"
@@ -122,51 +235,23 @@ print "##                                              ##"
 print "####  ############# NetHunter ####################"
 
 # Unpack the installer
-[ "$zip" ] && {
+[ "$ZIPFILE" ] && {
 	print "Unpacking the installer..."
-	extract "$zip" "$tmp" "kalifs-*"
+	extract "$ZIPFILE" "$tmp" "kalifs-*"
 }
 cd "$tmp"
 
 . ./env.sh
 
 progress 0.0
-print "Starting the install process"
+print "Starting the installation"
 
-mount /data
-SYSTEM="/system"
-# Modern devices use ${SYSTEM} as root ("/")
-system_as_root=`getprop ro.build.system_root_image`
-if [[ -d /system_root && "$system_as_root" == "" ]]; then system_as_root="true"; fi
-if [ "$system_as_root" == "true" ]; then
-    print "[system as root] =  $system_as_root"
-    [ -L /system_root ] && rm -f /system_root
-    mkdir /system_root 2>/dev/null
-    /sbin/umount -f /system 2>/dev/null
-    /sbin/mount /system
-    if [ $? = 0 ]; then
-        ## system is in fstab
-        print "[/system] is in fstab, mounting"
-        /sbin/mount --move /system /system_root
-        /sbin/mount -o bind /system_root/system /system
-    else
-        ## system is not in fstab, let's mount it manually
-        print "[/system] is not in fstab, mounting manually"
-        /sbin/umount -f /system_root
-        test -e /dev/block/bootdevice/by-name/system || local slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
-        /sbin/mount -o rw -t auto /dev/block/bootdevice/by-name/system$slot /system_root
-        /sbin/mount -o bind /system_root/system /system
-    fi
-    [ ! -w /system_root ] && {
-	   abort "Cannot mount system partition read/write. Please unmount '/system' manually and try again"
-    } 
-elif [ "$ANDROID_ROOT" == "/system_root" ]; then
-	print "[ANDROID_ROOT] = $ANDROID_ROOT"
-	/sbin/mount -o remount,rw /system_root
-	/sbin/mount -o bind /system_root/system /system
-else
-    mount /system
-fi
+setperm 0755 0755 tools
+
+install_recovery_bb
+
+setup_env #setup environment for nethunter installation
+SYSTEM="/system" 
 
 progress 0.1
 
@@ -174,12 +259,6 @@ progress 0.1
 	abort "Your data partition appears to be empty. Please complete the Android setup wizard before installing Kali NetHunter!"
 }
 
-setperm 0755 0755 tools
-
-# Install additional busybox applets to /sbin in case something is missing during installation
-print "Installing busybox applets to /sbin"
-cp tools/busybox /sbin/busybox_nh
-/sbin/busybox_nh --install /sbin
 
 print "Checking for previous versions of NetHunter"
 sh tools/previnstall.sh
@@ -267,9 +346,11 @@ progress 0.5
 
 [ -f tools/freespace.sh ] && {
 	# This actually runs twice when the NetHunter kernel zip is included
-	print "Freeing up some space on ${SYSTEM}"
-	sh tools/freespace.sh ||
+
+ sh tools/freespace.sh
+ if [ "$?" == "1" ];then
 		abort "Not enough free space on ${SYSTEM} to continue!"
+ fi
 }
 
 print "Running busybox installer..."
@@ -351,19 +432,29 @@ progress 0.8
 [ -d "$patchtmp" ] && {
 	print "Running kernel installer..."
 	sh "$patchtmp/META-INF/com/google/android/update-binary"
-	mount /data
 }
 
 progress 0.9
 
-print "Running Kali chroot installer..."
-sh tools/installchroot.sh "$zip"
+if ! is_mounted /data; then
+#ensure data is mounted for chroot installation
+$BB mount /data
+fi
 
-cleanup
+print "Running Kali chroot installer..."
+sh tools/installchroot.sh "$ZIPFILE"
+
+restore_env #restore environment after installation
+
+print " "
 print "************************************************"
 print "*       Kali NetHunter is now installed!       *"
-print "*   Don't forget to start the NetHunter app    *"
+print "*==============================================*"
+print "*   Please update the NetHunter app via the    *"
+print "*   NetHunter Store to work around an Android  *"
+print "*   permission issue and run the NetHunter app *"
 print "*       to finish setting everything up!       *"
 print "************************************************"
+print " "
 
 progress 1.0
