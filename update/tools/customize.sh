@@ -439,15 +439,24 @@ f_umount_fs() {
 
 }
 
+
 f_dir_umount() {
     sync
     ui_print "Killing all running pids.."
     f_kill_pids
     f_restore_setup
     ui_print "Removing all fs mounts.."
-    for i in "dev/pts" "dev/shm" dev proc sys system sdcard ; do
+    for i in "dev/pts" "dev/shm" dev proc sys system; do
         f_umount_fs "$i"
     done
+    # Don't force unmount sdcard
+    # In some devices, it wipes the internal storage
+    if umount -l $PRECHROOT/sdcard; then
+ 	   if ! rm -rf $PRECHROOT/sdcard; then
+		   isAllunmounted=1
+           fi
+    fi
+	    
 }
 
 f_is_mntpoint() {
