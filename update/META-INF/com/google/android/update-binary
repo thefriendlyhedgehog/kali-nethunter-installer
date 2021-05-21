@@ -275,7 +275,7 @@ setup_env() {
   mount_all;
   if [ -d /dev/block/mapper ]; then
     for slot in "" _a _b; do
-      blockdev --setrw /dev/block/mapper/system$slot 2>/dev/null
+      $BB blockdev --setrw /dev/block/mapper/system$slot 2>/dev/null
     done
   fi
   $BB mount -o rw,remount -t auto /system 2>/dev/null || $BB mount -o rw,remount -t auto / 2>/dev/null
