@@ -426,7 +426,13 @@ def setupkernel():
                 print('Found DTB file at: ' + dtb_location)
                 shutil.copy(dtb_location, os.path.join(out_path, 'dtb'))
 
-        # Copy any patch.d scripts
+        # Copy dtbo.img if it exists
+        dtbo_location = os.path.join(device_path, 'dtbo.img')
+        if os.path.exists(dtbo_location):
+                print('Found DTBO image at: ' + dtbo_location)
+                shutil.copy(dtbo_location, os.path.join(out_path, 'dtbo.img'))
+
+	# Copy any patch.d scripts
         patchd_path = os.path.join(device_path, 'patch.d')
         if os.path.exists(patchd_path):
                 print('Found additional patch.d scripts at: ' + patchd_path)
