@@ -1,14 +1,13 @@
 ### AnyKernel methods (DO NOT CHANGE)
 ## osm0sis @ xda-developers
-##Modified for NetHunter
+## Modified for NetHunter
 
-##OUTFD=$1;
-## NetHunter additions
+# NetHunter additions
 OUTFD=$(cat /tmp/console);
 [ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
 
 # set up working directory variables
-test "$home" || home=$PWD;
+[ "$home" ] || home=$PWD;
 bootimg=$home/boot.img;
 bin=$home/tools;
 patch=$home/patch;
@@ -19,31 +18,15 @@ split_img=$home/split_img;
 # ui_print "<text>" [...]
 ui_print() {
   until [ ! "$1" ]; do
-    echo -e "ui_print $1\nui_print" > $OUTFD;
+    echo "ui_print $1
+      ui_print" >> $OUTFD;
     shift;
   done;
 }
 
-# abort ["<text>" [...]]
-abort() {
-  ui_print " " "$@";
-  exit 1;
-}
-
-# contains <string> <substring>
-contains() {
-  test "${1#*$2}" != "$1";
-}
-
-# file_getprop <file> <property>
-file_getprop() {
-  grep "^$2=" "$1" | cut -d= -f2-;
-}
-###
-
-#Nethunter Addition for automatic boot and slot detection
-#cherrypicked from topjhonwu's magisk util_functions.sh
-#for reference: https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
+# Nethunter Addition for automatic boot and slot detection
+# ypicked from topjhonwu's magisk util_functions.sh
+# ref: https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
@@ -118,6 +101,22 @@ find_boot_image() {
     BOOTIMAGE=`grep -v '#' /etc/*fstab* | grep -E '/boot[^a-zA-Z]' | grep -oE '/dev/[a-zA-Z0-9_./-]*' | head -n 1`
   fi
 }
+
+# abort ["<text>" [...]]
+abort() {
+  ui_print " " "$@";
+  exit 1;
+}
+
+# contains <string> <substring>
+contains() {
+  [ "${1#*$2}" != "$1" ];
+}
+
+# file_getprop <file> <property>
+file_getprop() {
+  grep "^$2=" "$1" | cut -d= -f2-;
+}
 ###
 
 ### file/directory attributes functions:
@@ -163,7 +162,7 @@ split_boot() {
   else
     dd if=$BOOTIMAGE of=$bootimg $customdd;
   fi;
-  test $? != 0 && dumpfail=1;
+  [ $? != 0 ] && dumpfail=1;
 
   mkdir -p $split_img;
   cd $split_img;
@@ -173,9 +172,9 @@ split_boot() {
       $bin/elftool unpack -i $bootimg -o elftool_out;
     fi;
     $bin/unpackelf -i $bootimg;
-    test $? != 0 && dumpfail=1;
-    mv -f boot.img-zImage kernel.gz;
-    mv -f boot.img-ramdisk.cpio.gz ramdisk.cpio.gz;
+    [ $? != 0 ] && dumpfail=1;
+    mv -f boot.img-kernel kernel.gz;
+    mv -f boot.img-ramdisk ramdisk.cpio.gz;
     mv -f boot.img-cmdline cmdline.txt 2>/dev/null;
     if [ -f boot.img-dt -a ! -f "$bin/elftool" ]; then
       case $(od -ta -An -N4 boot.img-dt | sed -e 's/ del//' -e 's/   //g') in
@@ -200,7 +199,7 @@ split_boot() {
     grep "Address:" header | cut -c15- > boot.img-addr;
     grep "Point:" header | cut -c15- > boot.img-ep;
     $bin/dumpimage -p 0 -o kernel.gz boot-trimmed.img;
-    test $? != 0 && dumpfail=1;
+    [ $? != 0 ] && dumpfail=1;
     case $(cat boot.img-type) in
       Multi) $bin/dumpimage -p 1 -o ramdisk.cpio.gz boot-trimmed.img;;
       RAMDisk) mv -f kernel.gz ramdisk.cpio.gz;;
@@ -248,7 +247,7 @@ unpack_ramdisk() {
     fi;
   fi;
 
-  test -d $ramdisk && mv -f $ramdisk $home/rdtmp;
+  [ -d $ramdisk ] && mv -f $ramdisk $home/rdtmp;
   mkdir -p $ramdisk;
   chmod 755 $ramdisk;
 
@@ -263,9 +262,9 @@ unpack_ramdisk() {
 }
 ### dump_boot (dump and split image, then extract ramdisk)
 dump_boot() {
-ui_print "- Unpacking boot image";
+  ui_print "- Unpacking boot image";
   split_boot;
-ui_print "- Unpacking ramdisk";
+  ui_print "- Unpacking ramdisk";
   unpack_ramdisk;
 }
 ###
@@ -292,18 +291,18 @@ repack_ramdisk() {
     cd $ramdisk;
     find . | cpio -H newc -o > $home/ramdisk-new.cpio;
   fi;
-  test $? != 0 && packfail=1;
+  [ $? != 0 ] && packfail=1;
 
   cd $home;
   $bin/magiskboot cpio ramdisk-new.cpio test;
   magisk_patched=$?;
-  test $((magisk_patched & 3)) -eq 1 && $bin/magiskboot cpio ramdisk-new.cpio "extract .backup/.magisk $split_img/.magisk";
+  [ $((magisk_patched & 3)) -eq 1 ] && $bin/magiskboot cpio ramdisk-new.cpio "extract .backup/.magisk $split_img/.magisk";
   if [ "$comp" ]; then
     $bin/magiskboot compress=$comp ramdisk-new.cpio;
     if [ $? != 0 ]; then
       echo "Attempting ramdisk repack with busybox $comp..." >&2;
       $comp -9c ramdisk-new.cpio > ramdisk-new.cpio.$comp;
-      test $? != 0 && packfail=1;
+      [ $? != 0 ] && packfail=1;
       rm -f ramdisk-new.cpio;
     fi;
   fi;
@@ -369,7 +368,7 @@ flash_boot() {
 
   cd $split_img;
   if [ -f "$bin/mkimage" ]; then
-    test "$comp" == "uncompressed" && comp=none;
+    [ "$comp" == "uncompressed" ] && comp=none;
     part0=$kernel;
     case $type in
       Multi) part1=":$ramdisk";;
@@ -377,8 +376,8 @@ flash_boot() {
     esac;
     $bin/mkimage -A $arch -O $os -T $type -C $comp -a $addr -e $ep -n "$name" -d $part0$part1 $home/boot-new.img;
   elif [ -f "$bin/elftool" ]; then
-    test "$dt" && dt="$dt,rpm";
-    test -f cmdline.txt && cmdline="cmdline.txt@cmdline";
+    [ "$dt" ] && dt="$dt,rpm";
+    [ -f cmdline.txt ] && cmdline="cmdline.txt@cmdline";
     $bin/elftool pack -o $home/boot-new.img header=elftool_out/header $kernel $ramdisk,ramdisk $dt $cmdline;
   elif [ -f "$bin/mboot" ]; then
     cp -f $kernel kernel;
@@ -387,14 +386,14 @@ flash_boot() {
   elif [ -f "$bin/rkcrc" ]; then
     $bin/rkcrc -k $ramdisk $home/boot-new.img;
   elif [ -f "$bin/mkbootimg" -a -f "$bin/unpackelf" -a -f boot.img-base ]; then
-    test "$dt" && dt="--dt $dt";
-    $bin/mkbootimg --kernel $kernel --ramdisk $ramdisk --cmdline "$cmdline" --base $home --pagesize $pagesize --kernel_offset $kernel_offset --ramdisk_offset $ramdisk_offset --tags_offset "$tags_offset" $dt --output $home/boot-new.img;
+    [ "$dt" ] && dt="--dt $dt";
+    $bin/mkbootimg --kernel $kernel --ramdisk $ramdisk --cmdline "$cmdline" --base $base --pagesize $pagesize --kernel_offset $kernel_offset --ramdisk_offset $ramdisk_offset --tags_offset "$tags_offset" $dt --output $home/boot-new.img;
   else
-    test "$kernel" && cp -f $kernel kernel;
-    test "$ramdisk" && cp -f $ramdisk ramdisk.cpio;
-    test "$dt" -a -f extra && cp -f $dt extra;
+    [ "$kernel" ] && cp -f $kernel kernel;
+    [ "$ramdisk" ] && cp -f $ramdisk ramdisk.cpio;
+    [ "$dt" -a -f extra ] && cp -f $dt extra;
     for i in dtb recovery_dtbo; do
-      test "$(eval echo \$$i)" -a -f $i && cp -f $(eval echo \$$i) $i;
+      [ "$(eval echo \$$i)" -a -f $i ] && cp -f $(eval echo \$$i) $i;
     done;
     case $kernel in
       *Image*)
@@ -422,11 +421,11 @@ flash_boot() {
             fi;
             mv -f kernel.$comp kernel;
           fi;
-          test ! -f .magisk && $bin/magiskboot cpio ramdisk.cpio "extract .backup/.magisk .magisk";
+          [ ! -f .magisk ] && $bin/magiskboot cpio ramdisk.cpio "extract .backup/.magisk .magisk";
           export $(cat .magisk);
-          test $((magisk_patched & 8)) -ne 0 && export TWOSTAGEINIT=true;
+          [ $((magisk_patched & 8)) -ne 0 ] && export TWOSTAGEINIT=true;
           for fdt in dtb extra kernel_dtb recovery_dtbo; do
-            test -f $fdt && $bin/magiskboot dtb $fdt patch;
+            [ -f $fdt ] && $bin/magiskboot dtb $fdt patch;
           done;
         else
           case $kernel in
@@ -451,7 +450,7 @@ flash_boot() {
       echo "- Signing with CHROMEOS..." >&2;
       $bin/futility vbutil_kernel --pack boot-new-signed.img --keyblock $bin/chromeos/kernel.keyblock --signprivate $bin/chromeos/kernel_data_key.vbprivk --version 1 --vmlinuz boot-new.img --bootloader $bin/chromeos/empty --config $bin/chromeos/empty --arch arm --flags 0x1;
     fi;
-    test $? != 0 && signfail=1;
+    [ $? != 0 ] && signfail=1;
   fi;
   if [ -f "$bin/boot_signer-dexed.jar" -a -d "$bin/avb" ]; then
     pk8=$(ls $bin/avb/*.pk8);
@@ -475,6 +474,7 @@ flash_boot() {
   elif [ "$(wc -c < boot-new.img)" -gt "$(wc -c < boot.img)" ]; then
     abort "New image larger than boot partition. Aborting...";
   fi;
+  blockdev --setrw $BOOTIMAGE 2>/dev/null;
   if [ -f "$bin/flash_erase" -a -f "$bin/nandwrite" ]; then
     $bin/flash_erase $BOOTIMAGE 0 0;
     $bin/nandwrite -p $BOOTIMAGE boot-new.img;
@@ -487,13 +487,14 @@ flash_boot() {
   if [ $? != 0 ]; then
     abort "Flashing image failed. Aborting...";
   else
-    ui_print "- Flashed New BootImage";
+    ui_print "- Flashed new bootimage"
   fi;
 }
 
 # flash_dtbo (flash dtbo only)
 flash_dtbo() {
   local i dtbo dtboblock;
+  ab_slot;
 
   cd $home;
   for i in dtbo dtbo.img; do
@@ -503,12 +504,12 @@ flash_dtbo() {
     fi;
   done;
 
-  ab_slot;
   if [ "$dtbo" ]; then
     dtboblock=/dev/block/bootdevice/by-name/dtbo$SLOT;
     if [ ! -e "$dtboblock" ]; then
       abort "dtbo partition could not be found. Aborting...";
     fi;
+    blockdev --setrw $dtboblock 2>/dev/null;
     if [ -f "$bin/flash_erase" -a -f "$bin/nandwrite" ]; then
       $bin/flash_erase $dtboblock 0 0;
       $bin/nandwrite -p $dtboblock $dtbo;
@@ -521,13 +522,13 @@ flash_dtbo() {
     if [ $? != 0 ]; then
       abort "Flashing dtbo failed. Aborting...";
     else
-      ui_print "- Flashed New Dtbo";
+      ui_print "- Flashed new dtbo";
     fi;
   fi;
 }
 ### write_boot (repack ramdisk then build, sign and write image and dtbo)
 write_boot() {
-ui_print "- Repacking ramdisk";
+  ui_print "- Repacking ramdisk";
   repack_ramdisk;
   flash_boot;
   flash_dtbo;
@@ -536,14 +537,14 @@ ui_print "- Repacking ramdisk";
 
 ### file editing functions:
 # backup_file <file>
-backup_file() { test ! -f $1~ && cp -fp $1 $1~; }
+backup_file() { [ ! -f $1~ ] && cp -fp $1 $1~; }
 
 # restore_file <file>
-restore_file() { test -f $1~ && cp -fp $1~ $1; rm -f $1~; }
+restore_file() { [ -f $1~ ] && cp -fp $1~ $1; rm -f $1~; }
 
 # replace_string <file> <if search string> <original string> <replacement string> <scope>
 replace_string() {
-  test "$5" == "global" && local scope=g;
+  [ "$5" == "global" ] && local scope=g;
   if ! grep -q "$2" $1; then
     sed -i "s;${3};${4};${scope}" $1;
   fi;
@@ -563,7 +564,7 @@ replace_section() {
     for end in $(grep -n "$endstr" $1 | cut -d: -f1) $last; do
       if [ "$end" ] && [ "$begin" -lt "$end" ]; then
         sed -i "${begin},${end}d" $1;
-        test "$end" == "$last" && echo >> $1;
+        [ "$end" == "$last" ] && echo >> $1;
         sed -i "${begin}s;^;${4}\n;" $1;
         break;
       fi;
@@ -591,13 +592,6 @@ remove_section() {
   fi;
 }
 
-insert_after_last() {
-	grep -q "^$3$" "$1" || {
-		line=$(($(grep -n "^[[:space:]]*$2[[:space:]]*$" "$1" | tail -1 | cut -d: -f1) + 1));
-		sed -i "${line}i$3" "$1";
-	}
-}
-
 # insert_line <file> <if search string> <before|after> <line match string> <inserted line>
 insert_line() {
   local offset line;
@@ -615,19 +609,27 @@ insert_line() {
   fi;
 }
 
-# replace_line <file> <line replace string> <replacement line>
+# replace_line <file> <line replace string> <replacement line> <scope>
 replace_line() {
+  local lines line;
   if grep -q "$2" $1; then
-    local line=$(grep -n "$2" $1 | head -n1 | cut -d: -f1);
-    sed -i "${line}s;.*;${3};" $1;
+    lines=$(grep -n "$2" $1 | cut -d: -f1 | sort -nr);
+    [ "$4" == "global" ] || lines=$(echo "$lines" | tail -n1);
+    for line in $lines; do
+      sed -i "${line}s;.*;${3};" $1;
+    done;
   fi;
 }
 
-# remove_line <file> <line match string>
+# remove_line <file> <line match string> <scope>
 remove_line() {
+  local lines line;
   if grep -q "$2" $1; then
-    local line=$(grep -n "$2" $1 | head -n1 | cut -d: -f1);
-    sed -i "${line}d" $1;
+    lines=$(grep -n "$2" $1 | cut -d: -f1 | sort -nr);
+    [ "$3" == "global" ] || lines=$(echo "$lines" | tail -n1);
+    for line in $lines; do
+      sed -i "${line}d" $1;
+    done;
   fi;
 }
 
@@ -650,6 +652,13 @@ insert_file() {
     sed -i "${line}s;^;\n;" $1;
     sed -i "$((line - 1))r $patch/$5" $1;
   fi;
+}
+
+insert_after_last() {
+	grep -q "^$3$" "$1" || {
+		line=$(($(grep -n "^[[:space:]]*$2[[:space:]]*$" "$1" | tail -1 | cut -d: -f1) + 1));
+		sed -i "${line}i$3" "$1";
+	}
 }
 
 # append_file <file> <if search string> <patch file>
@@ -743,14 +752,14 @@ reset_ak() {
   if [ -d "$current" ]; then
     rm -rf $current/ramdisk;
     for i in $bootimg boot-new.img; do
-      test -e $i && cp -af $i $current;
+      [ -e $i ] && cp -af $i $current;
     done;
   fi;
-  test -d $split_img && rm -rf $ramdisk;
+  [ -d $split_img ] && rm -rf $ramdisk;
   rm -rf $bootimg $split_img $home/*-new* $home/*-files/current;
 
   if [ "$1" == "keep" ]; then
-    test -d $home/rdtmp && mv -f $home/rdtmp $ramdisk;
+    [ -d $home/rdtmp ] && mv -f $home/rdtmp $ramdisk;
   else
     rm -rf $patch $home/rdtmp;
   fi;
@@ -772,12 +781,12 @@ setup_ak() {
     touch $blockfiles/current;
   fi;
 
-#NetHunter Addition 
-#Check device is either A/B or A only
+# NetHunter Addition 
+# Check device is either A/B or A only
 ab_slot;
 [ -z $SLOT ] || ui_print "- A/B device Detected. Current slot: $SLOT"
 
-#find boot image using find block,get_flags and find_boot_image function
+# find boot image using find block,get_flags and find_boot_image function
 get_flags;
 find_boot_image;
 ui_print "- Target Image: $BOOTIMAGE";
