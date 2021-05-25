@@ -64,7 +64,7 @@ do_install() {
 	
 	CHROOT="$NHSYS/kali-$NH_ARCH" # Legacy rootfs directory prior to 2020.1
 	ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via nethunter app on the fly
-	PRECHROOT=`$BB find $NHSYS -type d -iname kali-* | head -n 1`  #Generic previous chroot location
+	PRECHROOT=$($BB find /data/local/nhsystem -type d -name  "*-*" | head -n 1)  #Generic previous chroot location
 
 	# Remove previous chroot
 	[ -d "$PRECHROOT" ] && {

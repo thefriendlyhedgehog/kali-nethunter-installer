@@ -7,9 +7,9 @@
 # begin properties
 properties() { '
 kernel.string=
-do.devicecheck=0#Use value 1 while using boot-patcher standalone
+do.devicecheck=0 #Use value 1 while using boot-patcher standalone
 do.modules=0
-do.systemless=0#Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
+do.systemless=0 #Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
 do.cleanup=0
 do.cleanuponabort=0
 device.name1=
@@ -27,9 +27,7 @@ supported.versions=
 
 # shell variables
 
-#NetHunter Addition
-##block= 
-##is_slot_device=0;
+# NetHunter Addition
 ramdisk_compression=auto;
 
 ## AnyKernel methods (DO NOT CHANGE)
@@ -37,6 +35,7 @@ ramdisk_compression=auto;
 . tools/ak3-core.sh;
 
 ## NetHunter additions
+$BB mount -o rw,remount -t auto /system 2>/dev/null || $BB mount -o rw,remount -t auto / 2>/dev/null
 
 SYSTEM="/system";
 SYSTEM_ROOT="/system_root";
@@ -125,23 +124,6 @@ set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
 dump_boot;
-
-
-ui_print "- Patching Ramdisk";
-# begin ramdisk changes
-
-# migrate from /overlay to /overlay.d to enable SAR Magisk
-if [ -d $ramdisk/overlay ]; then
-  rm -rf $ramdisk/overlay;
-fi;
-
-if [ -d $ramdisk/.backup ]; then
-  patch_cmdline "skip_override" "skip_override";
-else
-  patch_cmdline "skip_override" "";
-fi;
-
-# end ramdisk changes
 
 write_boot;
 ## end install

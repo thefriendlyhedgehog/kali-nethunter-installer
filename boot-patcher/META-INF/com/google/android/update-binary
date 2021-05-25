@@ -142,5 +142,4 @@ fi
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
 
 print "- Boot image patching complete"
-cleanup
-
+# cleanup #dont clean up if not specified in anykernel.sh
