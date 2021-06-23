@@ -17,15 +17,30 @@ print() {
 	echo
 }
 
-res=$(tools/screenres)
+#Try to Grab the Wallpaper Height and Width from /sys 
+res_w=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f1 -dx)
+res_h=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f2 -dx)
+
+res="$res_w"x"$res_h" #Resolution Size
+
+#check if we grabbed Resolution from /sys or not
+if [ -z $res_h ] || [ -z $res_w ];then
+unset res res_h res_w
+
+res=$(tools/screenres) #Try the old method for old devices
 
 if [ ! "$res" ] || [[ "$res" == *"failed"* ]] || [ -f "wallpaper/resolution.txt" ]; then
 	if [ -f "wallpaper/resolution.txt" ]; then
 		res=$(cat wallpaper/resolution.txt)
 	else
-                print "Can't get screen resolution from kernel! Skipping..."
+              print "Can't get screen resolution from kernel! Skipping..."
 	        exit 1
 	fi
+fi
+
+res_w=$(echo "$res" | cut -f1 -dx)
+res_h=$(echo "$res" | cut -f2 -dx)
+
 fi
 
 print "Found screen resolution: $res"
@@ -34,9 +49,6 @@ if [ ! -f "wallpaper/$res.png" ]; then
 	print "No wallpaper found for your screen resolution. Skipping..."
 	exit 1
 fi
-
-res_w=$(echo "$res" | cut -f1 -dx)
-res_h=$(echo "$res" | cut -f2 -dx)
 
 [ -f "$wp" ] && [ -f "$wpinfo" ] || setup_wp=1
 
@@ -55,3 +67,4 @@ fi
 print "NetHunter wallpaper applied successfully"
 
 exit 0
+

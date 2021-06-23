@@ -1,12 +1,18 @@
 #!/sbin/sh
 # Kali NetHunter installer
 
+BOOTMODE=false;
+ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
+$BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
+
+
+if ! $BOOTMODE; then
 ## start build generated variables
 supersu=auto
 ## end build generated variables
 
 if [ "$3" ]; then
-	zip=$3
+	ZIPFILE=$3
 	console=/proc/$$/fd/$2
 	# write the location of the console buffer to /tmp/console for other scripts to use
 	echo "$console" > /tmp/console
@@ -15,6 +21,7 @@ else
 	[ "$console" ] || console=/proc/$$/fd/1
 fi
 
+test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 tmp=/tmp/nethunter
 patchtmp=$tmp/boot-patcher
 export home=$patchtmp
@@ -34,19 +41,17 @@ abort() {
 		print "Error: $1"
 		print "Aborting..."
 	}
-	cleanup
+	restore_env
 	print "Failed to install Kali NetHunter!"
 	exit 1
 }
 
 cleanup() {
-        print "Cleaning up..."
-        rm ${SYSTEM}/.rw
-        rm /data/.rw
-        /sbin/umount -f /system 2>/dev/null
-        /sbin/umount -f /system_root 2>/dev/null
-
-	[ "$zip" ] && rm /tmp/console
+    [ "$ZIPFILE" ] && {
+       rm /tmp/console 
+    }
+    cd $(dirname $tmp)
+    rm -rf $tmp
 }
 
 install() {
@@ -102,10 +107,201 @@ symlink() {
 	ln -s "$1" "$2"
 }
 
-mount() {
-	mountpoint -q "$1" || /sbin/busybox_nh mount -o rw "$1" || abort "Unable to mount $1 as rw!"
-	>> "$1/.rw" && return || /sbin/busybox_nh mount -o remount,rw "$1"
-	>> "$1/.rw" && return || abort "Unable to write to $1!"
+setup_mountpoint() {
+  [ -L $1 ] && $BB mv -f $1 ${1}_link;
+  if [ ! -d $1 ]; then
+    $BB rm -f $1;
+    $BB mkdir -p $1;
+  fi;
+}
+is_mounted() { $BB mount | $BB grep -q " $1 "; }
+mount_apex() {
+  [ -d /system_root/system/apex ] || return 1;
+  local apex dest loop minorx num var;
+  setup_mountpoint /apex;
+  minorx=1;
+  [ -e /dev/block/loop1 ] && minorx=$($BB ls -l /dev/block/loop1 | $BB awk '{ print $6 }');
+  num=0;
+  for apex in /system_root/system/apex/*; do
+    dest=/apex/$($BB basename $apex .apex);
+    case $dest in
+      *.current|*.release) dest=$(echo $dest | $BB rev | $BB cut -d. -f2- | $BB rev);;
+    esac;
+    $BB mkdir -p $dest;
+    case $apex in
+      *.apex)
+        $BB unzip -qo $apex apex_payload.img -d /apex;
+        $BB mv -f /apex/apex_payload.img $dest.img;
+        $BB mount -t ext4 -o ro,noatime $dest.img $dest 2>/dev/null;
+        if [ $? != 0 ]; then
+          while [ $num -lt 64 ]; do
+            loop=/dev/block/loop$num;
+            ($BB mknod $loop b 7 $((num * minorx));
+            $BB losetup $loop $dest.img) 2>/dev/null;
+            num=$((num + 1));
+            $BB losetup $loop | $BB grep -q $dest.img && break;
+          done;
+          $BB mount -t ext4 -o ro,loop,noatime $loop $dest;
+          if [ $? != 0 ]; then
+            $BB losetup -d $loop 2>/dev/null;
+          fi;
+        fi;
+      ;;
+      *) $BB mount -o bind $apex $dest;;
+    esac;
+  done;
+  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
+    eval OLD_${var}=\$$var;
+  done;
+  $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's; /;=/;'); unset export;
+}
+umount_apex() {
+  [ -d /apex/com.android.runtime ] || return 1;
+  local dest loop var;
+  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
+    if [ "$(eval echo \$OLD_$var)" ]; then
+      eval $var=\$OLD_${var};
+    else
+      eval unset $var;
+    fi;
+    unset OLD_${var};
+  done;
+  for dest in $($BB find /apex -type d -mindepth 1 -maxdepth 1); do
+    if [ -f $dest.img ]; then
+      loop=$($BB mount | $BB grep $dest | $BB cut -d\  -f1);
+    fi;
+    ($BB umount -l $dest;
+    $BB losetup -d $loop) 2>/dev/null;
+  done;
+  $BB rm -rf /apex 2>/dev/null;
+}
+
+find_slot() {
+  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
+  [ "$slot" ] || slot=$($BB grep -o 'androidboot.slot_suffix=.*$' /proc/cmdline | $BB cut -d\  -f1 | $BB cut -d= -f2);
+  if [ ! "$slot" ]; then
+    slot=$(getprop ro.boot.slot 2>/dev/null);
+    [ "$slot" ] || slot=$($BB grep -o 'androidboot.slot=.*$' /proc/cmdline | $BB cut -d\  -f1 | $BB cut -d= -f2);
+    [ "$slot" ] && slot=_$slot;
+  fi;
+  [ "$slot" ] && echo "$slot";
+}
+
+mount_all() {
+  if ! is_mounted /cache; then
+    $BB mount /cache 2>/dev/null
+  fi;
+  if ! is_mounted /data; then
+    $BB mount /data
+  fi;
+  ($BB mount -o ro -t auto /vendor;
+  $BB mount -o ro -t auto /product;
+  $BB mount -o ro -t auto /persist) 2>/dev/null;
+  setup_mountpoint $ANDROID_ROOT;
+  if ! is_mounted $ANDROID_ROOT; then
+    $BB mount -o ro -t auto $ANDROID_ROOT 2>/dev/null;
+  fi;
+  case $ANDROID_ROOT in
+    /system_root) setup_mountpoint /system;;
+    /system)
+      if ! is_mounted /system && ! is_mounted /system_root; then
+        setup_mountpoint /system_root;
+        $BB mount -o ro -t auto /system_root;
+      elif [ -f /system/system/build.prop ]; then
+        setup_mountpoint /system_root;
+        $BB mount --move /system /system_root;
+      fi;
+      if [ $? != 0 ]; then
+        ($BB umount /system;
+        $BB umount -l /system) 2>/dev/null;
+        if [ -d /dev/block/mapper ]; then
+          [ -e /dev/block/mapper/system ] || local slot=$(find_slot);
+          $BB mount -o ro -t auto /dev/block/mapper/vendor$slot /vendor;
+          $BB mount -o ro -t auto /dev/block/mapper/product$slot /product 2>/dev/null;
+          $BB mount -o ro -t auto /dev/block/mapper/system$slot /system_root;
+        else
+          [ -e /dev/block/bootdevice/by-name/system ] || local slot=$(find_slot);
+          ($BB mount -o ro -t auto /dev/block/bootdevice/by-name/vendor$slot /vendor;
+          $BB mount -o ro -t auto /dev/block/bootdevice/by-name/product$slot /product;
+          $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist$slot /persist) 2>/dev/null;
+          $BB mount -o ro -t auto /dev/block/bootdevice/by-name/system$slot /system_root;
+        fi;
+      fi;
+    ;;
+  esac;
+  if is_mounted /system_root; then
+    mount_apex;
+    if [ -f /system_root/build.prop ]; then
+      $BB mount -o bind /system_root /system;
+    else
+      $BB mount -o bind /system_root/system /system;
+    fi;
+  fi;
+}
+umount_all() {
+  local mount;
+  (if is_mounted /system; then
+    $BB umount /system;
+    $BB umount -l /system;
+  fi) 2>/dev/null;
+  umount_apex;
+  (if [ -e /system_root ]; then
+    $BB umount /system_root;
+    $BB umount -l /system_root;
+  fi;
+  umount /vendor; # busybox umount /vendor breaks recovery on some hacky devices
+  umount -l /vendor;
+  for mount in /mnt/system /mnt/vendor /product /mnt/product /persist; do
+    $BB umount $mount;
+    $BB umount -l $mount;
+  done;
+  if is_mounted /data; then
+    $BB umount /data;
+    $BB umount -l /data;
+  fi;
+  if is_mounted /cache; then
+    $BB umount /cache;
+    $BB umount -l /cache;
+  fi) 2>/dev/null;
+}
+setup_env() {
+  $BB mount -o bind /dev/urandom /dev/random;
+  if [ -L /etc ]; then
+    setup_mountpoint /etc;
+    $BB cp -af /etc_link/* /etc;
+    $BB sed -i 's; / ; /system_root ;' /etc/fstab;
+  fi;
+  umount_all;
+  mount_all;
+  if [ -d /dev/block/mapper ]; then
+    for slot in "" _a _b; do
+      $BB blockdev --setrw /dev/block/mapper/system$slot 2>/dev/null
+    done
+  fi
+  $BB mount -o rw,remount -t auto /system 2>/dev/null || $BB mount -o rw,remount -t auto / 2>/dev/null
+  OLD_LD_PATH=$LD_LIBRARY_PATH;
+  OLD_LD_PRE=$LD_PRELOAD;
+  OLD_LD_CFG=$LD_CONFIG_FILE;
+  unset LD_LIBRARY_PATH LD_PRELOAD LD_CONFIG_FILE;
+}
+restore_env() {
+  local dir;
+  [ "$OLD_LD_PATH" ] && export LD_LIBRARY_PATH=$OLD_LD_PATH;
+  [ "$OLD_LD_PRE" ] && export LD_PRELOAD=$OLD_LD_PRE;
+  [ "$OLD_LD_CFG" ] && export LD_CONFIG_FILE=$OLD_LD_CFG;
+  unset OLD_LD_PATH OLD_LD_PRE OLD_LD_CFG;
+  umount_all;
+  [ -L /etc_link ] && $BB rm -rf /etc/*;
+  (for dir in /apex /system /system_root /etc; do
+    if [ -L "${dir}_link" ]; then
+      rmdir $dir;
+      $BB mv -f ${dir}_link $dir;
+    fi;
+  done;
+  $BB umount -l /dev/random) 2>/dev/null; 
+
+  print "Cleaning Up..."
+  cleanup
 }
 
 get_bb() {
@@ -149,55 +345,39 @@ print "##                                              ##"
 print "####  ############# NetHunter ####################"
 
 # Unpack the installer
-[ "$zip" ] && {
+[ "$ZIPFILE" ] && {
 	print "Unpacking the installer..."
-	extract "$zip" "$tmp" "kalifs-*"
+	extract "$ZIPFILE" "$tmp" "kalifs-*"
 }
 cd "$tmp"
 
 . ./env.sh
 
+[ -e /dev/block/mapper ] && {
+    print " "
+    print "********** Dynamic Device Detected **********"
+    print " "
+    print "This NetHunter package cannot be"
+    print "installed on this device via recovery"
+    print "Please Flash this file via Magisk Manager"
+    print "as Module And ensure, You have USB DEBUGGING"
+    print "enabled for using ADB"
+    print " "
+    print "******* NetHunter Installation failed *******"
+    cleanup 
+    exit 1
+}
+
+
 progress 0.0
 print "Starting the installation"
 
 setperm 0755 0755 tools
-
+BB=$(get_bb) #get latest busybox
 install_recovery_bb
 
-mount /data
-SYSTEM="/system"
-# Modern devices use ${SYSTEM} as root ("/")
-system_as_root=`getprop ro.build.system_root_image`
-if [[ -d /system_root && "$system_as_root" == "" ]]; then system_as_root="true"; fi
-if [ "$system_as_root" == "true" ]; then
-    print "[system as root] =  $system_as_root"
-    [ -L /system_root ] && rm -f /system_root
-    mkdir /system_root 2>/dev/null
-    /sbin/umount -f /system 2>/dev/null
-    /sbin/mount /system
-    if [ $? = 0 ]; then
-        ## system is in fstab
-        print "[/system] is in fstab, mounting"
-        /sbin/mount --move /system /system_root
-        /sbin/mount -o bind /system_root/system /system
-    else
-        ## system is not in fstab, let's mount it manually
-        print "[/system] is not in fstab, mounting manually"
-        /sbin/umount -f /system_root
-        test -e /dev/block/bootdevice/by-name/system || local slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
-        /sbin/mount -o rw -t auto /dev/block/bootdevice/by-name/system$slot /system_root
-        /sbin/mount -o bind /system_root/system /system
-    fi
-    [ ! -w /system_root ] && {
-	   abort "Cannot mount system partition read/write. Please unmount '/system' manually and try again"
-    } 
-elif [ "$ANDROID_ROOT" == "/system_root" ]; then
-	print "[ANDROID_ROOT] = $ANDROID_ROOT"
-	/sbin/mount -o remount,rw /system_root
-	/sbin/mount -o bind /system_root/system /system
-else
-    mount /system
-fi
+setup_env #setup environment for nethunter installation
+SYSTEM="/system" 
 
 progress 0.1
 
@@ -292,9 +472,8 @@ progress 0.5
 
 [ -f tools/freespace.sh ] && {
 	# This actually runs twice when the NetHunter kernel zip is included
-	print "Freeing up some space on ${SYSTEM}"
-	sh tools/freespace.sh ||
-		abort "Not enough free space on ${SYSTEM} to continue!"
+ sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
+ 
 }
 
 print "Running busybox installer..."
@@ -376,15 +555,17 @@ progress 0.8
 [ -d "$patchtmp" ] && {
 	print "Running kernel installer..."
 	sh "$patchtmp/META-INF/com/google/android/update-binary"
-	mount /data
+        # setup environment again (all are restored by boot-patcher)
+        setup_env
 }
 
 progress 0.9
 
 print "Running Kali chroot installer..."
-sh tools/installchroot.sh "$zip"
+sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
 
-cleanup
+restore_env #restore environment after installation
+
 print " "
 print "************************************************"
 print "*       Kali NetHunter is now installed!       *"
@@ -397,3 +578,112 @@ print "************************************************"
 print " "
 
 progress 1.0
+
+else
+
+#################
+# Initialization
+#################
+
+umask 022
+
+# echo before loading util_functions
+ui_print() { echo "$1"; }
+
+require_new_magisk() {
+  ui_print "*******************************"
+  ui_print " Please install Magisk v20.4+! "
+  ui_print "*******************************"
+  exit 1
+}
+
+#########################
+# Load util_functions.sh
+#########################
+
+OUTFD=$2
+ZIPFILE=$3
+
+mount /data 2>/dev/null
+
+[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+. /data/adb/magisk/util_functions.sh
+[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
+
+
+install_module_custom() {
+  rm -rf $TMPDIR
+  mkdir -p $TMPDIR
+
+  setup_flashable
+  mount_partitions
+  api_level_arch_detect
+
+  # Setup busybox and binaries
+  boot_actions
+
+  # Extract prop file
+  unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+  [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
+
+  local MODDIRNAME=modules
+  $BOOTMODE && MODDIRNAME=modules_update
+  local MODULEROOT=$NVBASE/$MODDIRNAME
+  MODID=`grep_prop id $TMPDIR/module.prop`
+  MODNAME=`grep_prop name $TMPDIR/module.prop`
+  MODAUTH=`grep_prop author $TMPDIR/module.prop`
+  MODPATH=$MODULEROOT/$MODID
+
+  # Create mod paths
+  rm -rf $MODPATH
+  mkdir -p $MODPATH
+
+
+    unzip -jo "$ZIPFILE" tools/customize.sh -d $MODPATH >&2
+
+    if ! grep -q '^SKIPUNZIP=1$' $MODPATH/customize.sh 2>/dev/null; then
+      ui_print "- Extracting module files"
+      unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
+
+      # Default permissions
+      set_perm_recursive $MODPATH 0 0 0755 0644
+    fi
+
+    # Load customization script
+    [ -f $MODPATH/customize.sh ] && . $MODPATH/customize.sh
+
+  # Handle replace folders
+  for TARGET in $REPLACE; do
+    ui_print "- Replace target: $TARGET"
+    mktouch $MODPATH$TARGET/.replace
+  done
+
+  if $BOOTMODE; then
+    # Update info for Magisk Manager
+    mktouch $NVBASE/modules/$MODID/update
+    cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
+  fi
+
+  # Copy over custom sepolicy rules
+  if [ -f $MODPATH/sepolicy.rule ]; then
+    ui_print "- Installing custom sepolicy rules"
+    copy_sepolicy_rules
+  fi
+
+  # Remove stuffs that don't belong to modules
+  rm -rf \
+  $MODPATH/system/placeholder $MODPATH/customize.sh \
+  $MODPATH/README.md $MODPATH/.git*
+
+  cd /
+  $BOOTMODE || recovery_cleanup
+  rm -rf $TMPDIR
+
+  ui_print "- Done"
+}
+
+
+install_module_custom
+exit 0
+
+fi

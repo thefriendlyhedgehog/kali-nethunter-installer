@@ -32,7 +32,7 @@ dl_apps = {
         'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
         'NetHunter':
-        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2021010500.apk', '7d88484e91924e6cd65b837fe207c12297671f9ceb3022704581f4453d894c5489521cd70c798be3e84e886b4803d87abe9771f521896cf0d28afa66248c9d1d'],
+        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2021020100.apk', '55242bd8a0338ea0e4e0d396a61b7013b03d7ce4a0afc4c828a50c6eeb809d422be87a89eeec8144ef85f8f63d21375ee89f70cd56938d2a74b1cd55972e2ab7'],
         'NetHunterTerminal':
                 ['https://store.nethunter.com/NetHunterTerminal.apk', 'e1a89ce86df25d95112a0f8c4dd795db7cd92ff362da36b0f939d5ddf7981d46d3da7f92edf075f370b1a22a9faff087bd01af9053dbf8ce70a7bf067b061ff8'],
         'NetHunterKeX':
@@ -426,7 +426,13 @@ def setupkernel():
                 print('Found DTB file at: ' + dtb_location)
                 shutil.copy(dtb_location, os.path.join(out_path, 'dtb'))
 
-        # Copy any patch.d scripts
+        # Copy dtbo.img if it exists
+        dtbo_location = os.path.join(device_path, 'dtbo.img')
+        if os.path.exists(dtbo_location):
+                print('Found DTBO image at: ' + dtbo_location)
+                shutil.copy(dtbo_location, os.path.join(out_path, 'dtbo.img'))
+
+	# Copy any patch.d scripts
         patchd_path = os.path.join(device_path, 'patch.d')
         if os.path.exists(patchd_path):
                 print('Found additional patch.d scripts at: ' + patchd_path)

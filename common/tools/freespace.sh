@@ -62,16 +62,17 @@ MNT=/system
 SA=$MNT/app
 DA=/data/app
 AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
+
 #twrp df from /sbin doesn't has -m flag so we use busybox instead and use df from it
 BB=$(get_bb)
 FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 case $AndroidV in 
-       4) android_ver="kitkat";;
-       5) android_ver="lolipop";;
-       6) android_ver="marshmallow";;
-       7) android_ver="nougat";;
-       8) android_ver="oreo";;
-       9) android_ver="pie";;
+       4) android_ver="Kitkat";;
+       5) android_ver="Lolipop";;
+       6) android_ver="Marshmallow";;
+       7) android_ver="Nougat";;
+       8) android_ver="Oreo";;
+       9) android_ver="Pie";;
       10) android_ver="Q";;
       11) android_ver="R";;
 esac
@@ -79,17 +80,21 @@ esac
 if [ -z $FreeSpace ]; then
 	print "Warning: Could not get free space status, continuing anyway!"
 	exit 0
-else 
-print "Free space (before): $FreeSpace MB"
 fi
 
 if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
 	exit 0
-else 
-if [ "$AndroidV" -gt "7" ];then 
+
+else
+print "Free space (before): $FreeSpace MB" 
+print "You don't have enough free space in your ${SYSTEM}." 
+print "Freeing up some space on ${SYSTEM}..." 
+
+if [ "$AndroidV" -gt "7" ]; then 
 print "Android Version: $android_ver"
-print "Starting from Oreo,we can't move apps from /system to /data, continuing anyway!"
-exit 0
+print "Starting from Oreo,we can't move apps from /system to /data."
+print "Aborting Installation..."
+exit 1
 else
 for app in $MoveableApps; do
 	if [ "$FreeSpace" -gt "$SpaceRequired" ]; then

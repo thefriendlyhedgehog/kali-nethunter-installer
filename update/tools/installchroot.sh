@@ -16,6 +16,29 @@ print() {
 }
 
 NHSYS=/data/local/nhsystem
+get_bb() {
+    cd $tmp/tools
+    BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
+    chmod 755 $BB #make busybox executable
+    echo $BB
+    cd - >/dev/null
+}
+
+BB=$(get_bb)
+
+# Get Best Possible ARCH 
+ARCH=`cat /system/build.prop  | $BB dos2unix | $BB sed -n "s/^ro.product.cpu.abi=//p" 2>/dev/null | head -n 1`
+
+
+case $ARCH in 
+    arm64*) NH_ARCH=arm64 ;;
+    arm*) NH_ARCH=armhf ;;
+    x86_64) NH_ARCH=amd64 ;;
+    x86*) NH_ARCH=i386 ;;
+    *) print "Unkown architecture Detected.Aborting Chroot Installation..." && exit 1 ;;
+esac
+
 
 verify_fs() {
 	# valid architecture?
@@ -37,23 +60,25 @@ do_install() {
 
 	mkdir -p "$NHSYS"
 
-	# HACK 1/2: Rename to kali-armhf until NetHunter App supports searching for best available arch
-	CHROOT="$NHSYS/kali-armhf" # Legacy rootfs directory prior to 2020.1
-	ROOTFS="$NHSYS/kalifs"     # New symlink allowing to swap chroots via nethunter app on the fly
+	# HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter App supports searching these directory after first boot
+	
+	CHROOT="$NHSYS/kali-$NH_ARCH" # Legacy rootfs directory prior to 2020.1
+	ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via nethunter app on the fly
+	PRECHROOT=$($BB find /data/local/nhsystem -type d -name  "*-*" | head -n 1)  #Generic previous chroot location
 
 	# Remove previous chroot
-	[ -d "$CHROOT" ] && {
-		print "Removing previous chroot..."
-		rm -rf "$CHROOT"
+	[ -d "$PRECHROOT" ] && {
+		print "Previous Chroot Detected!!Removing..."
+		rm -rf "$PRECHROOT"
 		rm -f "$ROOTFS"
 	}
 
 	# Extract new chroot
 	print "Extracting Kali rootfs, this may take up to 25 minutes..."
 	if [ "$1" ]; then
-		unzip -p "$1" "$KALIFS" | busybox_nh tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+		unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 	else
-		busybox_nh tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+	    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 	fi
 
 	[ $? = 0 ] || {
@@ -62,7 +87,8 @@ do_install() {
 		exit 1
 	}
 
-	# HACK 2/2: Rename to kali-armhf for legacy reasons and create a link to be used by apps effective 2020.1
+# HACK 2/2: Rename to kali-(arm64,armhf,amd64,i386) based on $NH_ARCH for legacy reasons and create a link to be used by apps effective 2020.1
+
 	mv "$NHSYS/kali-$FS_ARCH" "$CHROOT"
         ln -sf "$CHROOT" "$ROOTFS"
 
