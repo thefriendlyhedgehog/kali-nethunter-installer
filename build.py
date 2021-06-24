@@ -195,14 +195,7 @@ def allapps(forcedown):
 
 def rootfs(forcedown, fs_size, nightly):
         global Arch
-
-        # temporary hack until arm64 support is completed
-        ##if Arch == 'arm64':
-        ##      fs_arch = 'armhf'
-        ##else:
-        ##      fs_arch = Arch
         fs_arch = Arch
-
         fs_file = 'kalifs-' + fs_arch + '-' + fs_size + '.tar.xz'
         fs_path = os.path.join('rootfs', fs_file)
 
@@ -228,15 +221,7 @@ def rootfs(forcedown, fs_size, nightly):
 
 def addrootfs(fs_size, dst):
         global Arch
-
-        # temporary hack until arm64 support is completed
-        ## Update 2019-01-25: Disable workaround to use proper arm64 rootfs as it should be fully working now, Re4son
-        ##if Arch == 'arm64':
-        ##              fs_arch = 'armhf'
-        ##else:
-        ##      fs_arch = Arch
         fs_arch = Arch
-
         fs_file = 'kalifs-' + fs_arch + '-' + fs_size + '.tar.xz'
         fs_path = os.path.join('rootfs', fs_file)
 
@@ -432,7 +417,7 @@ def setupkernel():
                 print('Found DTBO image at: ' + dtbo_location)
                 shutil.copy(dtbo_location, os.path.join(out_path, 'dtbo.img'))
 
-	# Copy any patch.d scripts
+       # Copy any patch.d scripts
         patchd_path = os.path.join(device_path, 'patch.d')
         if os.path.exists(patchd_path):
                 print('Found additional patch.d scripts at: ' + patchd_path)
@@ -613,9 +598,6 @@ def main():
         Resolution = readkey('resolution')
         Resolution = Resolution.replace('"', "")
         print('Resolution: ' + Resolution)
-
-        ##if args.kernel and Flasher == 'anykernel':
-        ##        abort('Kernel installer is not supported for AnyKernel. Please create normal image without filesystem instead')
 
         # If we found a device, set architecture and parse android OS release
         if args.device:
