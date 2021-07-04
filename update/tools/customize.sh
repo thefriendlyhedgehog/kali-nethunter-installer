@@ -506,25 +506,13 @@ do_umount;
 
 do_chroot;
 
-ui_print " "
-ui_print "************************************************"
-ui_print "*       Kali NetHunter is now installed!       *"
-ui_print "*==============================================*"
-ui_print "*   Please update the NetHunter app via the    *"
-ui_print "*   NetHunter Store to work around an Android  *"
-ui_print "*   permission issue and run the NetHunter app *"
-ui_print "*       to finish setting everything up!       *"
-ui_print "************************************************"
-ui_print " "
-
-
 # Random Important Magisk Stuff (Don't Remove)
-cp -fp tools/module.prop $MNT/$MODID/;
+cp -fp $TMP/tools/module.prop $MNT/$MODID/;
 touch $MNT/$MODID/auto_mount;
 [ -e /data/adb/modules ] && IMGMNT=/data/adb/modules;
 mkdir -p "$IMGMNT/$MODID";
 touch "$IMGMNT/$MODID/update";
-cp -fp tools/module.prop "$IMGMNT/$MODID/";
+cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/";
 
 ui_print "Unmounting...";
 cd /;
@@ -548,5 +536,17 @@ rm -rf $TMPDIR;
 umask $UMASK;
 ui_print " ";
 ui_print "Done!";
+ui_print " ";
+ui_print "************************************************";
+ui_print "*       Kali NetHunter is now installed!       *";
+ui_print "*==============================================*";
+ui_print "*   Please update the NetHunter app via the    *";
+ui_print "*   NetHunter Store to work around an Android  *";
+ui_print "*   permission issue and run the NetHunter app *";
+ui_print "*       to finish setting everything up!       *";
+ui_print "************************************************";
+ui_print " ";
+
+
 exit 0;
 
