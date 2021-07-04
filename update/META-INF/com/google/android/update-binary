@@ -1,10 +1,12 @@
 #!/sbin/sh
 # Kali NetHunter installer
 
+## Detect bootmode.
+## "BOOTMODE=true"  = Device has booted into system (NetHunter installated as Magisk module)
+## "BOOTMODE=false" = Device has booted into recovery (NetHunter installed through TWRP)
 BOOTMODE=false;
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
 $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
-
 
 if ! $BOOTMODE; then
 ## start build generated variables
@@ -520,6 +522,7 @@ progress 0.7
 
 [ -d system/xbin ] && {
 	print "Installing ${SYSTEM}/xbin binaries"
+        [ -d ${SYSTEM}/xbin ] || mkdir -p ${SYSTEM}/xbin
 	install "/system/xbin" 0755 0755 "${SYSTEM}/xbin"
 }
 
@@ -638,19 +641,10 @@ install_module_custom() {
   rm -rf $MODPATH
   mkdir -p $MODPATH
 
-
-    unzip -jo "$ZIPFILE" tools/customize.sh -d $MODPATH >&2
-
-    if ! grep -q '^SKIPUNZIP=1$' $MODPATH/customize.sh 2>/dev/null; then
-      ui_print "- Extracting module files"
-      unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
-
-      # Default permissions
-      set_perm_recursive $MODPATH 0 0 0755 0644
-    fi
-
-    # Load customization script
-    [ -f $MODPATH/customize.sh ] && . $MODPATH/customize.sh
+  ## Install NetHunter
+  unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
+  set_perm_recursive $MODPATH 0 0 0755 0644
+  [ -f $MODPATH/update-magisk ] && . $MODPATH/update-magisk
 
   # Handle replace folders
   for TARGET in $REPLACE; do
@@ -670,8 +664,8 @@ install_module_custom() {
     copy_sepolicy_rules
   fi
 
-  # Remove stuffs that don't belong to modules
-  rm -rf \
+  # Remove stuff that doesn't belong in the modules dir
+  rm -rf $MODPATH/update-magisk \
   $MODPATH/system/placeholder $MODPATH/customize.sh \
   $MODPATH/README.md $MODPATH/.git*
 

@@ -3,7 +3,7 @@
 # Modified for NetHunter (Magisk Flashing Support Only)
 
 # keep Magisk's forced module installer backend involvement minimal (must end without ;)
-SKIPUNZIP=1
+SKIPUNZIP=1;
 
 # Define Several Variables 
 [ -z $TMPDIR ] && TMPDIR=/dev/tmp;
@@ -546,7 +546,4 @@ ui_print "*   permission issue and run the NetHunter app *";
 ui_print "*       to finish setting everything up!       *";
 ui_print "************************************************";
 ui_print " ";
-
-
-exit 0;
 
