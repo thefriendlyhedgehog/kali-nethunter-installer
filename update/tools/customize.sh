@@ -34,7 +34,11 @@ fi;
    TARGET=$MNT$MAGISK;
    ETC=$TARGET/etc;
    BIN=$TARGET/bin;
-   XBIN=$TARGET/xbin;
+   if [ -d /system/xbin ]; then
+       XBIN=$TARGET/xbin;
+   else
+       XBIN=$TARGET/bin;
+   fi
    MEDIA=$TARGET/media;
 
 ui_print() {
@@ -173,43 +177,8 @@ pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 ui_print "Done installing apps";
 
 
-# Install Kali NetHunter Busybox's
-# As We Are Using Magisk to Flash, if Osmosis's busybox is installed,
-# then nethunter busybox may conflict with osmOsis's busybox
-# check if Osmosis Busybox is installed or not
-# if installed, then remove that(in magisk way) and install Nethunter busybox_nh-*
-mkdir -p $XBIN
-
-ui_print "Installing NetHunter BusyBox..."
-cd $TMP/tools
-bb_list=$(ls busybox_nh-*)
-for bb in $bb_list; do 
-    ui_print "Installing $bb..."
-    rm -f $XBIN/$bb 2>/dev/null
-    cp -f $bb $XBIN/$bb
-    chmod 0755 $XBIN/$bb;
-done
-
-busybox_latest=`(ls -v busybox_nh-* ) | tail -n 1`
-ui_print "Setting $busybox_latest as default"
-cp -f $XBIN/$busybox_latest $XBIN/busybox_nh 2>/dev/null
-chmod 0755 $XBIN/busybox_nh
-#Do Symlink applets with latest busybox_nh
-cd $XBIN
-for applet in $($XBIN/busybox_nh --list); do
-    $XBIN/busybox_nh ln -sf busybox_nh $applet
-done
-
-
-[ -e $XBIN/busybox ] || {
-	ui_print "/system/xbin/busybox not found! Symlinking..."
-	# ln -sf busybox does not work on magisk modules. Copy the Busybox instead.
-	cp -f $XBIN/$busybox_latest $XBIN/busybox
-	chmod 0755 $XBIN/busybox
-}
-set_perm_recursive "$XBIN" 0 0 0755 0755
-cd $TMP
-
+# Install Busybox
+[ -f $TMP/tools/installbusybox_magisk.sh ] && . $TMP/tools/installbusybox_magisk.sh
 
 # SetUp Kali NetHunter wallpaper of Correct Resolution if there is one available
 set_wallpaper() {
