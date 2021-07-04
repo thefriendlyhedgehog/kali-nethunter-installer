@@ -437,13 +437,13 @@ set_wallpaper;
 
 [ -d $TMP/system/xbin ] && {
     ui_print "Installing /system/xbin binaries"
-    cp -r "$TMP/system/xbin" "$TARGET/"
+    cp -r "$TMP/system/xbin/*" "$XBIN/"
     set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
 [ -d $TMP/boot-patcher/system/xbin ] && {
     ui_print "Installing hid-keyboard to /system/xbin"
-    cp -r "$TMP/boot-patcher/system/xbin" "$TARGET/"
+    cp -r "$TMP/boot-patcher/system/xbin/*" "$XBIN/"
     set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
