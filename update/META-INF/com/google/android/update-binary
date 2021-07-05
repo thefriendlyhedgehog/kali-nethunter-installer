@@ -8,7 +8,89 @@ BOOTMODE=false;
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
 $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
 
-if ! $BOOTMODE; then
+
+###################################
+##                               ##
+##  Install in Magisk            ##
+##                               ##
+###################################
+
+if $BOOTMODE; then
+
+    #################
+    # Initialization
+    #################
+
+    umask 022
+
+    require_new_magisk() {
+        echo "*******************************"
+        echo " Please install Magisk v20.4+! "
+        echo "*******************************"
+        exit 1
+    }
+
+    #########################
+    # Load util_functions.sh
+    #########################
+
+    OUTFD=$2
+    ZIPFILE=$3
+
+    mount /data 2>/dev/null
+
+    [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+    . /data/adb/magisk/util_functions.sh
+    [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
+
+    #########################
+    # Install module
+    #########################
+    rm -rf $TMPDIR
+    mkdir -p $TMPDIR
+
+    setup_flashable
+    mount_partitions
+    api_level_arch_detect
+
+    # Setup busybox and binaries
+    boot_actions
+
+    # Extract prop file
+    unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+    [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
+
+    MODDIRNAME=modules_update
+    MODID=`grep_prop id $TMPDIR/module.prop`
+    MODNAME=`grep_prop name $TMPDIR/module.prop`
+    MODAUTH=`grep_prop author $TMPDIR/module.prop`
+    MODPATH=$NVBASE/$MODDIRNAME/$MODID
+
+    # Create mod paths
+    rm -rf $MODPATH
+    mkdir -p $MODPATH
+
+    ## Install NetHunter
+    unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
+    set_perm_recursive $MODPATH 0 0 0755 0644
+    [ -f $MODPATH/update-magisk ] && . $MODPATH/update-magisk
+
+    # Clean up
+    rm -rf $MODPATH/update-magisk \
+    $MODPATH/system/placeholder $MODPATH/customize.sh \
+    $MODPATH/README.md $MODPATH/.git*
+    rm -rf $TMPDIR
+    cd /
+
+    exit 0
+fi
+
+###################################
+##                               ##
+##  Install in TWRP              ##
+##                               ##
+###################################
+
 ## start build generated variables
 supersu=auto
 ## end build generated variables
@@ -581,103 +663,3 @@ print "************************************************"
 print " "
 
 progress 1.0
-
-else
-
-#################
-# Initialization
-#################
-
-umask 022
-
-# echo before loading util_functions
-ui_print() { echo "$1"; }
-
-require_new_magisk() {
-  ui_print "*******************************"
-  ui_print " Please install Magisk v20.4+! "
-  ui_print "*******************************"
-  exit 1
-}
-
-#########################
-# Load util_functions.sh
-#########################
-
-OUTFD=$2
-ZIPFILE=$3
-
-mount /data 2>/dev/null
-
-[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
-. /data/adb/magisk/util_functions.sh
-[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
-
-
-install_module_custom() {
-  rm -rf $TMPDIR
-  mkdir -p $TMPDIR
-
-  setup_flashable
-  mount_partitions
-  api_level_arch_detect
-
-  # Setup busybox and binaries
-  boot_actions
-
-  # Extract prop file
-  unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
-  [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
-
-  local MODDIRNAME=modules
-  $BOOTMODE && MODDIRNAME=modules_update
-  local MODULEROOT=$NVBASE/$MODDIRNAME
-  MODID=`grep_prop id $TMPDIR/module.prop`
-  MODNAME=`grep_prop name $TMPDIR/module.prop`
-  MODAUTH=`grep_prop author $TMPDIR/module.prop`
-  MODPATH=$MODULEROOT/$MODID
-
-  # Create mod paths
-  rm -rf $MODPATH
-  mkdir -p $MODPATH
-
-  ## Install NetHunter
-  unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
-  set_perm_recursive $MODPATH 0 0 0755 0644
-  [ -f $MODPATH/update-magisk ] && . $MODPATH/update-magisk
-
-  # Handle replace folders
-  for TARGET in $REPLACE; do
-    ui_print "- Replace target: $TARGET"
-    mktouch $MODPATH$TARGET/.replace
-  done
-
-  if $BOOTMODE; then
-    # Update info for Magisk Manager
-    mktouch $NVBASE/modules/$MODID/update
-    cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
-  fi
-
-  # Copy over custom sepolicy rules
-  if [ -f $MODPATH/sepolicy.rule ]; then
-    ui_print "- Installing custom sepolicy rules"
-    copy_sepolicy_rules
-  fi
-
-  # Remove stuff that doesn't belong in the modules dir
-  rm -rf $MODPATH/update-magisk \
-  $MODPATH/system/placeholder $MODPATH/customize.sh \
-  $MODPATH/README.md $MODPATH/.git*
-
-  cd /
-  $BOOTMODE || recovery_cleanup
-  rm -rf $TMPDIR
-
-  ui_print "- Done"
-}
-
-
-install_module_custom
-exit 0
-
-fi

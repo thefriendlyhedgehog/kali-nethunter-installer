@@ -36,10 +36,6 @@ else
 fi
 MEDIA=$TARGET/media;
 
-ui_print() {
-    echo "$1";
-}
-
 file_getprop() { grep "^$2" "$1" | head -n1 | cut -d= -f2-; }
 
 set_perm() {
@@ -289,7 +285,7 @@ umask 022;
 mkdir -p $TMPDIR;
 cd $TMPDIR;
 # source custom installer functions and configuration
-unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR;
+unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2;
 MODID=$(file_getprop module.prop id);
 
 # Print Kali NetHunter Banner In Magisk Installation Terminal
@@ -395,7 +391,6 @@ ui_print "Done installing apps";
 set_wallpaper;
 
 # Install Required Firmwares, Binaries, lib files for Kali NetHunter
-# Warning: Do not Include Bootanimation in Magisk mdoule (I repeat!!)
 [ -d $TMP/system/etc/nano ] && {
     ui_print "Copying nano highlights to /system/etc/nano"
     mkdir -p $ETC;
@@ -510,6 +505,22 @@ fi;
 # Restore also additional settings we did before
 settings put global verifier_verify_adb_installs ${VERIFY}
 ${ENFORCE} && setenforce 1
+
+# Handle replace folders
+for TARGET in $REPLACE; do
+    ui_print "- Replace target: $TARGET"
+    mktouch $MODPATH$TARGET/.replace
+done
+
+# Update info for Magisk Manager
+mktouch $NVBASE/modules/$MODID/update
+cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
+
+# Copy over custom sepolicy rules
+if [ -f $MODPATH/sepolicy.rule ]; then
+    ui_print "- Installing custom sepolicy rules"
+    copy_sepolicy_rules
+fi
 
 # Clean up
 rm -rf $TMPDIR;
