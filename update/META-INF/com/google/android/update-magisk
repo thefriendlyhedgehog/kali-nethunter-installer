@@ -390,6 +390,13 @@ ui_print "Done installing apps";
 # SetUp Kali NetHunter wallpaper of Correct Resolution if there is one available
 set_wallpaper;
 
+# Install NetHunter boot animation
+[ -f $TMP/system/media/bootanimation.zip ] && {
+    ui_print "Installing NetHunter boot animation"
+    mkdir -p $TARGET/media;
+    cp $TMP/system/media/bootanimation.zip $TARGET/media/
+}
+
 # Install Required Firmwares, Binaries, lib files for Kali NetHunter
 [ -d $TMP/system/etc/nano ] && {
     ui_print "Copying nano highlights to /system/etc/nano"
