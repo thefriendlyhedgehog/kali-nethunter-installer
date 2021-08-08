@@ -556,6 +556,7 @@ def main():
         parser.add_argument('--pie', '-p', action='store_true', help='Android 9')
         parser.add_argument('--ten', '-q', action='store_true', help='Android 10')
         parser.add_argument('--eleven', '-R', action='store_true', help='Android 11')
+        parser.add_argument('--wearos', '-w', action='store_true', help='WearOS')
         parser.add_argument('--forcedown', '-f', action='store_true', help='Force redownloading')
         parser.add_argument('--uninstaller', '-u', action='store_true', help='Create an uninstaller')
         parser.add_argument('--kernel', '-k', action='store_true', help='Build kernel installer only')
@@ -565,7 +566,7 @@ def main():
         parser.add_argument('--supersu', '-su', action='store_true', help='Build with SuperSU installer included')
         parser.add_argument('--nightly', '-ni', action='store_true', help='Use nightly mirror for Kali rootfs download (experimental)')
         parser.add_argument('--generic', '-g', action='store', metavar='ARCH', help='Build a generic installer (modify ramdisk only)')
-        parser.add_argument('--rootfs', '-fs', action='store', metavar='SIZE', help='Build with Kali chroot rootfs (full or minimal)')
+        parser.add_argument('--rootfs', '-fs', action='store', metavar='SIZE', help='Build with Kali chroot rootfs (full, minimal or nano)')
         parser.add_argument('--release', '-r', action='store', metavar='VERSION', help='Specify NetHunter release version')
 
         args = parser.parse_args()
@@ -629,13 +630,16 @@ def main():
                 if args.eleven:
                         OS = 'eleven'
                         i += 1
+                if args.wearos:
+                        OS = 'wearos'
+                        i += 1
                 if i == 0:
-                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven')
+                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, wearos')
                 elif i > 1:
-                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven')
+                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --wearos')
 
-                if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal'):
-                        abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal')
+                if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal' or args.rootfs == 'nano'):
+                        abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano')
 
         # Build an uninstaller zip if --uninstaller is specified
         if args.uninstaller:
@@ -684,6 +688,17 @@ def main():
                 IgnoredFiles.append('wallpaper')
                 IgnoredFiles.append('bootanimation.zip')
 
+        # Don't include wallpaper or boot animation if --wearos is specified
+        if args.wearos:
+                IgnoredFiles.append('wallpaper')
+                IgnoredFiles.append('bootanimation.zip')
+                IgnoredFiles.append('NetHunterStorePrivilegedExtension.apk')
+                IgnoredFiles.append('NetHunterStore.apk')
+                IgnoredFiles.append('NetHunterKeX.apk')
+        # Don't include wearos bootanimation by default
+        else:
+                IgnoredFiles.append('bootanimation_wearos.zip')
+
         # Don't include free space script if --nofreespace is specified
         if args.nofreespace:
                 IgnoredFiles.append('freespace.sh')
@@ -719,6 +734,10 @@ def main():
         # Add the Kali rootfs archive if --rootfs is specified
         if args.rootfs:
                 addrootfs(args.rootfs, file_name)
+        # Rename bootanimation archive if --wearos is specified
+        if args.wearos:
+                bootanimation_rename = 'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w ' + file_name
+                os.system(bootanimation_rename)
 
         print('Created NetHunter installer: ' + file_name)
         done()
