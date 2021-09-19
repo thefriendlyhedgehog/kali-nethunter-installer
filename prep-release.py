@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 
 ##############################################################
-## Script to prepare NetHunter quarterly release
+## Script to prepare Kali NetHunter quarterly release
 ##
 ## It parses the YAML sections of devices/devices.cfg and creates:
 ##
-## "./build-<release>.sh": shell script to build all images
-## "<outputdir>/manifest.csv": manifest file mapping image name to display name
-## "<outputdir>/legacy": manifest file mapping image name to display name using legacy format
+## - "./build-<release>.sh": shell script to build all images
+## - "<outputdir>/manifest.csv": manifest file mapping image name to display name
+## - "<outputdir>/legacy": manifest file mapping image name to display name using legacy format
 ##
 ## Usage:
-## ./prep-release.py -i <input file> -o <output directory> -r <release>
+##   python3 prep-release.py --inputfile <input file> --outputdir <output directory> --release <release>
 ##
 ## E.g.:
-## ./prep-release.py -i devices/devices.cfg -o /opt/re4son/dev/NetHunter/2020.3/images -r 2020.3
+##   python3 prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
+##
+## Install:
+##   sudo apt -y install python3 python3-yaml
 
 import yaml # install pyyaml
 import getopt, os, stat, sys
@@ -63,16 +66,22 @@ def getargs(argv):
     try:
         opts, args = getopt.getopt(argv,"hi:o:r:",["inputfile=","outputdir=","release="])
     except getopt.GetoptError:
-        bail("Missing arguments")
+        bail("Missing arguments (1)")
+
+#    if not args:
+ #       bail("Missing arguments (2)")
+
     for opt, arg in opts:
         if opt == '-h':
            bail()
-        elif opt in ("-i", "--input"):
+        elif opt in ("-i", "--inputfile"):
            inputfile = arg
-        elif opt in ("-o", "--outdir"):
-           outputdir = arg
+        elif opt in ("-o", "--outputdir"):
+           outputdir = arg.rstrip("/")
         elif opt in ("-r", "--release"):
            release = arg
+        else:
+           bail("Incorrect arguments: %s" % opt)
     return 0
 
 def yaml_parse(content):
@@ -82,20 +91,21 @@ def yaml_parse(content):
         if line.startswith('##*'):
             ## yaml doesn't like tabs so let's replace them with four spaces 
             result += line.replace('\t', '    ')[3:] + "\n"
-    return yaml.load(result, Loader=yaml.FullLoader)
+    #return yaml.load(result, Loader=yaml.FullLoader)
+    return yaml.safe_load(result)
 
 def generate_build_script(data):
     build_list = ""
     global OUTPUT_FILE, FS_SIZE, release, outputdir, qty_devices, qty_images
 
     ## Create script header
-    build_list += "#!/bin/bash\n\n"
+    build_list += "#!/usr/bin/env bash\n\n"
     build_list += "RELEASE={}\n".format(release)
     build_list += "OUT_DIR={}\n".format(outputdir)
     build_list += "\n"
 
-    ## Add builds for NetHunter light
-    build_list += "# NetHunter Light:"
+    ## Add builds for NetHunter Light
+    build_list += "# Kali NetHunter Light:"
     build_list += "# -----------------------------------------------\n"
     build_list += "./build.py -g arm64 -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(FS_SIZE)
     build_list += "./build.py -g armhf -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(FS_SIZE)
@@ -117,7 +127,7 @@ def generate_build_script(data):
 
     ## Create sha files for each image
     build_list += "\n\n"
-    build_list += "cd ${OUT_DIR}\n"
+    build_list += "cd ${OUT_DIR}/\n"
     build_list += "for f in `dir *-${RELEASE}-*.zip`; do sha256sum ${f} > ${f}.sha256; done\n"
     build_list += "cd -\n"
     return build_list

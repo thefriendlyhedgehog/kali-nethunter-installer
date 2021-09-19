@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+
+##############################################################
+## Script to build Kali NetHunter
+##
+## Usage:
+##   python3 build.py -i <input file> -o <output directory> -r <release>
+##
+## E.g.:
+##   python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
+##
+## Install:
+##   sudo apt -y install python3 python3-requests
+
 from __future__ import print_function
 import os, sys
 import requests
@@ -202,7 +215,7 @@ def rootfs(forcedown, fs_size, nightly):
         if nightly:
                 fs_host = 'https://build.nethunter.com/kalifs/kalifs-latest/'
         else:
-                fs_host = 'https://images.offensive-security.com/nethunter/'
+                fs_host = 'https://kali.download/nethunter-images/current/rootfs/'
 
         fs_url = fs_host + fs_file
 
