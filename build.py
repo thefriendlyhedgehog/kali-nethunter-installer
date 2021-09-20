@@ -32,7 +32,7 @@ dl_apps = {
         'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
         'NetHunter':
-        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2021020100.apk', '55242bd8a0338ea0e4e0d396a61b7013b03d7ce4a0afc4c828a50c6eeb809d422be87a89eeec8144ef85f8f63d21375ee89f70cd56938d2a74b1cd55972e2ab7'],
+        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2021030100.apk', 'e94548fe17a63509c88123549fb04bec9bb80f1b514c05da548ea48d3fe3d00150327fe12ea9fc86df6353d235a2cb33e00abf0f8183859f9d07806776d15f07'],
         'NetHunterTerminal':
                 ['https://store.nethunter.com/NetHunterTerminal.apk', 'e1a89ce86df25d95112a0f8c4dd795db7cd92ff362da36b0f939d5ddf7981d46d3da7f92edf075f370b1a22a9faff087bd01af9053dbf8ce70a7bf067b061ff8'],
         'NetHunterKeX':
@@ -556,6 +556,7 @@ def main():
         parser.add_argument('--pie', '-p', action='store_true', help='Android 9')
         parser.add_argument('--ten', '-q', action='store_true', help='Android 10')
         parser.add_argument('--eleven', '-R', action='store_true', help='Android 11')
+        parser.add_argument('--wearos', '-w', action='store_true', help='WearOS')
         parser.add_argument('--forcedown', '-f', action='store_true', help='Force redownloading')
         parser.add_argument('--uninstaller', '-u', action='store_true', help='Create an uninstaller')
         parser.add_argument('--kernel', '-k', action='store_true', help='Build kernel installer only')
@@ -565,7 +566,7 @@ def main():
         parser.add_argument('--supersu', '-su', action='store_true', help='Build with SuperSU installer included')
         parser.add_argument('--nightly', '-ni', action='store_true', help='Use nightly mirror for Kali rootfs download (experimental)')
         parser.add_argument('--generic', '-g', action='store', metavar='ARCH', help='Build a generic installer (modify ramdisk only)')
-        parser.add_argument('--rootfs', '-fs', action='store', metavar='SIZE', help='Build with Kali chroot rootfs (full or minimal)')
+        parser.add_argument('--rootfs', '-fs', action='store', metavar='SIZE', help='Build with Kali chroot rootfs (full, minimal or nano)')
         parser.add_argument('--release', '-r', action='store', metavar='VERSION', help='Specify NetHunter release version')
 
         args = parser.parse_args()
@@ -629,13 +630,16 @@ def main():
                 if args.eleven:
                         OS = 'eleven'
                         i += 1
+                if args.wearos:
+                        OS = 'wearos'
+                        i += 1
                 if i == 0:
-                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven')
+                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, wearos')
                 elif i > 1:
-                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven')
+                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --wearos')
 
-                if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal'):
-                        abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal')
+                if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal' or args.rootfs == 'nano'):
+                        abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano')
 
         # Build an uninstaller zip if --uninstaller is specified
         if args.uninstaller:
@@ -684,6 +688,17 @@ def main():
                 IgnoredFiles.append('wallpaper')
                 IgnoredFiles.append('bootanimation.zip')
 
+        # Don't include wallpaper or boot animation if --wearos is specified
+        if args.wearos:
+                IgnoredFiles.append('wallpaper')
+                IgnoredFiles.append('bootanimation.zip')
+                IgnoredFiles.append('NetHunterStorePrivilegedExtension.apk')
+                IgnoredFiles.append('NetHunterStore.apk')
+                IgnoredFiles.append('NetHunterKeX.apk')
+        # Don't include wearos bootanimation by default
+        else:
+                IgnoredFiles.append('bootanimation_wearos.zip')
+
         # Don't include free space script if --nofreespace is specified
         if args.nofreespace:
                 IgnoredFiles.append('freespace.sh')
@@ -719,6 +734,10 @@ def main():
         # Add the Kali rootfs archive if --rootfs is specified
         if args.rootfs:
                 addrootfs(args.rootfs, file_name)
+        # Rename bootanimation archive if --wearos is specified
+        if args.wearos:
+                bootanimation_rename = 'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w ' + file_name
+                os.system(bootanimation_rename)
 
         print('Created NetHunter installer: ' + file_name)
         done()

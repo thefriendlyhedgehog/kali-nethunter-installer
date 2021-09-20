@@ -14,6 +14,7 @@ print() {
 }
 
 xbin=/system/xbin
+[ -d $xbin ] || mkdir -p $xbin
 
 cd "$tmp/tools"
 for bb in busybox_nh-*; do 

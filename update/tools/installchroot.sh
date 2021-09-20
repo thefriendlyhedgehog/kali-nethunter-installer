@@ -48,7 +48,7 @@ verify_fs() {
 	esac
 	# valid build size?
 	case $FS_SIZE in
-		full|minimal) ;;
+		full|minimal|nano) ;;
 		*) return 1 ;;
 	esac
 	return 0
