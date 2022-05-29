@@ -8,11 +8,16 @@ All you have to do is flash it through **TWRP** for a complete Kali NetHunter en
 
 The boot image patching script is based on [LazyFlasher](https://github.com/jcadduono/lazyflasher)'s kernel-flasher branch.
 
+About the files:
+
+- `build.py` will create a one off image
+- `prep-release.py` will create a bash script to generate multiple images, each time calling `build.py`
+
 ## Instructions
 
 ### Preparing the environment
 
-Before building, you will need to initialize the [devices repository](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices).
+Before building **anything**, you will need to initialize the [devices repository](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices).
 
 The whole setup has been automated. As Kali NetHunter devices have an immense binary Git history, we suggest using shallow clone _(`--depth 1`)_, rather than **full history** when prompt:
 
@@ -25,7 +30,7 @@ The whole setup has been automated. As Kali NetHunter devices have an immense bi
 Example building for the **Nexus 5 (hammerhead)**:
 
 ```bash
-python build.py -d hammerhead --marshmallow
+python3 build.py -d hammerhead --marshmallow
 ```
 
 - - -
@@ -33,7 +38,7 @@ python build.py -d hammerhead --marshmallow
 Building the **kernel only** _(useful for testing if kernel works)_:
 
 ```bash
-python build.py -d hammerhead --marshmallow -k
+python3 build.py -d hammerhead --marshmallow -k
 ```
 
 - - -
@@ -41,7 +46,7 @@ python build.py -d hammerhead --marshmallow -k
 Building **without the kernel** _(useful for just updating apps)_:
 
 ```bash
-python build.py -d hammerhead --marshmallow -nk
+python3 build.py -d hammerhead --marshmallow -nk
 ```
 
 - - -
@@ -49,7 +54,7 @@ python build.py -d hammerhead --marshmallow -nk
 Building with **adding a full chroot** _(add `kalifs-full.tar.xz` to `rootfs/[arch]/kalifs-full.tar.xz`):_
 
 ```bash
-python build.py -d hammerhead --marshmallow --rootfs full
+python3 build.py -d hammerhead --marshmallow --rootfs full
 ```
 
 - - -
@@ -57,7 +62,7 @@ python build.py -d hammerhead --marshmallow --rootfs full
 Create a **release version**:
 
 ```bash
-python build.py -d hammerhead --marshmallow --rootfs full --release v3.0
+python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
 ```
 
 - - -
@@ -65,7 +70,7 @@ python build.py -d hammerhead --marshmallow --rootfs full --release v3.0
 Force **download all third party apps**:
 
 ```bash
-python build.py --forcedown
+python3 build.py --forcedown
 ```
 
 - - -
@@ -73,7 +78,7 @@ python build.py --forcedown
 Building the **uninstaller**:
 
 ```bash
-python build.py --uninstaller
+python3 build.py --uninstaller
 ```
 
 - - -
@@ -81,7 +86,17 @@ python build.py --uninstaller
 Show **help**:
 
 ```bash
-python build.py -h
+python3 build.py -h
+```
+
+### Kali NetHunter Release
+
+Usage & Example
+
+```bash
+python3 prep-release.py --inputfile <input file> --outputdir <output directory> --release <release>
+
+python3 prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
 ```
 
 ## How to add a new/unsupported device
