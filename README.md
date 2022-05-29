@@ -33,7 +33,7 @@ _This will clone [Kali NetHunter Devices](https://gitlab.com/kalilinux/nethunter
 Example building for the **Nexus 5 (hammerhead)**:
 
 ```bash
-python3 build.py -d hammerhead --marshmallow
+python build.py -d hammerhead --marshmallow
 ```
 
 - - -
@@ -41,7 +41,7 @@ python3 build.py -d hammerhead --marshmallow
 Building the **kernel only** _(useful for testing if kernel works)_:
 
 ```bash
-python3 build.py -d hammerhead --marshmallow -k
+python build.py -d hammerhead --marshmallow -k
 ```
 
 - - -
@@ -49,7 +49,7 @@ python3 build.py -d hammerhead --marshmallow -k
 Building **without the kernel** _(useful for just updating apps)_:
 
 ```bash
-python3 build.py -d hammerhead --marshmallow -nk
+python build.py -d hammerhead --marshmallow -nk
 ```
 
 - - -
@@ -57,7 +57,7 @@ python3 build.py -d hammerhead --marshmallow -nk
 Building with **adding a full chroot** _(add `kalifs-full.tar.xz` to `rootfs/[arch]/kalifs-full.tar.xz`):_
 
 ```bash
-python3 build.py -d hammerhead --marshmallow --rootfs full
+python build.py -d hammerhead --marshmallow --rootfs full
 ```
 
 - - -
@@ -65,7 +65,7 @@ python3 build.py -d hammerhead --marshmallow --rootfs full
 Create a **release version**:
 
 ```bash
-python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
+python build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
 ```
 
 - - -
@@ -73,7 +73,7 @@ python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
 Force **download all third party apps**:
 
 ```bash
-python3 build.py --forcedown
+python build.py --forcedown
 ```
 
 - - -
@@ -81,7 +81,7 @@ python3 build.py --forcedown
 Building the **uninstaller**:
 
 ```bash
-python3 build.py --uninstaller
+python build.py --uninstaller
 ```
 
 - - -
@@ -89,7 +89,7 @@ python3 build.py --uninstaller
 Show **help**:
 
 ```bash
-python3 build.py -h
+python build.py -h
 ```
 
 ### Kali NetHunter Release
@@ -97,9 +97,9 @@ python3 build.py -h
 Usage & Example
 
 ```bash
-python3 prep-release.py --inputfile <input file> --outputdir <output directory> --release <release>
+python prep-release.py --inputfile <input file> --outputdir <output directory> --release <release>
 
-python3 prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
+python prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
 ```
 
 ## kali-nethunter-devices
