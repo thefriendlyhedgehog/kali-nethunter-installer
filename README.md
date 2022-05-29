@@ -9,10 +9,10 @@ All you have to do is flash it through **TWRP** for a complete Kali NetHunter en
 
 The boot image patching script is based on [LazyFlasher](https://github.com/jcadduono/lazyflasher)'s kernel-flasher branch.
 
-About these files:
+<!--- About these files:
 
 - `build.py` will create a one off image
-- `prep-release.py` will create a bash script (`./build-<release>.sh`) to generate multiple images, each time calling `./build.py <...>`
+- `prep-release.py` will create a bash script (`./build-<release>.sh`) to generate multiple images, each time calling `./build.py <...>` prep-release is used by the Kali developers for their quarterly releases and serve no other purpose --->
 
 ## Instructions
 
@@ -92,7 +92,7 @@ Show **help**:
 python build.py -h
 ```
 
-### Kali NetHunter Release
+<!--- ### Kali NetHunter Release
 
 Usage & Example
 
@@ -101,6 +101,8 @@ python prep-release.py --inputfile <input file> --outputdir <output directory> -
 
 python prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
 ```
+
+--->
 
 ## kali-nethunter-devices
 
@@ -113,9 +115,11 @@ A starting point would be to review: `./devices/devices.cfg`
 
 You can view changes in the commit log of the Kali NetHunter Devices repository: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices/commits>
 
+<!---
+
 - - -
 
-## Kali NetHunter Developers
+## Kali NetHunter Developers?? Not sure who this is for:
 
 These scripts should only be used by people who understand what they do fully:
 
@@ -123,5 +127,6 @@ These scripts should only be used by people who understand what they do fully:
 - [kernel-installer-script.sh](boot-patcher/META-INF/com/google/android/update-binary) - Kali NetHunter kernel installer backend
 - [uninstaller-script.sh](uninstaller/META-INF/com/google/android/update-binary) - Kali NetHunter uninstaller
 
+--->
 
 Sun May 29 22:51:35 UTC 2022
