@@ -152,9 +152,9 @@ def generate_manifest(data):
     devices = {}
 
     ## Add NetHunter Lite (Light Editions)
-    jsonarray(devices, "Generic", "NetHunter Lite ARM64 (Full)", "nethunter-{}-{}-kalifs-{}.zip".format(release, "generic-arm64", "full"))
-    jsonarray(devices, "Generic", "NetHunter Lite ARM64 (Nano)", "nethunter-{}-{}-kalifs-{}.zip".format(release, "generic-arm64", "nano"))
-    jsonarray(devices, "Generic", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-kalifs-{}.zip".format(release, "generic-armhf", "full"))
+    jsonarray(devices, "Generic", "NetHunter Lite ARM64 (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
+    jsonarray(devices, "Generic", "NetHunter Lite ARM64 (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "nano"))
+    jsonarray(devices, "Generic", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
 
     # Iterate over all the devices
     for element in data:
@@ -164,7 +164,7 @@ def generate_manifest(data):
                 for image in element[key]['images']:
                     name = image.get('name', default)
                     manufacture = name.split()[0]
-                    filename = "nethunter-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), FS_SIZE)
+                    filename = "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('os', default), FS_SIZE)
                     jsonarray(devices, manufacture, name, filename)
     return json.dumps(devices, indent = 2)
 
