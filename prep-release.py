@@ -249,7 +249,7 @@ def main(argv):
     print("\n")
     print('Image directory created: {}/'.format(outputdir))
     print('Manifest file created: {}'.format(manifest))
-    print('Build script created: {}.'.format(build_script))
+    print('Build script created: {}'.format(build_script))
 
     exit(0)
 
