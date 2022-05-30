@@ -60,7 +60,7 @@ def bail(message = "", strerror = ""):
         outstr += "\nMessage: {}\n".format(strerror)
     else:
         outstr += "\nUsage: {} -i <input file> -o <output directory> -r <release".format(prog)
-        outstr += "\nE.g. : {} --inputfile devices/devices.cfg --outputdir images/ --release {}.1".format(prog,datetime.datetime.now().year)
+        outstr += "\nE.g. : {} --inputfile devices/devices.cfg --outputdir images/ --release {}.1".format(prog, datetime.datetime.now().year)
     print(outstr)
     sys.exit(2)
 
