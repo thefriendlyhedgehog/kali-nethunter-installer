@@ -18,6 +18,7 @@
 ## E.g.:
 ## ./prep-release.py -i devices/devices.cfg -o /media/re4son/dev/NetHunter/2020.3/images -r 2020.3
 
+import datetime
 import yaml # install pyyaml
 import getopt, os, stat, sys
 
@@ -59,6 +60,7 @@ def bail(message = "", strerror = ""):
         outstr += "\nMessage: {}\n".format(strerror)
     else:
         outstr += "\nUsage: {} -i <input file> -o <output directory> -r <release".format(prog)
+        outstr += "\nE.g. : {} --inputfile devices/devices.cfg --outputdir images/ --release {}.1".format(prog,datetime.datetime.now().year)
     print(outstr)
     sys.exit(2)
 
