@@ -249,14 +249,13 @@ def main(argv):
     writefile(old_manifest_list, old_manifest)
 
     # Print result and exit
+    print('Stats:')
+    print('  - Devices: {}'.format(qty_devices))
+    print('  - Images:  {}'.format(qty_images))
     print("\n")
-    print('Build script "{}" created.'.format(build_script))
-    print('Image directory "{}" created.'.format(outputdir))
-    print('Manifest file "{}" created.'.format(manifest))
-    print('Legacy manifest file "{}" created.'.format(old_manifest))
-    print('Devices: {}'.format(qty_devices))
-    print('Images:  {}'.format(qty_images))
-    print("\n")
+    print('Image directory created: {}/'.format(outputdir))
+    print('Manifest file created: {}'.format(manifest))
+    print('Build script created: {}.'.format(build_script))
 
     exit(0)
 
