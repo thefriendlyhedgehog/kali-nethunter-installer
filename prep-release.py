@@ -54,11 +54,11 @@ def bail(message = "", strerror = ""):
     outstr = ""
     prog = sys.argv[0]
     if message != "":
-        outstr = "\n\tError: {}".format(message)
+        outstr = "\nError: {}".format(message)
     if strerror != "":
-        outstr += "\n\tMessage: {}\n".format(strerror)
+        outstr += "\nMessage: {}\n".format(strerror)
     else:
-        outstr += "\n\tUsage: {} -i <input file> -o <output directory> -r <release>\n".format(prog)
+        outstr += "\nUsage: {} -i <input file> -o <output directory> -r <release".format(prog)
     print(outstr)
     sys.exit(2)
 
