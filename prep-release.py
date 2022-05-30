@@ -115,9 +115,9 @@ def generate_build_script(data):
 
     build_list += "\n"
     default = ""
-    # iterate over all the devices
+    # Iterate over all the devices
     for element in data:
-        # iterate over all the versions
+        # Iterate over all the versions
         for key in element.keys():
             qty_devices += 1
             if 'images' in element[key]:
@@ -152,9 +152,9 @@ def generate_manifest(data):
     jsonarray(devices, "Generic", "NetHunter Lite ARM64 (Nano)", "nethunter-{}-{}-kalifs-{}.zip".format(release, "generic-arm64", "nano"))
     jsonarray(devices, "Generic", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-kalifs-{}.zip".format(release, "generic-armhf", "full"))
 
-    # iterate over all the devices
+    # Iterate over all the devices
     for element in data:
-        # iterate over all the versions
+        # Iterate over all the versions
         for key in element.keys():
             if 'images' in element[key]:
                 for image in element[key]['images']:
@@ -212,7 +212,7 @@ def mkexec(file):
 def main(argv):
     global inputfile, outputdir, release
 
-    # Parse commandline arguments
+    # Parse command-line arguments
     if len(sys.argv) > 1:
         getargs(argv)
     else:
