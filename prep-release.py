@@ -40,11 +40,13 @@ qty_devices = 0
 ##*         id:      xangler
 ##*         os:      oreo
 ##*         status:  Stable
+##*         rootfs:  full
 ##*         note:    "** Our preferred low end device **"
 ##*       - name:    Nexus 6P (LineageOS 17.1)
 ##*         id:      angler-los
 ##*         os:      ten
 ##*         status:  Latest
+##*         rootfs:  full
 ##*         note:    "** Warning: Android ten is very unstable at the moment. **"
 
 
@@ -123,7 +125,7 @@ def generate_build_script(data):
                     build_list += "\n"
                     build_list += "# {}\n".format(image.get('name'))
                     build_list += "# -----------------------------------------------\n"
-                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(image.get('id', default), image.get('os', default), FS_SIZE)
+                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
 
     ## Create sha files for each image
     build_list += "\n\n"
