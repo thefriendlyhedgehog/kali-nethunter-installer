@@ -87,12 +87,8 @@ def getargs(argv):
     else:
         bail("Failed to read arguments")
 
-    if not inputfile:
-        bail("--inputfile required")
-    if not outputdir:
-        bail("--outputdir required")
     if not release:
-        bail("--release required")
+        bail("Missing required argument: -r/--release")
     return 0
 
 def yaml_parse(content):
