@@ -7,7 +7,6 @@
 ##
 ## - "./build-<release>.sh": shell script to build all images
 ## - "<outputdir>/manifest.csv": manifest file mapping image name to display name
-## - "<outputdir>/legacy": manifest file mapping image name to display name using legacy format
 ##
 ## Dependencies:
 ##   sudo apt -y install python3 python3-yaml
@@ -25,7 +24,6 @@ import getopt, os, stat, sys
 FS_SIZE = "full"
 build_script = "" # Generated automatically (./build-<release>.sh)
 manifest = ""     # Generated automatically (<outputdir>/manifest.csv)
-old_manifest = "" # Generated automatically (<outputdir>/legacy.txt)
 release = ""
 outputdir = ""
 qty_images = 0
@@ -226,7 +224,6 @@ def main(argv):
         bail("Missing arguments")
 
     manifest = outputdir + "/manifest.csv"
-    old_manifest = outputdir + "/legacy.txt"
     # Assign variables
     build_script = "./build-" + release + ".sh"
     data = readfile(inputfile)
@@ -235,7 +232,6 @@ def main(argv):
     res = yaml_parse(data)
     build_list  = generate_build_script(res)
     manifest_list  = generate_manifest(res)
-    old_manifest_list  = generate_old_manifest(res)
 
     # Create output directory if required
     createdir(outputdir)
@@ -246,9 +242,6 @@ def main(argv):
 
     # Create manifest file
     writefile(manifest_list, manifest)
-
-    # Create legacy manifest file
-    writefile(old_manifest_list, old_manifest)
 
     # Print result and exit
     print('Stats:')
