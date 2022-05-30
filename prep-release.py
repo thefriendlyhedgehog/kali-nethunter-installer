@@ -223,9 +223,6 @@ def main(argv):
     else:
         bail("Missing arguments")
 
-    if inputfile == "":
-        bail("Missing arguments")
-
     # Assign variables 
     manifest = outputdir + "/manifest.csv"
     old_manifest = outputdir + "/legacy.txt"
