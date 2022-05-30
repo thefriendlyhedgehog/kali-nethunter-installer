@@ -27,6 +27,7 @@ build_script = "" # Generated automatically (./build-<release>.sh)
 manifest = ""     # Generated automatically (<outputdir>/manifest.json)
 release = ""
 outputdir = ""
+inputfile = ""
 qty_images = 0
 qty_devices = 0
 
@@ -68,8 +69,8 @@ def getargs(argv):
 
     try:
         opts, args = getopt.getopt(argv,"hi:o:r:",["inputfile=","outputdir=","release="])
-    except getopt.GetoptError:
-        bail("Missing arguments")
+    except getopt.GetoptError as e:
+        bail("Incorrect arguments: {}".format(e))
 
     if opts:
         for opt, arg in opts:
@@ -84,7 +85,7 @@ def getargs(argv):
             else:
                 bail("Unrecognised argument: " + opt)
     else:
-        bail("Unrecognised arguments")
+        bail("Failed to read arguments")
 
     if not inputfile:
         bail("--inputfile required")
