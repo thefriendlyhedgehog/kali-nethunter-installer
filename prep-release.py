@@ -97,8 +97,9 @@ def yaml_parse(content):
     return yaml.safe_load(result)
 
 def generate_build_script(data):
-    build_list = ""
     global OUTPUT_FILE, FS_SIZE, release, outputdir, qty_devices, qty_images
+    build_list = ""
+    default = ""
 
     ## Create script header
     build_list += "#!/usr/bin/env bash\n\n"
@@ -114,7 +115,6 @@ def generate_build_script(data):
     build_list += "./build.py -g armhf -fs full -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
 
     build_list += "\n"
-    default = ""
     # Iterate over all the devices
     for element in data:
         # Iterate over all the versions
