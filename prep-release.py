@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ##############################################################
-## Script to prepare Kali NetHunter quarterly release
+## Script to prepare Kali NetHunter quarterly releases
 ##
 ## It parses the YAML sections of devices/devices.cfg and creates:
 ##
@@ -9,14 +9,14 @@
 ## - "<outputdir>/manifest.csv": manifest file mapping image name to display name
 ## - "<outputdir>/legacy": manifest file mapping image name to display name using legacy format
 ##
+## Dependencies:
+##   sudo apt -y install python3 python3-yaml
+##
 ## Usage:
-##   python3 prep-release.py --inputfile <input file> --outputdir <output directory> --release <release>
+## ./prep-release.py -i <input file> -o <output directory> -r <release>
 ##
 ## E.g.:
-##   python3 prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
-##
-## Install:
-##   sudo apt -y install python3 python3-yaml
+## ./prep-release.py -i devices/devices.cfg -o /media/re4son/dev/NetHunter/2020.3/images -r 2020.3
 
 import yaml # install pyyaml
 import getopt, os, stat, sys
@@ -66,22 +66,22 @@ def getargs(argv):
     try:
         opts, args = getopt.getopt(argv,"hi:o:r:",["inputfile=","outputdir=","release="])
     except getopt.GetoptError:
-        bail("Missing arguments (1)")
+        bail("Missing arguments")
 
-#    if not args:
- #       bail("Missing arguments (2)")
-
-    for opt, arg in opts:
-        if opt == '-h':
-           bail()
-        elif opt in ("-i", "--inputfile"):
-           inputfile = arg
-        elif opt in ("-o", "--outputdir"):
-           outputdir = arg.rstrip("/")
-        elif opt in ("-r", "--release"):
-           release = arg
-        else:
-           bail("Incorrect arguments: %s" % opt)
+    if opts:
+        for opt, arg in opts:
+            if opt == '-h':
+                bail()
+            elif opt in ("-i", "--inputfile"):
+                inputfile = arg
+            elif opt in ("-o", "--outputdir"):
+                outputdir = arg.rstrip("/")
+            elif opt in ("-r", "--release"):
+                release = arg
+            else:
+                bail("Unrecognised argument: " + opt)
+    else:
+        bail("Unrecognised arguments")
     return 0
 
 def yaml_parse(content):
@@ -91,7 +91,6 @@ def yaml_parse(content):
         if line.startswith('##*'):
             ## yaml doesn't like tabs so let's replace them with four spaces 
             result += line.replace('\t', '    ')[3:] + "\n"
-    #return yaml.load(result, Loader=yaml.FullLoader)
     return yaml.safe_load(result)
 
 def generate_build_script(data):
@@ -104,11 +103,12 @@ def generate_build_script(data):
     build_list += "OUT_DIR={}\n".format(outputdir)
     build_list += "\n"
 
-    ## Add builds for NetHunter Light
+    ## Add builds for Kali NetHunter Light
     build_list += "# Kali NetHunter Light:"
     build_list += "# -----------------------------------------------\n"
-    build_list += "./build.py -g arm64 -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(FS_SIZE)
-    build_list += "./build.py -g armhf -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(FS_SIZE)
+    build_list += "./build.py -g arm64 -fs full -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
+    build_list += "./build.py -g arm64 -fs nano -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
+    build_list += "./build.py -g armhf -fs full -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
 
     build_list += "\n"
     default = ""
@@ -136,9 +136,10 @@ def generate_manifest(data):
     manifest = ""
     global FS_SIZE, release
 
-    ## Add lines for NetHunter light
-    manifest += "NetHunter Lite ARM64,nethunter-{}-generic-arm64-kalifs-{}.zip\n".format(release, FS_SIZE)
-    manifest += "NetHunter Lite ARMhf,nethunter-{}-generic-armhf-kalifs-{}.zip\n".format(release, FS_SIZE)
+    ## Add lines for NetHunter Light
+    manifest += "NetHunter Lite ARM64 Full,nethunter-{}-generic-arm64-kalifs-full.zip\n".format(release)
+    manifest += "NetHunter Lite ARM64 Nano,nethunter-{}-generic-arm64-kalifs-full.zip\n".format(release)
+    manifest += "NetHunter Lite ARMhf Full,nethunter-{}-generic-armhf-kalifs-full.zip\n".format(release)
 
     default = ""
     # iterate over all the devices
@@ -147,7 +148,7 @@ def generate_manifest(data):
         for key in element.keys():
             if 'images' in element[key]:
                 for image in element[key]['images']:
-                    manifest += "{},nethunter-{}-{}-kalifs-{}.zip\n".format(image.get('name', default), release, image.get('id', default), FS_SIZE)
+                    manifest += "{},nethunter-{}-{}-{}-kalifs-{}.zip\n".format(image.get('name', default), release, image.get('id', default), image.get('os', default),FS_SIZE)
     return manifest
 
 def generate_old_manifest(data):
@@ -181,7 +182,7 @@ def createdir(dir):
         if not os.path.exists(dir):
             os.makedirs(dir)
     except:
-        bail('Directory "' + dir + 'does not exist and cannot be created')
+        bail('Directory "' + dir + '" does not exist and cannot be created')
     return 0
 
 def readfile(file):
@@ -190,7 +191,7 @@ def readfile(file):
             data = f.read()
             f.close()
     except:
-        bail("Cannot open input file")
+        bail("Cannot open input file " + file)
     return data
 
 def writefile(data, file):
@@ -215,7 +216,13 @@ def main(argv):
     global inputfile, outputdir, release
 
     # Parse commandline arguments
-    getargs(argv)
+    if len(sys.argv) > 1:
+        getargs(argv)
+    else:
+        bail("Missing arguments")
+
+    if inputfile == "":
+        bail("Missing arguments")
 
     # Assign variables 
     manifest = outputdir + "/manifest.csv"
