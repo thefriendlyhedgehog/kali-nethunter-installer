@@ -85,6 +85,13 @@ def getargs(argv):
                 bail("Unrecognised argument: " + opt)
     else:
         bail("Unrecognised arguments")
+
+    if not inputfile:
+        bail("--inputfile required")
+    if not outputdir:
+        bail("--outputdir required")
+    if not release:
+        bail("--release required")
     return 0
 
 def yaml_parse(content):
