@@ -196,7 +196,7 @@ def readfile(file):
             data = f.read()
             f.close()
     except:
-        bail("Cannot open input file " + file)
+        bail("Cannot open input file: " + file)
     return data
 
 def writefile(data, file):
@@ -205,7 +205,7 @@ def writefile(data, file):
             f.write(str(data))
             f.close()
     except:
-        bail("Cannot write to output file" + file)
+        bail("Cannot write to output file: " + file)
     return 0
 
 def mkexec(file):
@@ -214,7 +214,7 @@ def mkexec(file):
         os.chmod(file, 0o755)
     except Exception as e:
         error = "{}:{}".format(sys.exc_info()[0], sys.exc_info()[1])
-        bail("Cannot make " + file + " executable", error)
+        bail("Cannot make executable: " + file, error)
     return 0
 
 def main(argv):
