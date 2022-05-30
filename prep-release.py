@@ -107,8 +107,8 @@ def generate_build_script(data):
     build_list += "OUT_DIR={}\n".format(outputdir)
     build_list += "\n"
 
-    ## Add builds for Kali NetHunter Light
-    build_list += "# Kali NetHunter Light:"
+    ## Add builds for NetHunter Lite (Light Edition)
+    build_list += "# Kali NetHunter Lite:"
     build_list += "# -----------------------------------------------\n"
     build_list += "./build.py -g arm64 -fs full -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
     build_list += "./build.py -g arm64 -fs nano -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
