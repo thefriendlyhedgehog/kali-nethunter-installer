@@ -59,8 +59,8 @@ def bail(message = "", strerror = ""):
     if strerror != "":
         outstr += "\nMessage: {}\n".format(strerror)
     else:
-        outstr += "\nUsage: {} -i <input file> -o <output directory> -r <release".format(prog)
-        outstr += "\nE.g. : {} --inputfile devices/devices.cfg --outputdir images/ --release {}.1".format(prog, datetime.datetime.now().year)
+        outstr += "\n\nUsage: {} -i <input file> -o <output directory> -r <release>".format(prog)
+        outstr += "\nE.g. : {} -i devices/devices.cfg -o images -r {}.1\n".format(prog, datetime.datetime.now().year)
     print(outstr)
     sys.exit(2)
 
@@ -244,12 +244,12 @@ def main(argv):
 
     # Print result and exit
     print('Stats:')
-    print('  - Devices: {}'.format(qty_devices))
-    print('  - Images:  {}'.format(qty_images))
+    print('  - Devices\t: {}'.format(qty_devices))
+    print('  - Images\t: {}'.format(qty_images))
     print("\n")
-    print('Image directory created: {}/'.format(outputdir))
-    print('Manifest file created: {}'.format(manifest))
-    print('Build script created: {}'.format(build_script))
+    print('Image directory created\t: {}/'.format(outputdir))
+    print('Manifest file created\t: {}'.format(manifest))
+    print('Build script created\t: {}'.format(build_script))
 
     exit(0)
 
