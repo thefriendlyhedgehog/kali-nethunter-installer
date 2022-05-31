@@ -206,16 +206,12 @@ def allapps(forcedown):
 
         print('Finished downloading all apps')
 
-def rootfs(forcedown, fs_size, nightly):
+def rootfs(forcedown, fs_size):
         global Arch
         fs_arch = Arch
         fs_file = 'kalifs-' + fs_arch + '-' + fs_size + '.tar.xz'
         fs_path = os.path.join('rootfs', fs_file)
-
-        if nightly:
-                fs_host = 'https://build.nethunter.com/kalifs/kalifs-latest/'
-        else:
-                fs_host = 'https://kali.download/nethunter-images/current/rootfs/'
+        fs_host = 'https://kali.download/nethunter-images/current/rootfs/'
 
         fs_url = fs_host + fs_file
 
@@ -577,7 +573,6 @@ def main():
         parser.add_argument('--nobrand', '-nb', action='store_true', help='Build without wallpaper or boot animation')
         parser.add_argument('--nofreespace', '-nf', action='store_true', help='Build without free space check')
         parser.add_argument('--supersu', '-su', action='store_true', help='Build with SuperSU installer included')
-        parser.add_argument('--nightly', '-ni', action='store_true', help='Use nightly mirror for Kali rootfs download (experimental)')
         parser.add_argument('--generic', '-g', action='store', metavar='ARCH', help='Build a generic installer (modify ramdisk only)')
         parser.add_argument('--rootfs', '-fs', action='store', metavar='SIZE', help='Build with Kali chroot rootfs (full, minimal or nano)')
         parser.add_argument('--release', '-r', action='store', metavar='VERSION', help='Specify NetHunter release version')
@@ -678,7 +673,7 @@ def main():
 
         # Download Kali rootfs if we are building a zip with the chroot environment included
         if args.rootfs:
-                rootfs(args.forcedown, args.rootfs, args.nightly)
+                rootfs(args.forcedown, args.rootfs)
 
         # Set file name tag depending on the options chosen
         if args.release:
