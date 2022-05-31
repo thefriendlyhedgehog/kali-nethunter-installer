@@ -113,7 +113,7 @@ def generate_build_script(data):
 
     ## Make sure that we have the latest app versions
     build_list += "# Force download all apps:\n"
-    build_list += "./build.py -f"
+    build_list += "./build.py -f || exit"
     build_list += "\n\n"
 
     ## Add builds for NetHunter Lite (Light Edition)
