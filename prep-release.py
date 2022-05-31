@@ -111,14 +111,18 @@ def generate_build_script(data):
     build_list += "OUT_DIR={}\n".format(outputdir)
     build_list += "\n"
 
-    ## Add builds for NetHunter Lite (Light Edition)
-    build_list += "# Kali NetHunter Lite:"
-    build_list += "# -----------------------------------------------\n"
-    build_list += "./build.py -g arm64 -fs full -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
-    build_list += "./build.py -g arm64 -fs nano -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
-    build_list += "./build.py -g armhf -fs full -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n"
+    ## Make sure that we have the latest app versions
+    build_list += "# Force download all apps:\n"
+    build_list += "./build.py -f"
+    build_list += "\n\n"
 
-    build_list += "\n"
+    ## Add builds for NetHunter Lite (Light Edition)
+    build_list += "# Kali NetHunter Lite:\n"
+    build_list += "# -----------------------------------------------\n"
+    build_list += "./build.py -g arm64 -fs full -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
+    build_list += "./build.py -g arm64 -fs nano -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
+    build_list += "./build.py -g armhf -fs full -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
+
     # Iterate over all the devices
     for element in data:
         # Iterate over all the versions
@@ -243,13 +247,13 @@ def main(argv):
     writefile(manifest_list, manifest)
 
     # Print result and exit
-    print('Stats:')
+    print('\nStats:')
     print('  - Devices\t: {}'.format(qty_devices))
     print('  - Images\t: {}'.format(qty_images))
     print("\n")
     print('Image directory created\t: {}/'.format(outputdir))
     print('Manifest file created\t: {}'.format(manifest))
-    print('Build script created\t: {}'.format(build_script))
+    print('Build script created\t: {}\n'.format(build_script))
 
     exit(0)
 
