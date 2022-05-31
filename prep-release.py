@@ -168,7 +168,7 @@ def generate_manifest(data):
                 for image in element[key]['images']:
                     name = image.get('name', default)
                     manufacture = name.split()[0]
-                    filename = "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('os', default), FS_SIZE)
+                    filename = "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
                     jsonarray(devices, manufacture, name, filename)
     return json.dumps(devices, indent = 2)
 
