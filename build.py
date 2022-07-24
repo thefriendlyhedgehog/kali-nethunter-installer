@@ -426,7 +426,7 @@ def setupkernel():
                 print('Found DTBO image at: ' + dtbo_location)
                 shutil.copy(dtbo_location, os.path.join(out_path, 'dtbo.img'))
 
-       # Copy any patch.d scripts
+        # Copy any patch.d scripts
         patchd_path = os.path.join(device_path, 'patch.d')
         if os.path.exists(patchd_path):
                 print('Found additional patch.d scripts at: ' + patchd_path)
@@ -565,6 +565,7 @@ def main():
         parser.add_argument('--pie', '-p', action='store_true', help='Android 9')
         parser.add_argument('--ten', '-q', action='store_true', help='Android 10')
         parser.add_argument('--eleven', '-R', action='store_true', help='Android 11')
+        parser.add_argument('--twelve', '-S', action='store_true', help='Android 12')
         parser.add_argument('--wearos', '-w', action='store_true', help='WearOS')
         parser.add_argument('--forcedown', '-f', action='store_true', help='Force redownloading')
         parser.add_argument('--uninstaller', '-u', action='store_true', help='Create an uninstaller')
@@ -638,13 +639,16 @@ def main():
                 if args.eleven:
                         OS = 'eleven'
                         i += 1
+                if args.twelve:
+                        OS = 'twelve'
+                        i += 1
                 if args.wearos:
                         OS = 'wearos'
                         i += 1
                 if i == 0:
-                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, wearos')
+                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --wearos')
                 elif i > 1:
-                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --wearos')
+                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --wearos')
 
                 if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal' or args.rootfs == 'nano'):
                         abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano')
@@ -731,6 +735,12 @@ def main():
         # Set up the update zip
         setupupdate()
 
+        # Change bootanimation folder for product partition devices
+        if Device.find('oneplus8') == 0:                
+                shutil.copytree(os.path.join('tmp_out', 'system', 'media'),
+                           os.path.join('tmp_out', 'product', 'media'), dirs_exist_ok=True)
+                shutil.rmtree(os.path.join('tmp_out', 'system', 'media'))
+        
         file_prefix = ''
         if not args.rootfs:
                 file_prefix += 'update-'

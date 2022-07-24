@@ -383,7 +383,6 @@ pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 ui_print "Done installing apps";
 
-
 # Install Busybox
 [ -f $TMP/tools/installbusybox_magisk.sh ] && . $TMP/tools/installbusybox_magisk.sh
 
@@ -395,6 +394,13 @@ set_wallpaper;
     ui_print "Installing NetHunter boot animation"
     mkdir -p $TARGET/media;
     cp $TMP/system/media/bootanimation.zip $TARGET/media/
+}
+
+# Install NetHunter boot animation into product partition
+[ -f $TMP/product/media/bootanimation.zip ] && {
+    ui_print "Installing NetHunter boot animation in product partition"
+    mkdir -p $TARGET/product/media;
+    cp $TMP/product/media/bootanimation.zip $TARGET/product/media/
 }
 
 # Install Required Firmwares, Binaries, lib files for Kali NetHunter
@@ -484,6 +490,10 @@ symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "$TARGET/
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "$TARGET/bin/bootkali_bash"
 symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "$TARGET/bin/killkali"
 set_perm_recursive "$BIN" 0 0 0755 0755
+
+# Adding required permissions for NetHunter app
+ui_print "Granting required permissions to NetHunter app"
+sh $TMP/tools/nh_perm.sh
 
 # Install chroot
 do_chroot;

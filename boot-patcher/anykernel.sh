@@ -22,6 +22,11 @@ device.name7=
 device.name8=
 device.name9=
 device.name10=
+device.name11=
+device.name12=
+device.name13=
+device.name14=
+device.name15=
 supported.versions=
 '; } # end properties
 
