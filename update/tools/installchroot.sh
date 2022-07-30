@@ -34,9 +34,10 @@ ARCH=`cat /system/build.prop  | $BB dos2unix | $BB sed -n "s/^ro.product.cpu.abi
 case $ARCH in 
     arm64*) NH_ARCH=arm64 ;;
     arm*) NH_ARCH=armhf ;;
+    armeabi-v7a) NH_ARCH=armhf ;;
     x86_64) NH_ARCH=amd64 ;;
     x86*) NH_ARCH=i386 ;;
-    *) print "Unkown architecture Detected.Aborting Chroot Installation..." && exit 1 ;;
+    *) print "Unkown architecture Detected. Aborting Chroot Installation..." && exit 1 ;;
 esac
 
 

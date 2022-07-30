@@ -19,7 +19,7 @@
 
 import json
 import datetime
-import yaml # install pyyaml
+import yaml # python3 -m pip install pyyaml --user
 import getopt, os, stat, sys
 
 FS_SIZE = "full"
@@ -49,7 +49,6 @@ qty_devices = 0
 ##*         status:  Latest
 ##*         rootfs:  full
 ##*         note:    "** Warning: Android ten is very unstable at the moment. **"
-
 
 def bail(message = "", strerror = ""):
     outstr = ""
@@ -235,8 +234,8 @@ def main(argv):
 
     # Get data
     res = yaml_parse(data)
-    build_list  = generate_build_script(res)
-    manifest_list  = generate_manifest(res)
+    build_list = generate_build_script(res)
+    manifest_list = generate_manifest(res)
 
     # Create output directory if required
     createdir(outputdir)
