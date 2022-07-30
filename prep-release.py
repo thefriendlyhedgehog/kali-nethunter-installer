@@ -122,6 +122,7 @@ def generate_build_script(data):
     build_list += "./build.py -g arm64 -fs full -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
     build_list += "./build.py -g arm64 -fs nano -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
     build_list += "./build.py -g armhf -fs full -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
+    build_list += "./build.py -g armhf -fs nano -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
 
     # Iterate over all the devices
     for element in data:
@@ -156,9 +157,10 @@ def generate_manifest(data):
     devices = {}
 
     ## Add NetHunter Lite (Light Editions)
-    jsonarray(devices, "Generic", "Generic ARM64 (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "Generic", "Generic ARM64 (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "nano"))
-    jsonarray(devices, "Generic", "Generic ARMhf (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "nano"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "nano"))
 
     # Iterate over all the devices
     for element in data:
