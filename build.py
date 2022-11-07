@@ -566,6 +566,7 @@ def main():
         parser.add_argument('--ten', '-q', action='store_true', help='Android 10')
         parser.add_argument('--eleven', '-R', action='store_true', help='Android 11')
         parser.add_argument('--twelve', '-S', action='store_true', help='Android 12')
+        parser.add_argument('--thirteen', '-T', action='store_true', help='Android 13')
         parser.add_argument('--wearos', '-w', action='store_true', help='WearOS')
         parser.add_argument('--forcedown', '-f', action='store_true', help='Force redownloading')
         parser.add_argument('--uninstaller', '-u', action='store_true', help='Create an uninstaller')
@@ -642,13 +643,16 @@ def main():
                 if args.twelve:
                         OS = 'twelve'
                         i += 1
+                if args.thirteen:
+                        OS = 'thirteen'
+                        i += 1
                 if args.wearos:
                         OS = 'wearos'
                         i += 1
                 if i == 0:
-                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --wearos')
+                        abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --thirteen, --wearos')
                 elif i > 1:
-                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --wearos')
+                        abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --thirteen, --wearos')
 
                 if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal' or args.rootfs == 'nano'):
                         abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano')
