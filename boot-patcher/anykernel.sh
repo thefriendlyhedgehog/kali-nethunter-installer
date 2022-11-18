@@ -61,7 +61,7 @@ install() {
 
 [ -d $home/system/etc/firmware ] && {
         ui_print "- Copying firmware to $SYSTEM/etc/firmware"
-	install "/system/etc/firmware" 0755 0644 "$SYSTEM/etc/firmware";
+	install "/boot-patcher/system/etc/firmware" 0755 0644 "$SYSTEM/etc/firmware";
 }
 
 [ -d $home/system/etc/init.d ] && {
