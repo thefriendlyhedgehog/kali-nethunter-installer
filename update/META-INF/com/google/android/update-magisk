@@ -207,7 +207,7 @@ verify_fs() {
     esac
     # valid build size?
     case $FS_SIZE in
-        full|minimal) ;;
+        full|minimal|nano) ;;
         *) return 1 ;;
     esac
     return 0
@@ -421,7 +421,7 @@ set_wallpaper;
 [ -d $TMP/boot-patcher/system/etc/firmware ] && {
     ui_print "Copying Wifi firmwares to /system/etc/firmware"
     mkdir -p $ETC;
-    cp -r "$TMP/system/etc/firmware" "$ETC/"
+    cp -r "$TMP/boot-patcher/system/etc/firmware" "$ETC/"
     set_perm_recursive "$ETC/firmware" 0 0 0755 0644
 }
 
@@ -441,12 +441,6 @@ set_wallpaper;
     ui_print "Installing /system/bin binaries"
     cp -r "$TMP/system/bin" "$TARGET/"
     set_perm_recursive "$BIN" 0 0 0755 0755
-}
-
-[ -d $TMP/system/xbin ] && {
-    ui_print "Installing /system/xbin binaries"
-    cp -r "$TMP/system/xbin/*" "$XBIN/"
-    set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
 [ -d $TMP/boot-patcher/system/xbin ] && {
