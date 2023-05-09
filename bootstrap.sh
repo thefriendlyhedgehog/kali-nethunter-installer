@@ -38,15 +38,6 @@ fi
 
 clonecmd="git clone"
 
-printf "[?] Would you like to use the experimental devices branch? (y/N): "
-read -r choice
-case ${choice} in
-	y*|Y*)
-		clonebranch=experimental ;;
-	*)
-		clonebranch=master ;;
-esac
-
 printf "[?] Would you like to grab the full history of devices? (y/N): "
 read -r choice
 case ${choice} in
@@ -55,7 +46,7 @@ case ${choice} in
 		clonecmd="${clonecmd} --depth 1" ;;
 esac
 
-printf "[?] Would you like to use SSH authentication (faster, but requires a GitLab account with SSH keys)? (y/N): "
+printf "[?] Would you like to use SSH authentication (faster, but requires a GitHub account with SSH keys)? (y/N): "
 read -r choice
 case $choice in
 	y*|Y*)
@@ -64,7 +55,7 @@ case $choice in
 		cloneurl="https://gitlab.com/${GIT_ACCOUNT}/${GIT_REPOSITORY}.git" ;;
 esac
 
-clonecmd="${clonecmd} --branch ${clonebranch} $cloneurl devices"
+clonecmd="${clonecmd} $cloneurl devices"
 echo "[i[ Running command: ${clonecmd}"
 
 ${clonecmd} || ABORT "Failed to git clone devices!"
