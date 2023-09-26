@@ -45,9 +45,9 @@ dl_apps = {
         'NetHunterStorePrivilegedExtension':
                 ['https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk', '668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a'],
         'NetHunter':
-        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2023020100.apk', '59a543906d61815eb3ca53a5d6416b553005b3232f4dfaa530cbc648ad54289fcbff3c479a53b280fdabe0c6c2934508015b4eb1b20754666e9bc1fb07090647'],
+        ['https://staging.nethunter.com/repo/com.offsec.nethunter_2023030300.apk', '76410e25f391f57359a8deaf8e5844cba4b25e3a1ae95fe7fb3e2a29d4db91cc93c3f559a7288200e900cfd0afe4f8bbee919b05c324433c609252241efbb4dc'],
         'NetHunterTerminal':
-                ['https://store.nethunter.com/NetHunterTerminal.apk', 'e1a89ce86df25d95112a0f8c4dd795db7cd92ff362da36b0f939d5ddf7981d46d3da7f92edf075f370b1a22a9faff087bd01af9053dbf8ce70a7bf067b061ff8'],
+                ['https://staging.nethunter.com/repo/com.offsec.nhterm_2023030200.apk', '7c47212d0512a1c68ca91cb1609c1a1c036af1ae7f661ad4b186585a46889d612232d58807c76fb505fcfc6e58f02fcffe0fbee82774f9c3106f691217be1706'],
         'NetHunterKeX':
                 ['https://store.nethunter.com/NetHunterKeX.apk', 'b4c9ce17a89eda65aa572948f03f4593918d35dde31fd5af3bf5d66f6c830bc4729e97f1b629c95118ef827655454bb32709d352ea1a387c5735a399d7a9e95c'],
 }
