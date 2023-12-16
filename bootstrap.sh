@@ -46,7 +46,7 @@ case ${choice} in
 		clonecmd="${clonecmd} --depth 1" ;;
 esac
 
-printf "[?] Would you like to use SSH authentication (faster, but requires a GitHub account with SSH keys)? (y/N): "
+printf "[?] Would you like to use SSH authentication (faster, but requires a GitLab account with SSH keys)? (y/N): "
 read -r choice
 case $choice in
 	y*|Y*)
