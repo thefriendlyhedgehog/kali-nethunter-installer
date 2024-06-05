@@ -20,6 +20,7 @@ import fnmatch
 import shutil
 
 try:
+    # Python 3 compatibility
     import configparser
 except ImportError:
     # Python 2 compatibility
@@ -756,6 +757,7 @@ def main():
     Flasher = readkey("flasher")
     Flasher = Flasher.replace('"', "")
     print("Flasher: " + Flasher)
+
     Resolution = readkey("resolution")
     Resolution = Resolution.replace('"', "")
     print("Resolution: " + Resolution)
