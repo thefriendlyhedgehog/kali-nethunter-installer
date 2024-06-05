@@ -157,9 +157,9 @@ def generate_manifest(data):
 
     ## Add NetHunter Lite (Light Editions)
     jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Minimal)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
     jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Minimal)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
 
     # Iterate over all the devices
     for element in data:
