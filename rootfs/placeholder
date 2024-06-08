@@ -1,1 +1,4 @@
-you can place kalifs-[arch]-[size].tar.xz here
+# Place Kali NetHunter filesystem output here: Filename kalifs-[arch]-[size].tar.xz
+# REF:
+#   - ./nethunter-fs/output/
+#   - https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project/-/tree/master/nethunter-fs

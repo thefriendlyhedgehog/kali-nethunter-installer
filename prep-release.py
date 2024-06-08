@@ -115,13 +115,13 @@ def generate_build_script(data):
     build_list += "./build.py -f || exit"
     build_list += "\n\n"
 
-    ## Add builds for NetHunter Lite (Light Edition)
+    ## Add builds for Kali NetHunter Lite (Light Edition)
     build_list += "# Kali NetHunter Lite:\n"
     build_list += "# -----------------------------------------------\n"
-    build_list += "./build.py -g arm64 -fs full -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
-    build_list += "./build.py -g arm64 -fs minimal -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
-    build_list += "./build.py -g armhf -fs full -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
-    build_list += "./build.py -g armhf -fs minimal -r ${RELEASE} && mv *${RELEASE}*.zip ${OUT_DIR}\n"
+    build_list += "./build.py -g arm64 -fs full -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
+    build_list += "./build.py -g arm64 -fs minimal -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
+    build_list += "./build.py -g armhf -fs full -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
+    build_list += "./build.py -g armhf -fs minimal -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
 
     # Iterate over all the devices
     for element in data:
@@ -134,11 +134,12 @@ def generate_build_script(data):
                     build_list += "\n"
                     build_list += "# {}\n".format(image.get('name'))
                     build_list += "# -----------------------------------------------\n"
-                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv *${{RELEASE}}*.zip ${{OUT_DIR}}\n".format(image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
+                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv -v *${{RELEASE}}*.zip ${{OUT_DIR}}/\n".format(image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
 
     ## Create sha files for each image
     build_list += "\n\n"
     build_list += "cd ${OUT_DIR}/\n"
+    build_list += "for f in `dir *-${RELEASE}-*.zip`; do mv -vn ${f} `echo ${f} | tr '[A-Z]' '[a-z]'`; done\n"
     build_list += "for f in `dir *-${RELEASE}-*.zip`; do sha256sum ${f} > ${f}.sha256; done\n"
     build_list += "cd -\n"
     return build_list
@@ -146,7 +147,7 @@ def generate_build_script(data):
 def jsonarray(devices, manufacture, name, filename):
     if not manufacture in devices:
         devices[manufacture] = []
-    jsondata = {"name": name, "filename": filename}
+    jsondata = {"name": name, "filename": filename.lower()}
     devices[manufacture].append(jsondata)
     return devices
 
@@ -155,11 +156,11 @@ def generate_manifest(data):
     default = ""
     devices = {}
 
-    ## Add NetHunter Lite (Light Editions)
+    ## Add Kali NetHunter Lite (Light Editions)
     jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Minimal)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
     jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Nano)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Minimal)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
 
     # Iterate over all the devices
     for element in data:
