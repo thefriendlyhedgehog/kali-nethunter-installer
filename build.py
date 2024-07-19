@@ -48,27 +48,32 @@ dl_supersu = {
 
 # Install updated apps from the staging site (staging.nethunter.com) so that we can prepare images before we go live with releases
 dl_apps = {
+    # com.offsec.nethunter.store_2019030200.apk
     "NetHunterStore": [
         "https://store.nethunter.com/NetHunterStore.apk",
         "35fed79b55463f64c6b11d19df2ecb4ff099ef1dda1063b87eedaae3ebde32c3720e61cad2da73a46492d19180306adcf5f72d511da817712e1eed32068ec1ef",
     ],
 
+    # com.offsec.nethunter.store.privileged_2110.apk
     "NetHunterStorePrivilegedExtension": [
         "https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk",
         "668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a",
     ],
 
-    # $ sha512sum com.offsec.nethunter_2024020400.apk
+    # com.offsec.nethunter_2024020400.apk
+    # Alt: "https://store.nethunter.com/NetHunter.apk"
     "NetHunter": [
         "https://staging.nethunter.com/repo/com.offsec.nethunter_2024020400.apk",
         "199ea57119240f3e594020391983d0bec076a039863dc106d34f218eb5f20c02348c48fb6d03c9136e7b0a7313ec1ee8a9c42f4c86ac4627daaa4b92438895d7",
     ],
 
+    # com.offsec.nhterm_2023040100.apk
     "NetHunterTerminal": [
         "https://store.nethunter.com/NetHunterTerminal.apk",
         "3e5524119e55d1217169d368113bc42763f654a8dc69175b6339f93a4f587c335b2a2252d9285d7ebfe3fcc11d5f41fe7a4caf3d1f82d0306d347519340a89a9",
     ],
 
+    # com.offsec.nethunter.kex_11525001.apk
     "NetHunterKeX": [
         "https://store.nethunter.com/NetHunterKeX.apk",
         "f3e705532d0aa1372c8d19bdece6a1d82fbe6b1845ee6992c984dbe154fdc811230ddb0193a5c42c74926b54a6e0e689ecc3afc5ac5b93780ee0cc67d93a8dc9",
