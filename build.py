@@ -156,7 +156,7 @@ def download(url, file_name, verify_sha):
                 print("Hash matches: OK")
             else:
                 download_ok = False
-                print("Hash mismatch!")
+                print("Hash mismatch! " + file_name)
         else:
             print("Warning: No SHA512 hash specified for verification!")
 
