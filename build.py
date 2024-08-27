@@ -445,7 +445,7 @@ def setupkernel():
             {
                 "   Kernel": readkey("kernelstring", "NetHunter kernel"),
                 "   Version": readkey("version", "1.0"),
-                "   Author": readkey("author", "Unkown"),
+                "   Author": readkey("author", "Unknown"),
             },
         )
 
