@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ##############################################################
-# Script to build Kali NetHunter
+# Script to build/compile/merge Kali NetHunter installer per device
 #
 # Usage:
 #   python3 build.py -i <input file> -o <output directory> -r <release>
@@ -242,23 +242,24 @@ def allapps(forcedown):
 def rootfs(forcedown, fs_size):
     global Arch
     fs_arch = Arch
-    fs_file = "kalifs-" + fs_arch + "-" + fs_size + ".tar.xz"
-    fs_path = os.path.join("rootfs", fs_file)
     fs_host = "https://kali.download/nethunter-images/current/rootfs/"
-
+    fs_file = "kalifs-" + fs_arch + "-" + fs_size + ".tar.xz"
     fs_url = fs_host + fs_file
 
+    fs_path = os.path.join("rootfs", fs_file)
+
     if forcedown:
-        # For force redownload, remove previous rootfs
-        print("Force redownloading Kali %s %s rootfs" % (fs_arch, fs_size))
+        # For force re-download, remove previous rootfs
+        print("Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
         if os.path.isfile(fs_path):
+            print("Deleting: %s" % fs_path)
             os.remove(fs_path)
 
     # Only download Kali rootfs if we don't have it already
     if os.path.isfile(fs_path):
-        print("Found Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_path))
+        print("Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_path))
     else:
-        print("Downloading from host: %s" % fs_host)
+        print("Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_path, fs_host))
         download(fs_url, fs_path, False)  # We should add SHA512 retrieval function
 
 
@@ -932,7 +933,7 @@ def main():
         )
         os.system(bootanimation_rename)
 
-    print("Created NetHunter installer: " + file_name)
+    print("Created Kali NetHunter installer: " + file_name)
     done()
 
 
