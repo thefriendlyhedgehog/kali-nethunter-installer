@@ -259,7 +259,7 @@ def rootfs(forcedown, fs_size):
     if os.path.isfile(fs_path):
         print("Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_path))
     else:
-        print("Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_path, fs_host))
+        print("Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_url))
         download(fs_url, fs_path, False)  # We should add SHA512 retrieval function
 
 
