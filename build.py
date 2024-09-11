@@ -246,33 +246,33 @@ def rootfs(forcedown, fs_size):
     fs_file = "kali-nethunter-rootfs-" + fs_size + "-" + fs_arch + ".tar.xz"
     fs_url = fs_host + fs_file
 
-    fs_path = os.path.join("rootfs", fs_file)
+    fs_localpath = os.path.join("rootfs", fs_file)
 
     if forcedown:
         # For force re-download, remove previous rootfs
         print("Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
-        if os.path.isfile(fs_path):
-            print("Deleting: %s" % fs_path)
-            os.remove(fs_path)
+        if os.path.isfile(fs_localpath):
+            print("Deleting: %s" % fs_localpath)
+            os.remove(fs_localpath)
 
     # Only download Kali rootfs if we don't have it already
-    if os.path.isfile(fs_path):
-        print("Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_path))
+    if os.path.isfile(fs_localpath):
+        print("Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_localpath))
     else:
         print("Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_url))
-        download(fs_url, fs_path, False)  # We should add SHA512 retrieval function
+        download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
 
 
 def addrootfs(fs_size, dst):
     global Arch
     fs_arch = Arch
     fs_file = "kali-nethunter-rootfs-" + fs_size + "-" + fs_arch + ".tar.xz"
-    fs_path = os.path.join("rootfs", fs_file)
+    fs_localpath = os.path.join("rootfs", fs_file)
 
     try:
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
         print("Adding Kali rootfs archive to the installer zip...")
-        zf.write(os.path.abspath(fs_path), fs_file)
+        zf.write(os.path.abspath(fs_localpath), fs_file)
         print("  Added: " + fs_file)
         zf.close()
     except IOError as e:
