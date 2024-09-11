@@ -243,7 +243,7 @@ def rootfs(forcedown, fs_size):
     global Arch
     fs_arch = Arch
     fs_host = "https://kali.download/nethunter-images/current/rootfs/"
-    fs_file = "kalifs-" + fs_arch + "-" + fs_size + ".tar.xz"
+    fs_file = "kali-nethunter-rootfs-" + fs_size + "-" + fs_arch + ".tar.xz"
     fs_url = fs_host + fs_file
 
     fs_path = os.path.join("rootfs", fs_file)
@@ -266,7 +266,7 @@ def rootfs(forcedown, fs_size):
 def addrootfs(fs_size, dst):
     global Arch
     fs_arch = Arch
-    fs_file = "kalifs-" + fs_arch + "-" + fs_size + ".tar.xz"
+    fs_file = "kali-nethunter-rootfs-" + fs_size + "-" + fs_arch + ".tar.xz"
     fs_path = os.path.join("rootfs", fs_file)
 
     try:
