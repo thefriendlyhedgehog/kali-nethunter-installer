@@ -32,23 +32,29 @@ qty_images = 0
 qty_devices = 0
 
 ## Input:
-## ------------------------------------------------------------ ##
-##* - angler:
-##*     model:   Nexus 6P
-##*     note:
-##*     images:
-##*       - name:    Nexus 6P (Oreo)
-##*         id:      xangler
-##*         os:      oreo
-##*         status:  Stable
-##*         rootfs:  full
-##*         note:    "** Our preferred low end device **"
-##*       - name:    Nexus 6P (LineageOS 17.1)
-##*         id:      angler-los
-##*         os:      ten
-##*         status:  Latest
-##*         rootfs:  full
-##*         note:    "** Warning: Android ten is very unstable at the moment. **"
+##   $ grep '##*' ./devices.cfg
+##   ##* - angler:
+##   ##*     model  : Nexus 6P
+##   ##*     images :
+##   ##*       - id      : angler
+##   ##*         name    : Nexus 6P (Oreo)
+##   ##*         android : oreo
+##   ##*         status  : stable
+##   ##*         rootfs  : full
+##   ##*         docs    : "https://forum.xda-developers.com/t/rom-official-kali-nethunter-for-the-huawei-nexus-6p-android-8-1.4080807/"
+##   ##*         note    : >-
+##   ##*                   Nexmon support<br>
+##   ##*                   **Our preferred low end device**<br>
+##   ##*       - id      : angler-los
+##   ##*         name    : Nexus 6P (LineageOS 17.1)
+##   ##*         android : ten
+##   ##*         status  : latest
+##   ##*         rootfs  : full
+##   ##*         docs    : "https://forum.xda-developers.com/t/rom-official-kali-nethunter-for-the-huawei-nexus-6p-los17-1.4079087/"
+##   ##*         note    : >-
+##   ##*                   Nexmon support<br>
+##   ##*                   **Our preferred low end device**<br>
+##   ##*                   Warning: Android Ten is still experimental
 
 def bail(message = "", strerror = ""):
     outstr = ""
@@ -111,12 +117,13 @@ def generate_build_script(data):
     build_list += "\n"
 
     ## Make sure that we have the latest app versions
-    build_list += "# Force download all apps:\n"
+    build_list += "# Force download all apps\n"
+    build_list += "# -----------------------------------------------\n"
     build_list += "./build.py -f || exit"
     build_list += "\n\n"
 
     ## Add builds for Kali NetHunter Generic
-    build_list += "# Kali NetHunter Generic:\n"
+    build_list += "# Kali NetHunter Generic\n"
     build_list += "# -----------------------------------------------\n"
     build_list += "./build.py -g arm64 -fs full -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
     build_list += "./build.py -g arm64 -fs minimal -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
@@ -134,13 +141,15 @@ def generate_build_script(data):
                     build_list += "\n"
                     build_list += "# {}\n".format(image.get('name'))
                     build_list += "# -----------------------------------------------\n"
-                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv -v *${{RELEASE}}*.zip ${{OUT_DIR}}/\n".format(image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
+                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv -v *${{RELEASE}}*.zip ${{OUT_DIR}}/\n".format(image.get('id', default), image.get('android', default), image.get('rootfs', FS_SIZE))
 
     ## Create sha files for each image
-    build_list += "\n\n"
+    build_list += "\n"
+    build_list += "# Move files and create checksums\n"
+    build_list += "# -----------------------------------------------\n"
     build_list += "cd ${OUT_DIR}/\n"
-    build_list += "for f in `dir *-${RELEASE}-*.zip`; do mv -vn ${f} `echo ${f} | tr '[A-Z]' '[a-z]'`; done\n"
-    build_list += "for f in `dir *-${RELEASE}-*.zip`; do sha256sum ${f} > ${f}.sha256; done\n"
+    build_list += "for f in $(dir *-${RELEASE}-*.zip); do mv -vn ${f} $(echo ${f} | tr '[A-Z]' '[a-z]'); done\n"
+    build_list += "for f in $(dir *-${RELEASE}-*.zip); do sha256sum ${f} | tee ${f}.sha256; done\n"
     build_list += "cd -\n"
     return build_list
 
@@ -170,7 +179,7 @@ def generate_manifest(data):
                 for image in element[key]['images']:
                     name = image.get('name', default)
                     manufacture = name.split()[0]
-                    filename = "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
+                    filename = "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('android', default), image.get('rootfs', FS_SIZE))
                     jsonarray(devices, manufacture, name, filename)
     return json.dumps(devices, indent = 2)
 
