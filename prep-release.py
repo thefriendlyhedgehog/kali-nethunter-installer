@@ -115,8 +115,8 @@ def generate_build_script(data):
     build_list += "./build.py -f || exit"
     build_list += "\n\n"
 
-    ## Add builds for Kali NetHunter Lite (Light Edition)
-    build_list += "# Kali NetHunter Lite:\n"
+    ## Add builds for Kali NetHunter Generic
+    build_list += "# Kali NetHunter Generic:\n"
     build_list += "# -----------------------------------------------\n"
     build_list += "./build.py -g arm64 -fs full -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
     build_list += "./build.py -g arm64 -fs minimal -r ${RELEASE} && mv -v *${RELEASE}*.zip ${OUT_DIR}/\n"
@@ -156,11 +156,11 @@ def generate_manifest(data):
     default = ""
     devices = {}
 
-    ## Add Kali NetHunter Lite (Light Editions)
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
+    ## Add Kali NetHunter Generic
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
 
     # Iterate over all the devices
     for element in data:
