@@ -157,10 +157,10 @@ def generate_manifest(data):
     devices = {}
 
     ## Add Kali NetHunter Lite (Light Editions)
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Minimal)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Full)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
-    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Minimal)", "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARM64 (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
+    jsonarray(devices, "NetHunter Lite", "NetHunter Lite ARMhf (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
 
     # Iterate over all the devices
     for element in data:
@@ -170,7 +170,7 @@ def generate_manifest(data):
                 for image in element[key]['images']:
                     name = image.get('name', default)
                     manufacture = name.split()[0]
-                    filename = "nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
+                    filename = "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, image.get('id', default), image.get('os', default), image.get('rootfs', FS_SIZE))
                     jsonarray(devices, manufacture, name, filename)
     return json.dumps(devices, indent = 2)
 
