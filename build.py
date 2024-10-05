@@ -663,20 +663,20 @@ def main():
         description="Kali NetHunter recovery flashable zip builder"
     )
     parser.add_argument("--device", "-d", action="store", help=help_device)
-    parser.add_argument("--kitkat", "-kk", action="store_true", help="Android 4.4.4")
-    parser.add_argument("--lollipop", "-l", action="store_true", help="Android 5")
-    parser.add_argument("--marshmallow", "-m", action="store_true", help="Android 6")
-    parser.add_argument("--nougat", "-n", action="store_true", help="Android 7")
-    parser.add_argument("--oreo", "-o", action="store_true", help="Android 8")
-    parser.add_argument("--pie", "-p", action="store_true", help="Android 9")
-    parser.add_argument("--ten", "-q", action="store_true", help="Android 10")
-    parser.add_argument("--eleven", "-R", action="store_true", help="Android 11")
-    parser.add_argument("--twelve", "-S", action="store_true", help="Android 12")
-    parser.add_argument("--thirteen", "-T", action="store_true", help="Android 13")
-    parser.add_argument("--fourteen", "-U", action="store_true", help="Android 14")
-    parser.add_argument("--wearos", "-w", action="store_true", help="WearOS")
+    parser.add_argument("--kitkat", "-4", action="store_true", help="Android 4.4")
+    parser.add_argument("--lollipop", "-5", action="store_true", help="Android 5")
+    parser.add_argument("--marshmallow", "-6", action="store_true", help="Android 6")
+    parser.add_argument("--nougat", "-7", action="store_true", help="Android 7")
+    parser.add_argument("--oreo", "-8", action="store_true", help="Android 8")
+    parser.add_argument("--pie", "-9", action="store_true", help="Android 9")
+    parser.add_argument("--ten", "-10", action="store_true", help="Android 10")
+    parser.add_argument("--eleven", "-11", action="store_true", help="Android 11")
+    parser.add_argument("--twelve", "-12", action="store_true", help="Android 12")
+    parser.add_argument("--thirteen", "-13", action="store_true", help="Android 13")
+    parser.add_argument("--fourteen", "-14", action="store_true", help="Android 14")
+    parser.add_argument("--wearos", "-w", action="store_true", help="Wear OS")
     parser.add_argument(
-        "--forcedown", "-f", action="store_true", help="Force redownloading"
+        "--force-download", "-f", action="store_true", help="Force re-downloading"
     )
     parser.add_argument(
         "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
@@ -685,19 +685,19 @@ def main():
         "--kernel", "-k", action="store_true", help="Build kernel installer only"
     )
     parser.add_argument(
-        "--nokernel",
+        "--no-kernel",
         "-nk",
         action="store_true",
         help="Build without the kernel installer",
     )
     parser.add_argument(
-        "--nobrand",
+        "--no-branding",
         "-nb",
         action="store_true",
         help="Build without wallpaper or boot animation",
     )
     parser.add_argument(
-        "--nofreespace",
+        "--no-freespace",
         "-nf",
         action="store_true",
         help="Build without free space check",
@@ -732,7 +732,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.kernel and args.nokernel:
+    if args.kernel and args.no_kernel:
         abort(
             "You seem to be having trouble deciding whether you want the kernel installer or not"
         )
@@ -748,7 +748,7 @@ def main():
         Arch = args.generic
         Device = "generic"
         setuparch()
-    elif args.forcedown:
+    elif args.force_download:
         if args.supersu:
             supersu(True, supersu_beta)
         allapps(True)
@@ -839,14 +839,14 @@ def main():
 
     # We don't need the apps or SuperSU if we are only building the kernel installer
     if not args.kernel:
-        allapps(args.forcedown)
+        allapps(args.force_download)
         # Download SuperSU if we want it
         if args.supersu:
-            supersu(args.forcedown, supersu_beta)
+            supersu(args.force_download, supersu_beta)
 
     # Download Kali rootfs if we are building a zip with the chroot environment included
     if args.rootfs:
-        rootfs(args.forcedown, args.rootfs)
+        rootfs(args.force_download, args.rootfs)
 
     # Set file name tag depending on the options chosen
     if args.release:
@@ -858,14 +858,14 @@ def main():
         file_tag += "-" + OS
     else:
         file_tag += "-" + Arch
-    if args.nobrand and not args.kernel:
-        file_tag += "-nobrand"
+    if args.no_branding and not args.kernel:
+        file_tag += "-nobranding"
     if args.supersu:
         file_tag += "-rooted"
     if args.rootfs:
         file_tag += "-kalifs-" + args.rootfs
     # Don't include wallpaper or boot animation if --nobrand is specified
-    if args.nobrand:
+    if args.no_branding:
         IgnoredFiles.append("wallpaper")
         IgnoredFiles.append("bootanimation.zip")
 
@@ -882,11 +882,11 @@ def main():
         IgnoredFiles.append("bootanimation_wearos.zip")
 
     # Don't include free space script if --nofreespace is specified
-    if args.nofreespace:
+    if args.no_freespace:
         IgnoredFiles.append("freespace.sh")
 
     # Don't set up the kernel installer if --nokernel is specified
-    if not args.nokernel:
+    if not args.no_kernel:
         setupkernel()
 
         # Build a kernel installer zip and exit if --kernel is specified
