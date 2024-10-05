@@ -117,10 +117,10 @@ def download(url, file_name, verify_sha):
 
     if u.headers.get("Content-Length"):
         file_size = int(u.headers["Content-Length"])
-        print("Downloading: %s (%s bytes)" % (os.path.basename(file_name), file_size))
+        print("[i] Downloading: %s (%s bytes) - %s" % (os.path.basename(file_name), file_size, url))
     else:
         file_size = 0
-        print("Downloading: %s (unknown size)" % os.path.basename(file_name))
+        print("[i] Downloading: %s (unknown size) - %s" % (os.path.basename(file_name), url))
 
     sha = hashlib.sha512()
     f = open(file_name, "wb")
@@ -143,10 +143,10 @@ def download(url, file_name, verify_sha):
         download_ok = True
     except requests.exceptions.RequestException as e:
         print()
-        print("Error: " + str(e))
+        print("[-] Error: " + str(e))
     except KeyboardInterrupt:
         print()
-        print("Download cancelled")
+        print("[-] Download cancelled")
 
     f.flush()
     os.fsync(f.fileno())
@@ -154,19 +154,19 @@ def download(url, file_name, verify_sha):
 
     if download_ok:
         sha = sha.hexdigest()
-        print("SHA512: " + sha)
+        print("[i] SHA512: " + sha)
         if verify_sha:
-            print("Expect: " + verify_sha)
+            print("[i] Expect: " + verify_sha)
             if sha == verify_sha:
-                print("Hash matches: OK")
+                print("[+] Hash matches: OK")
             else:
                 download_ok = False
-                print("Hash mismatch! " + file_name)
+                print("[-] Hash mismatch! " + file_name)
         else:
-            print("Warning: No SHA512 hash specified for verification!")
+            print("[-] Warning: No SHA512 hash specified for verification!")
 
     if download_ok:
-        print("Download OK: " + file_name)
+        print("[+] Download OK: {}\n".format(file_name))
     else:
         # We should delete partially downloaded file so the next try doesn't skip it!
         if os.path.isfile(file_name):
@@ -183,9 +183,9 @@ def supersu(forcedown, beta):
             u = requests.head(url, headers=dl_headers)
             return u.url
         except requests.exceptions.ConnectionError as e:
-            print("Connection error: " + str(e))
+            print("[-] Connection error: " + str(e))
         except requests.exceptions.RequestException as e:
-            print("Error: " + str(e))
+            print("[-] Error: " + str(e))
 
     suzip = os.path.join("update", "supersu.zip")
 
@@ -194,7 +194,7 @@ def supersu(forcedown, beta):
         if forcedown:
             os.remove(suzip)
         else:
-            print("Found SuperSU zip at: " + suzip)
+            print("[i] Found SuperSU zip at: " + suzip)
 
     if not os.path.isfile(suzip):
         if beta:
@@ -217,7 +217,7 @@ def allapps(forcedown):
     app_path = os.path.join("update", "data", "app")
 
     if forcedown:
-        print("Force redownloading all apps")
+        print("[i] Force re-downloading all NetHunter apps")
 
     for key, value in dl_apps.items():
         apk_name = key + ".apk"
@@ -230,13 +230,13 @@ def allapps(forcedown):
             if forcedown:
                 os.remove(apk_path)
             else:
-                print("Found %s at: %s" % (apk_name, apk_path))
+                print("[+] Found %s at: %s" % (apk_name, apk_path))
 
         # Only download apk if we don't have it already
         if not os.path.isfile(apk_path):
             download(apk_url, apk_path, apk_hash)
 
-    print("Finished downloading all apps")
+    print("[+] Finished downloading NetHunter all apps")
 
 
 def rootfs(forcedown, fs_size):
@@ -250,16 +250,16 @@ def rootfs(forcedown, fs_size):
 
     if forcedown:
         # For force re-download, remove previous rootfs
-        print("Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
+        print("[+] Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
         if os.path.isfile(fs_localpath):
-            print("Deleting: %s" % fs_localpath)
+            print("[i] Deleting: %s" % fs_localpath)
             os.remove(fs_localpath)
 
     # Only download Kali rootfs if we don't have it already
     if os.path.isfile(fs_localpath):
-        print("Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_localpath))
+        print("[+] Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_localpath))
     else:
-        print("Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_url))
+        print("[i] Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_url))
         download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
 
 
@@ -271,30 +271,30 @@ def addrootfs(fs_size, dst):
 
     try:
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
-        print("Adding Kali rootfs archive to the installer zip...")
+        print("[i] Adding Kali rootfs archive to the installer zip...")
         zf.write(os.path.abspath(fs_localpath), fs_file)
-        print("  Added: " + fs_file)
+        print("[+]   Added: " + fs_file)
         zf.close()
     except IOError as e:
-        print("IOError = " + e.reason)
-        abort("Unable to add to the zip file")
+        print("[-] IOError = " + e.reason)
+        abort('Unable to add to the zip file')
 
 
 def zip(src, dst):
     try:
         zf = zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED)
-        print("Creating ZIP file: " + dst)
+        print("[i] Creating ZIP file: " + dst)
         abs_src = os.path.abspath(src)
         for dirname, subdirs, files in os.walk(src):
             for filename in files:
                 absname = os.path.abspath(os.path.join(dirname, filename))
                 arcname = absname[len(abs_src) + 1 :]
                 zf.write(absname, arcname)
-                print("  Added: " + arcname)
+                print("[+]   Added: " + arcname)
         zf.close()
     except IOError as e:
-        print("IOError = " + e.reason)
-        abort("Unable to create the ZIP file")
+        print("[-] IOError = " + e.reason)
+        abort('Unable to create the ZIP file')
 
 
 def readkey(key, default=""):
@@ -366,21 +366,21 @@ def setupkernel():
     out_path = os.path.join("tmp_out", "boot-patcher")
 
     # Blindly copy directories
-    print("Kernel: Copying common files...")
+    print("[i] Kernel: Copying common files...")
     copytree("common", out_path)
 
-    print("Kernel: Copying " + Arch + " arch specific common files...")
+    print("[i] Kernel: Copying " + Arch + " arch specific common files...")
     copytree(os.path.join("common", "arch", Arch), out_path)
 
-    print("Kernel: Copying boot-patcher files...")
+    print("[i] Kernel: Copying boot-patcher files...")
     copytree("boot-patcher", out_path)
 
-    print("Kernel: Copying " + Arch + " arch specific boot-patcher files...")
+    print("[i] Kernel: Copying " + Arch + " arch specific boot-patcher files...")
     copytree(os.path.join("boot-patcher", "arch", Arch), out_path)
 
     if Device == "generic":
         # Set up variables in the kernel installer script
-        print("Kernel: Configuring installer script for generic %s devices" % Arch)
+        print("[i] Kernel: Configuring installer script for generic %s devices" % Arch)
         configfile(
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
@@ -389,11 +389,11 @@ def setupkernel():
         )
         # There's nothing left to configure
         return
-    print("Kernel: Configuring installer script for " + Device)
+    print("[i] Kernel: Configuring installer script for " + Device)
 
     if Flasher == "anykernel":
         # Replace Lazy Flasher with AnyKernel3
-        print("Replacing NetHunter Flasher with AnyKernel3")
+        print("[i] Replacing NetHunter Flasher with AnyKernel3")
         if args.kernel:
             shutil.move(
                 os.path.join(
@@ -464,7 +464,7 @@ def setupkernel():
         )
 
         # Set up variables in boot-patcher.sh
-        print("Kernel: Configuring boot-patcher script for " + Device)
+        print("[i] Kernel: Configuring boot-patcher script for " + Device)
         configfile(
             os.path.join(out_path, "boot-patcher.sh"),
             {
@@ -491,7 +491,7 @@ def setupkernel():
     for kernel_image in kernel_images:
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
-            print("Found kernel image at: " + kernel_location)
+            print("[+] Found kernel image at: " + kernel_location)
             shutil.copy(kernel_location, os.path.join(out_path, kernel_image))
             kernel_found = True
             break
@@ -502,55 +502,55 @@ def setupkernel():
     # Copy dtb.img if it exists
     dtb_location = os.path.join(device_path, "dtb.img")
     if os.path.exists(dtb_location):
-        print("Found DTB image at: " + dtb_location)
+        print("[+] Found DTB image at: " + dtb_location)
         shutil.copy(dtb_location, os.path.join(out_path, "dtb.img"))
 
     # Copy dtb if it exists
     dtb_location = os.path.join(device_path, "dtb")
     if os.path.exists(dtb_location):
-        print("Found DTB file at: " + dtb_location)
+        print("[+] Found DTB file at: " + dtb_location)
         shutil.copy(dtb_location, os.path.join(out_path, "dtb"))
 
     # Copy dtbo.img if it exists
     dtbo_location = os.path.join(device_path, "dtbo.img")
     if os.path.exists(dtbo_location):
-        print("Found DTBO image at: " + dtbo_location)
+        print("[+] Found DTBO image at: " + dtbo_location)
         shutil.copy(dtbo_location, os.path.join(out_path, "dtbo.img"))
 
     # Copy any patch.d scripts
     patchd_path = os.path.join(device_path, "patch.d")
     if os.path.exists(patchd_path):
-        print("Found additional patch.d scripts at: " + patchd_path)
+        print("[+] Found additional patch.d scripts at: " + patchd_path)
         copytree(patchd_path, os.path.join(out_path, "patch.d"))
 
     # Copy any ramdisk files
     ramdisk_path = os.path.join(device_path, "ramdisk")
     if os.path.exists(ramdisk_path):
-        print("Found additional ramdisk files at: " + ramdisk_path)
+        print("[+] Found additional ramdisk files at: " + ramdisk_path)
         copytree(ramdisk_path, os.path.join(out_path, "ramdisk-patch"))
 
     # Copy any modules
     modules_path = os.path.join(device_path, "modules")
     if os.path.exists(modules_path):
-        print("Found additional kernel modules at: " + modules_path)
+        print("[+] Found additional kernel modules at: " + modules_path)
         copytree(modules_path, os.path.join(out_path, "modules"))
 
     # Copy any device specific system binaries, libs, or init.d scripts
     system_path = os.path.join(device_path, "system")
     if os.path.exists(system_path):
-        print("Found additional /system files at: " + system_path)
+        print("[+] Found additional /system files at: " + system_path)
         copytree(system_path, os.path.join(out_path, "system"))
 
     # Copy any /data/local folder files
     local_path = os.path.join(device_path, "local")
     if os.path.exists(local_path):
-        print("Found additional /data/local files at: " + local_path)
+        print("[+] Found additional /data/local files at: " + local_path)
         copytree(local_path, os.path.join(out_path, "data", "local"))
 
     # Copy any AnyKernel3 additions
     ak_patches_path = os.path.join(device_path, "ak_patches")
     if os.path.exists(ak_patches_path):
-        print("Found additional AnyKernel3 patches at: " + ak_patches_path)
+        print("[+] Found additional AnyKernel3 patches at: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
 
 
@@ -561,20 +561,20 @@ def setupupdate():
     out_path = "tmp_out"
 
     # Blindly copy directories
-    print("NetHunter: Copying common files...")
+    print("[i] NetHunter: Copying common files...")
     copytree("common", out_path)
 
-    print("NetHunter: Copying " + Arch + " arch specific common files...")
+    print("[i] NetHunter: Copying " + Arch + " arch specific common files...")
     copytree(os.path.join("common", "arch", Arch), out_path)
 
-    print("NetHunter: Copying update files...")
+    print("[i] NetHunter: Copying update files...")
     copytree("update", out_path)
 
-    print("NetHunter: Copying " + Arch + " arch specific update files...")
+    print("[i] NetHunter: Copying " + Arch + " arch specific update files...")
     copytree(os.path.join("update", "arch", Arch), out_path)
 
     # Set up variables in update-binary script
-    print("NetHunter: Configuring installer script for " + Device)
+    print("[i] NetHunter: Configuring installer script for " + Device)
     configfile(
         os.path.join(out_path, "META-INF", "com", "google", "android", "update-binary"),
         {"supersu": readkey("supersu")},
@@ -591,7 +591,7 @@ def setupupdate():
 def cleanup(domsg):
     if os.path.exists("tmp_out"):
         if domsg:
-            print("Removing temporary build directory")
+            print("[i] Removing temporary build directory")
         shutil.rmtree("tmp_out")
 
 
@@ -601,7 +601,7 @@ def done():
 
 
 def abort(err):
-    print("Error: " + err)
+    print("[-] Error: " + err)
     cleanup(True)
     exit(1)
 
@@ -758,11 +758,11 @@ def main():
 
     Flasher = readkey("flasher")
     Flasher = Flasher.replace('"', "")
-    print("Flasher: " + Flasher)
+    print("[i] Flasher: " + Flasher)
 
     Resolution = readkey("resolution")
     Resolution = Resolution.replace('"', "")
-    print("Resolution: " + Resolution)
+    print("[i] Resolution: " + Resolution)
 
     # If we found a device, set architecture and parse android OS release
     if args.device:
@@ -831,7 +831,7 @@ def main():
 
         zip("uninstaller", file_name)
 
-        print("Created uninstaller: " + file_name)
+        print("[+] Created uninstaller: " + file_name)
 
     # If no device or generic arch is specified, we are done
     if not (args.device or args.generic):
@@ -895,7 +895,7 @@ def main():
 
             zip(os.path.join("tmp_out", "boot-patcher"), file_name)
 
-            print("Created kernel installer: " + file_name)
+            print("[+] Created kernel installer: " + file_name)
             done()
 
     # Don't include SuperSU unless --supersu is specified
@@ -933,7 +933,7 @@ def main():
         )
         os.system(bootanimation_rename)
 
-    print("Created Kali NetHunter installer: " + file_name)
+    print("[+] Created Kali NetHunter installer: " + file_name)
     done()
 
 
