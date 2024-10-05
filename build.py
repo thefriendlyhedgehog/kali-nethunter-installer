@@ -647,6 +647,8 @@ def main():
     cleanup(True)
 
     # Read devices.cfg, get device names
+    if not os.path.exists(devices_cfg):
+        abort('Could not find %s! Maybe you need to run ./bootstrap.sh?' % devices_cfg)
     try:
         Config = configparser.ConfigParser(strict=False)
         Config.read(devices_cfg)
