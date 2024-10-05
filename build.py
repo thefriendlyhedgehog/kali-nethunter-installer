@@ -208,7 +208,7 @@ def supersu(forcedown, beta):
             else:
                 download(surl + "?retrieve_file=1", suzip, dl_supersu["stable"][1])
         else:
-            abort("Could not retrieve download URL for SuperSU")
+            abort('Could not retrieve download URL for SuperSU')
 
 
 def allapps(forcedown):
@@ -496,8 +496,7 @@ def setupkernel():
             kernel_found = True
             break
     if not kernel_found:
-        abort("Unable to find kernel image at: " + device_path)
-        exit(0)
+        abort('Unable to find {} kernel image at: {}'.format(OS, device_path))
 
     # Copy dtb.img if it exists
     dtb_location = os.path.join(device_path, "dtb.img")
@@ -601,7 +600,7 @@ def done():
 
 
 def abort(err):
-    print("[-] Error: " + err)
+    print("[-] Error: " + err, file=sys.stderr)
     cleanup(True)
     exit(1)
 
@@ -615,7 +614,7 @@ def setuparch():
     elif Arch == "arm64" or Arch == "amd64":
         LibDir = os.path.join("system", "lib64")
     else:
-        abort("Unknown device architecture: " + Arch)
+        abort('Unknown device architecture: ' + Arch)
 
 
 def main():
@@ -653,7 +652,7 @@ def main():
         Config.read(devices_cfg)
         devicenames = Config.sections()
     except:
-        abort("Could not read %s! Maybe you need to run ./bootstrap.sh?" % devices_cfg)
+        abort('Could not parse %s! Maybe you need to run ./bootstrap.sh?' % devices_cfg)
 
     help_device = "Allowed device names: \n"
     for device in devicenames:
@@ -737,13 +736,13 @@ def main():
             "You seem to be having trouble deciding whether you want the kernel installer or not"
         )
     if args.device and args.generic:
-        abort("The device and generic switches are mutually exclusive")
+        abort('The device and generic switches are mutually exclusive')
 
     if args.device:
         if args.device in devicenames:
             Device = args.device
         else:
-            abort("Device %s not found in %s" % (args.device, devices_cfg))
+            abort('Device %s not found in %s' % (args.device, devices_cfg))
     elif args.generic:
         Arch = args.generic
         Device = "generic"
@@ -754,7 +753,7 @@ def main():
         allapps(True)
         done()
     elif not args.uninstaller:
-        abort("No valid arguments supplied. Try -h or --help")
+        abort('No valid arguments supplied. Try -h or --help')
 
     Flasher = readkey("flasher")
     Flasher = Flasher.replace('"', "")
