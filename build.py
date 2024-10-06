@@ -172,7 +172,7 @@ def download(url, file_name, verify_sha):
         if os.path.isfile(file_name):
             os.remove(file_name)
         # Better debug what file cannot be downloaded
-        abort('There was a problem downloading the file "' + file_name + '"')
+        abort('There was a problem downloading the file: ' + file_name)
 
 
 def supersu(forcedown, beta):
@@ -243,7 +243,7 @@ def rootfs(forcedown, fs_size):
     global Arch
     fs_arch = Arch
     fs_host = "https://kali.download/nethunter-images/current/rootfs/"
-    fs_file = "kali-nethunter-rootfs-" + fs_size + "-" + fs_arch + ".tar.xz"
+    fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_url = fs_host + fs_file
 
     fs_localpath = os.path.join("rootfs", fs_file)
@@ -252,7 +252,7 @@ def rootfs(forcedown, fs_size):
         # For force re-download, remove previous rootfs
         print("[+] Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
         if os.path.isfile(fs_localpath):
-            print("[i] Deleting: %s" % fs_localpath)
+            print("[i] Deleting: " + fs_localpath)
             os.remove(fs_localpath)
 
     # Only download Kali rootfs if we don't have it already
@@ -266,7 +266,7 @@ def rootfs(forcedown, fs_size):
 def addrootfs(fs_size, dst):
     global Arch
     fs_arch = Arch
-    fs_file = "kali-nethunter-rootfs-" + fs_size + "-" + fs_arch + ".tar.xz"
+    fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_localpath = os.path.join("rootfs", fs_file)
 
     try:
@@ -369,13 +369,13 @@ def setupkernel():
     print("[i] Kernel: Copying common files...")
     copytree("common", out_path)
 
-    print("[i] Kernel: Copying " + Arch + " arch specific common files...")
+    print("[i] Kernel: Copying %s arch specific common files..." % Arch)
     copytree(os.path.join("common", "arch", Arch), out_path)
 
     print("[i] Kernel: Copying boot-patcher files...")
     copytree("boot-patcher", out_path)
 
-    print("[i] Kernel: Copying " + Arch + " arch specific boot-patcher files...")
+    print("[i] Kernel: Copying %s arch specific boot-patcher files..." % Arch)
     copytree(os.path.join("boot-patcher", "arch", Arch), out_path)
 
     if Device == "generic":
@@ -563,13 +563,13 @@ def setupupdate():
     print("[i] NetHunter: Copying common files...")
     copytree("common", out_path)
 
-    print("[i] NetHunter: Copying " + Arch + " arch specific common files...")
+    print("[i] NetHunter: Copying %s arch specific common files..." % Arch)
     copytree(os.path.join("common", "arch", Arch), out_path)
 
     print("[i] NetHunter: Copying update files...")
     copytree("update", out_path)
 
-    print("[i] NetHunter: Copying " + Arch + " arch specific update files...")
+    print("[i] NetHunter: Copying %s arch specific update files..." % Arch)
     copytree(os.path.join("update", "arch", Arch), out_path)
 
     # Set up variables in update-binary script
@@ -892,7 +892,7 @@ def main():
 
         # Build a kernel installer zip and exit if --kernel is specified
         if args.kernel:
-            file_name = "kernel-nethunter-" + file_tag + ".zip"
+            file_name = "kernel-nethunter-%s.zip" % file_tag
 
             zip(os.path.join("tmp_out", "boot-patcher"), file_name)
 
@@ -919,7 +919,7 @@ def main():
     if not args.rootfs:
         file_prefix += "update-"
 
-    file_name = file_prefix + "nethunter-" + file_tag + ".zip"
+    file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
 
     zip("tmp_out", file_name)
 
