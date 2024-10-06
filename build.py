@@ -665,6 +665,13 @@ def main():
     parser = argparse.ArgumentParser(
         description="Kali NetHunter recovery flashable zip builder"
     )
+    parser.add_argument(
+        "--generic",
+        "-g",
+        action="store",
+        metavar="ARCH",
+        help="Build a generic installer (modify ramdisk only)",
+    )
     parser.add_argument("--device", "-d", action="store", help=help_device)
     parser.add_argument("--kitkat", "-4", action="store_true", help="Android 4.4")
     parser.add_argument("--lollipop", "-5", action="store_true", help="Android 5")
@@ -679,7 +686,14 @@ def main():
     parser.add_argument("--fourteen", "-14", action="store_true", help="Android 14")
     parser.add_argument("--wearos", "-w", action="store_true", help="Wear OS")
     parser.add_argument(
-        "--force-download", "-f", action="store_true", help="Force re-downloading"
+        "--rootfs",
+        "-fs",
+        action="store",
+        metavar="SIZE",
+        help="Build with Kali chroot rootfs (full, minimal or nano)",
+    )
+    parser.add_argument(
+        "--force-download", "-f", action="store_true", help="Force re-downloading external resources"
     )
     parser.add_argument(
         "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
@@ -700,7 +714,7 @@ def main():
         help="Build without wallpaper or boot animation",
     )
     parser.add_argument(
-        "--no-freespace",
+        "--no-freespace-check",
         "-nf",
         action="store_true",
         help="Build without free space check",
@@ -710,20 +724,6 @@ def main():
         "-su",
         action="store_true",
         help="Build with SuperSU installer included",
-    )
-    parser.add_argument(
-        "--generic",
-        "-g",
-        action="store",
-        metavar="ARCH",
-        help="Build a generic installer (modify ramdisk only)",
-    )
-    parser.add_argument(
-        "--rootfs",
-        "-fs",
-        action="store",
-        metavar="SIZE",
-        help="Build with Kali chroot rootfs (full, minimal or nano)",
     )
     parser.add_argument(
         "--release",
@@ -885,7 +885,7 @@ def main():
         IgnoredFiles.append("bootanimation_wearos.zip")
 
     # Don't include free space script if --nofreespace is specified
-    if args.no_freespace:
+    if args.no_freespace_check:
         IgnoredFiles.append("freespace.sh")
 
     # Don't set up the kernel installer if --nokernel is specified
