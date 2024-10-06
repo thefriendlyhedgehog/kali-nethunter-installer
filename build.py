@@ -210,6 +210,8 @@ def supersu(forcedown, beta):
         else:
             abort('Could not retrieve download URL for SuperSU')
 
+    print("[+] Finished setting up SuperSU")
+
 
 def allapps(forcedown):
     global dl_apps
@@ -259,8 +261,10 @@ def rootfs(forcedown, fs_size):
     if os.path.isfile(fs_localpath):
         print("[+] Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_localpath))
     else:
-        print("[i] Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_url))
+        print("[i] Downloading Kali %s %s rootfs (last-snapshot)" % (fs_arch, fs_size))
         download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
+
+    print("[+] Finished downloading rootfs")
 
 
 def addrootfs(fs_size, dst):
@@ -279,6 +283,8 @@ def addrootfs(fs_size, dst):
         print("[-] IOError = " + e.reason)
         abort('Unable to add to the zip file')
 
+    print("[+] Finished adding rootfs")
+
 
 def zip(src, dst):
     try:
@@ -295,6 +301,8 @@ def zip(src, dst):
     except IOError as e:
         print("[-] IOError = " + e.reason)
         abort('Unable to create the ZIP file')
+
+    print("[+] Finished creating zip")
 
 
 def readkey(key, default=""):
@@ -388,6 +396,7 @@ def setupkernel():
             {"generic": Arch},
         )
         # There's nothing left to configure
+        print("[+] Finished setting up (generic) kernel")
         return
     print("[i] Kernel: Configuring installer script for " + Device)
 
@@ -538,6 +547,8 @@ def setupkernel():
         print("[+] Found additional AnyKernel3 patches at: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
 
+    print("[+] Finished setting up kernel")
+
 
 def setupupdate():
     global Arch
@@ -572,11 +583,13 @@ def setupupdate():
         file_handle.write(Resolution)
         file_handle.close()
 
+    print("[+] Finished setting up NetHunter")
+
 
 def cleanup(domsg):
     if os.path.exists("tmp_out"):
         if domsg:
-            print("[i] Removing temporary build directory")
+            print("[i] Removing temporary build directory: ./tmp_out")
         shutil.rmtree("tmp_out")
 
 
@@ -721,10 +734,10 @@ def main():
 
     if args.kernel and args.no_kernel:
         abort(
-            "You seem to be having trouble deciding whether you want the kernel installer or not"
+            "You seem to be having trouble deciding whether you want the kernel installer or not: --kernel // --no-kernel"
         )
     if args.device and args.generic:
-        abort('The device and generic switches are mutually exclusive')
+        abort('The device and generic switches are mutually exclusive: --device // --generic')
 
     if args.device:
         if args.device in devicenames:
@@ -736,6 +749,7 @@ def main():
         Device = "generic"
         setuparch()
     elif args.force_download:
+        print('[i] Only downloading external resources')
         if args.supersu:
             supersu(True, supersu_beta)
         allapps(True)
@@ -820,6 +834,7 @@ def main():
 
     # If no device or generic arch is specified, we are done
     if not (args.device or args.generic):
+        print('[i] Not creating device model or generic image')
         done()
 
     # We don't need the apps or SuperSU if we are only building the kernel installer
