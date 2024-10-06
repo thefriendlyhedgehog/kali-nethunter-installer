@@ -393,35 +393,21 @@ def setupkernel():
 
     if Flasher == "anykernel":
         # Replace Lazy Flasher with AnyKernel3
-        print("[i] Replacing NetHunter Flasher with AnyKernel3")
-        if args.kernel:
-            shutil.move(
-                os.path.join(
-                    out_path,
-                    "META-INF",
-                    "com",
-                    "google",
-                    "android",
-                    "update-binary-anykernel_only",
-                ),
-                os.path.join(
-                    out_path, "META-INF", "com", "google", "android", "update-binary"
-                ),
-            )
-        else:
-            shutil.move(
-                os.path.join(
-                    out_path,
-                    "META-INF",
-                    "com",
-                    "google",
-                    "android",
-                    "update-binary-anykernel",
-                ),
-                os.path.join(
-                    out_path, "META-INF", "com", "google", "android", "update-binary"
-                ),
-            )
+        x = "update-binary-anykernel_only" if args.kernel else "update-binary-anykernel"
+        print("[i] Replacing NetHunter Flasher with AnyKernel3: " + x)
+        shutil.move(
+            os.path.join(
+                out_path,
+                "META-INF",
+                "com",
+                "google",
+                "android",
+                x,
+            ),
+            os.path.join(
+                out_path, "META-INF", "com", "google", "android", "update-binary"
+            ),
+        )
         # Set up variables in the anykernel script
         devicenames = readkey("devicenames")
         configfile_pure(
@@ -825,10 +811,8 @@ def main():
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
-        if args.release:
-            file_name = "uninstaller-nethunter-" + args.release + ".zip"
-        else:
-            file_name = "uninstaller-nethunter-" + TimeStamp + ".zip"
+        x = args.release if args.release else TimeStamp
+        file_name = "uninstaller-nethunter-%s.zip" % x
 
         zip("uninstaller", file_name)
 
