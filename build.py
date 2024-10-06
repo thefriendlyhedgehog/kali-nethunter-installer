@@ -408,7 +408,7 @@ def setupkernel():
     print("[i] Kernel: Configuring installer script for " + Device)
 
     if Flasher == "anykernel":
-        # Replace Lazy Flasher with AnyKernel3
+        # Replace LazyFlasher with AnyKernel3
         x = "update-binary-anykernel_only" if args.kernel else "update-binary-anykernel"
         print("[i] Replacing NetHunter Flasher with AnyKernel3: " + x)
         shutil.move(
@@ -438,6 +438,7 @@ def setupkernel():
         )
         i = 1
         for devicename in devicenames.split(","):
+            print('[i] anykernel devicename: ' + devicename)
             key = "device.name" + str(i)
             configfile_pure(os.path.join(out_path, "anykernel.sh"), {key: devicename})
             i += 1
@@ -894,7 +895,7 @@ def main():
 
     Flasher = readkey("flasher")
     Flasher = Flasher.replace('"', "")
-    x = Flasher if Flasher else '-'
+    x = Flasher if Flasher else 'LazyFlasher'
     print("[i] Flasher   : " + x)
 
     Resolution = readkey("resolution")
