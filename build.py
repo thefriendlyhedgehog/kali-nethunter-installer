@@ -189,14 +189,16 @@ def supersu(forcedown, beta):
 
     suzip = os.path.join("update", "supersu.zip")
 
-    # Remove previous supersu.zip if force redownloading
-    if os.path.isfile(suzip):
-        if forcedown:
+    # Remove previous supersu.zip if force re-downloading
+    if forcedown:
+        print("[i] Force re-downloading SuperSU")
+        if os.path.isfile(suzip):
+            print("[i] Deleting: " + suzip)
             os.remove(suzip)
-        else:
-            print("[i] Found SuperSU zip at: " + suzip)
 
-    if not os.path.isfile(suzip):
+    if os.path.isfile(suzip):
+        print("[i] Found SuperSU zip at: " + suzip)
+    else:
         if beta:
             surl = getdlpage(dl_supersu["beta"][0])
         else:
@@ -227,15 +229,16 @@ def allapps(forcedown):
         apk_url = value[0]
         apk_hash = value[1] if len(value) == 2 else False
 
-        # For force redownload, remove previous APK
+        # For force re-download, remove previous APK
         if os.path.isfile(apk_path):
             if forcedown:
+                print("[i] Deleting: " + apk_path)
                 os.remove(apk_path)
-            else:
-                print("[+] Found %s at: %s" % (apk_name, apk_path))
 
         # Only download apk if we don't have it already
-        if not os.path.isfile(apk_path):
+        if os.path.isfile(apk_path):
+            print("[+] Found %s at: %s" % (apk_name, apk_path))
+        else:
             download(apk_url, apk_path, apk_hash)
 
     print("[+] Finished downloading NetHunter all apps")
