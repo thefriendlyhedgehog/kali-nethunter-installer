@@ -760,14 +760,6 @@ def main():
     elif not args.uninstaller:
         abort('No valid arguments supplied. Try -h or --help')
 
-    Flasher = readkey("flasher")
-    Flasher = Flasher.replace('"', "")
-    print("[i] Flasher: " + Flasher)
-
-    Resolution = readkey("resolution")
-    Resolution = Resolution.replace('"', "")
-    print("[i] Resolution: " + Resolution)
-
     # If we found a device, set architecture and parse android OS release
     if args.device:
         Arch = readkey("arch", "armhf")
@@ -825,6 +817,52 @@ def main():
             abort(
                 "Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano"
             )
+
+
+    if args.generic:
+        print("[i] Generic image: true")
+    if args.device:
+        print("[i] Device module image: " + Device)
+
+    x = OS if OS else '-'
+    print("[i] Android version: " + x)
+
+    if args.force_download:
+        print("[i] Force downloading external resources: true")
+
+    if args.uninstaller:
+        print("[i] Create additional uninstaller: true")
+
+    if args.kernel:
+        print("[i] Kernel installer only: true")
+    if args.no_kernel:
+        print("[i] Skip kernel installer: true")
+
+    if args.no_branding:
+        print("[i] Skip branding: true")
+
+    if args.no_freespace_check:
+        print("[i] Disable freespace check: true")
+
+    if args.supersu:
+        print("[i] Include SuperSU: true")
+        print("[i] SuperSU beta: " + supersu_beta)
+
+    x = args.release if args.release else TimeStamp
+    print("[i] NetHunter release version: " + x)
+
+    x = args.rootfs if args.rootfs else '-'
+    print("[i] rootfs    : " + x)
+
+    Flasher = readkey("flasher")
+    Flasher = Flasher.replace('"', "")
+    x = Flasher if Flasher else '-'
+    print("[i] Flasher   : " + x)
+
+    Resolution = readkey("resolution")
+    Resolution = Resolution.replace('"', "")
+    x = Resolution if Resolution else '-'
+    print("[i] Resolution: " + x)
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
