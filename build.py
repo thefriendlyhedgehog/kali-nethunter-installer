@@ -496,7 +496,8 @@ def setupkernel():
     for kernel_image in kernel_images:
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
-            print("[+] Found kernel image at: " + kernel_location)
+            arch = "ARMv7" if kernel_image[:1] == 'z' else "ARMv8"
+            print("[+] Found {} kernel image at: {}".format(arch, kernel_location))
             shutil.copy(kernel_location, os.path.join(out_path, kernel_image))
             kernel_found = True
             break
