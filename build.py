@@ -30,8 +30,11 @@ import argparse
 import datetime
 import hashlib
 
+OS = ""
+devices_cfg = os.path.join("devices", "devices.cfg")
+
 dl_headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.51 Safari/537.36",
+    "User-Agent": "NetHunter Installer",
     "Accept-Encoding": "identity",
 }
 
@@ -373,6 +376,7 @@ def setupkernel():
     global LibDir
     global Flasher
     global args
+    global devices_cfg
 
     out_path = os.path.join("tmp_out", "boot-patcher")
 
@@ -656,10 +660,10 @@ def main():
     global Flasher
     global Resolution
     global args
+    global devices_cfg
 
     supersu_beta = False
 
-    devices_cfg = os.path.join("devices", "devices.cfg")
     IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
     t = datetime.datetime.now()
     TimeStamp = "%04d%02d%02d_%02d%02d%02d" % (
@@ -939,6 +943,7 @@ def main():
         file_tag += "-rooted"
     if args.rootfs:
         file_tag += "-kalifs-" + args.rootfs
+
     # Don't include wallpaper or boot animation if --nobrand is specified
     if args.no_branding:
         IgnoredFiles.append("wallpaper")
