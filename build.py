@@ -471,6 +471,8 @@ def setupkernel():
             },
         )
 
+    scan_kernel_image()
+
     device_path = os.path.join("devices", OS, Device)
 
     # Copy kernel image from version/device to boot-patcher folder
@@ -617,6 +619,30 @@ def setuparch():
         LibDir = os.path.join("system", "lib64")
     else:
         abort('Unknown device architecture: ' + Arch)
+
+
+def scan_kernel_image():
+    global OS
+    OS_SUGGESTION = ""
+    i = 0
+
+    print("[+] Searching for kernel images for device model: " + Device)
+    subdirectories = [ x.path for x in os.scandir("devices") if x.is_dir() and not x.path.startswith('{}.'.format("devices/"))]
+    # Remove non Android version directories
+    subdirectories.remove('{}bin'.format("devices/"))
+    subdirectories.remove('{}example_scripts'.format("devices/"))
+    subdirectories.remove('{}patches'.format("devices/"))
+
+    for android_version_dir in subdirectories:
+        android_version_dir = android_version_dir.lower()
+        android_version_dir = android_version_dir.replace("devices/", "")
+        scan_path = os.path.join("devices", android_version_dir, Device)
+        if os.path.exists(scan_path):
+            print("[+]   Found matching Android version kernel image: " + scan_path)
+            i += 1
+            OS_SUGGESTION = android_version_dir
+    if not OS and OS_SUGGESTION and i == 1:
+        return OS_SUGGESTION
 
 
 def main():
@@ -805,12 +831,18 @@ def main():
             OS = "wearos"
             i += 1
         if i == 0:
-            abort(
-                "Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --thirteen, --fourteen, --wearos"
-            )
+            OS = scan_kernel_image()
+
+            if OS:
+                print("[*] Auto selecting kernel image: " + OS)
+            else:
+                abort(
+                    "Missing Android version"
+                )
         elif i > 1:
+            scan_kernel_image()
             abort(
-                "Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --thirteen, --fourteen, --wearos"
+                "Select only one Android version, not " + str(i)
             )
 
         if args.rootfs and not (
