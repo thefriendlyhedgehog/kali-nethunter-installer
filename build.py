@@ -753,9 +753,11 @@ def main():
         setuparch()
     elif args.force_download:
         print('[i] Only downloading external resources')
+        allapps(True)
         if args.supersu:
             supersu(True, supersu_beta)
-        allapps(True)
+        if args.rootfs:
+            rootfs(args.force_download, args.rootfs)
         done()
     elif not args.uninstaller:
         abort('No valid arguments supplied. Try -h or --help')
