@@ -9,7 +9,9 @@
 ## - "<outputdir>/manifest.json": manifest file mapping image name to display name
 ##
 ## Dependencies:
-##   sudo apt -y install python3 python3-yaml
+##   $ sudo apt -y install python3 python3-yaml
+##   OR
+##   $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
 ##
 ## Usage:
 ## ./prep-release.py -i <input file> -o <output directory> -r <release>
@@ -19,7 +21,7 @@
 
 import json
 import datetime
-import yaml # python3 -m pip install pyyaml --user
+import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
 import getopt, os, stat, sys
 
 FS_SIZE = "full"

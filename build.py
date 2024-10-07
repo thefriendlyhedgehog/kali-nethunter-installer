@@ -9,12 +9,14 @@
 # E.g.:
 #   python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
 #
-# Install:
-#   sudo apt -y install python3 python3-requests python3-yaml
+# Dependencies:
+#   $ sudo apt -y install python3 python3-requests python3-yaml
+#   OR
+#   $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install requests pyyaml
 
 from __future__ import print_function
 import os, sys
-import requests
+import requests # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip requests
 import zipfile
 import fnmatch
 import shutil
@@ -22,7 +24,7 @@ import re
 import argparse
 import datetime
 import hashlib
-import yaml # $ python3 -m pip install pyyaml --user
+import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
 
 OS = ""
 devices_yml = os.path.join("devices", "devices.yml")
