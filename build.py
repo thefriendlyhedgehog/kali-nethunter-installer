@@ -1,30 +1,31 @@
 #!/usr/bin/env python3
 
-##############################################################
-# Script to build/compile/merge Kali NetHunter installer per device
-#
-# Usage:
-#   python3 build.py -i <input file> -o <output directory> -r <release>
-#
-# E.g.:
-#   python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
-#
-# Dependencies:
-#   $ sudo apt -y install python3 python3-requests python3-yaml
-#   OR
-#   $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install requests pyyaml
+###############################################################
+## Script to build/compile/merge Kali NetHunter installer per device model's kernel id
+##
+## Usage:
+##   $ ./$0 -i <input file> -o <output directory> -r <release>
+##
+## E.g.:
+##   $ ./build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
+##
+## Dependencies:
+##   $ sudo apt -y install python3 python3-requests python3-yaml
+##   OR
+##   $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install requests pyyaml
 
 from __future__ import print_function
-import os, sys
-import requests # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip requests
-import zipfile
-import fnmatch
-import shutil
-import re
 import argparse
 import datetime
+import fnmatch
 import hashlib
+import os
+import re
+import requests # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install requests
+import shutil
+import sys
 import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
+import zipfile
 
 OS = ""
 devices_yml = os.path.join("devices", "devices.yml")
@@ -142,10 +143,10 @@ def download(url, file_name, verify_sha):
         download_ok = True
     except requests.exceptions.RequestException as e:
         print()
-        print("[-] Error: " + str(e))
+        print("[-] Error: " + str(e), file=sys.stderr)
     except KeyboardInterrupt:
         print()
-        print("[-] Download cancelled")
+        print("[-] Download cancelled", file=sys.stderr)
 
     f.flush()
     os.fsync(f.fileno())
@@ -160,9 +161,9 @@ def download(url, file_name, verify_sha):
                 print("[+] Hash matches: OK")
             else:
                 download_ok = False
-                print("[-] Hash mismatch! " + file_name)
+                print("[-] Hash mismatch! " + file_name, file=sys.stderr)
         else:
-            print("[-] Warning: No SHA512 hash specified for verification!")
+            print("[-] Warning: No SHA512 hash specified for verification!", file=sys.stderr)
 
     if download_ok:
         print("[+] Download OK: {}\n".format(file_name))
@@ -182,9 +183,9 @@ def supersu(forcedown, beta):
             u = requests.head(url, headers=dl_headers)
             return u.url
         except requests.exceptions.ConnectionError as e:
-            print("[-] Connection error: " + str(e))
+            print("[-] Connection error: " + str(e), file=sys.stderr)
         except requests.exceptions.RequestException as e:
-            print("[-] Error: " + str(e))
+            print("[-] Error: " + str(e), file=sys.stderr)
 
     suzip = os.path.join("update", "supersu.zip")
 
@@ -282,7 +283,7 @@ def addrootfs(fs_size, dst):
         print("[+]   Added: " + fs_file)
         zf.close()
     except IOError as e:
-        print("[-] IOError = " + e.reason)
+        print("[-] IOError = " + e.reason, file=sys.stderr)
         abort('Unable to add to the zip file')
 
     print("[+] Finished adding rootfs")
@@ -301,7 +302,7 @@ def zip(src, dst):
                 print("[+]   Added: " + arcname)
         zf.close()
     except IOError as e:
-        print("[-] IOError = " + e.reason)
+        print("[-] IOError = " + e.reason, file=sys.stderr)
         abort('Unable to create the ZIP file')
 
     print("[+] Finished creating zip")

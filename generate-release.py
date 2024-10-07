@@ -4,25 +4,27 @@
 ## Script to prepare Kali NetHunter quarterly releases
 ##
 ## It parses the YAML sections of devices/devices.yml and creates:
+##   - "./release-<release>.sh": shell script to build all images
+##   - "<outputdir>/manifest.json": manifest file mapping image name to display name
 ##
-## - "./release-<release>.sh": shell script to build all images
-## - "<outputdir>/manifest.json": manifest file mapping image name to display name
+## Usage:
+##   $ ./$0 -i <input file> -o <output directory> -r <release>
+##
+## E.g.:
+##   $ ./generate-release.py -i ../devices/devices.yml -o /media/kali/NetHunter/images -r 2020.3
 ##
 ## Dependencies:
 ##   $ sudo apt -y install python3 python3-yaml
 ##   OR
 ##   $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
-##
-## Usage:
-## ./prep-release.py -i <input file> -o <output directory> -r <release>
-##
-## E.g.:
-## ./prep-release.py -i devices/devices.yml -o /media/kali/NetHunter/2020.3/images -r 2020.3
 
-import json
 import datetime
+import getopt
+import json
+import os
+import stat
+import sys
 import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
-import getopt, os, stat, sys
 
 FS_SIZE = "full"
 build_script = "" # Generated automatically (./release-<release>.sh)
@@ -33,30 +35,6 @@ inputfile = ""
 qty_images = 0
 qty_devices = 0
 
-## Input:
-##   $ grep '##*' ./devices.cfg
-##   ##* - angler:
-##   ##*     model  : Nexus 6P
-##   ##*     images :
-##   ##*       - id      : angler
-##   ##*         name    : Nexus 6P (Oreo)
-##   ##*         android : oreo
-##   ##*         status  : stable
-##   ##*         rootfs  : full
-##   ##*         docs    : "https://forum.xda-developers.com/t/rom-official-kali-nethunter-for-the-huawei-nexus-6p-android-8-1.4080807/"
-##   ##*         note    : >-
-##   ##*                   Nexmon support<br>
-##   ##*                   **Our preferred low end device**<br>
-##   ##*       - id      : angler-los
-##   ##*         name    : Nexus 6P (LineageOS 17.1)
-##   ##*         android : ten
-##   ##*         status  : latest
-##   ##*         rootfs  : full
-##   ##*         docs    : "https://forum.xda-developers.com/t/rom-official-kali-nethunter-for-the-huawei-nexus-6p-los17-1.4079087/"
-##   ##*         note    : >-
-##   ##*                   Nexmon support<br>
-##   ##*                   **Our preferred low end device**<br>
-##   ##*                   Warning: Android Ten is still experimental
 
 def bail(message = "", strerror = ""):
     outstr = ""
@@ -70,6 +48,7 @@ def bail(message = "", strerror = ""):
         outstr += "\nE.g. : {} -i devices/devices.yml -o images -r {}.1\n".format(prog, datetime.datetime.now().year)
     print(outstr)
     sys.exit(2)
+
 
 def getargs(argv):
     global inputfile, outputdir, release
@@ -98,14 +77,16 @@ def getargs(argv):
         bail("Missing required argument: -r/--release")
     return 0
 
-def yaml_parse(content):
+
+def yaml_parse(data):
     result = ""
-    lines = content.split('\n')
+    lines = data.split('\n')
     for line in lines:
         if not line.startswith('#'):
             ## yaml doesn't like tabs so let's replace them with four spaces
             result += "{}\n".format(line.replace('\t', '    '))
     return yaml.safe_load(result)
+
 
 def generate_build_script(data):
     global OUTPUT_FILE, FS_SIZE, release, outputdir, qty_devices, qty_images
@@ -155,12 +136,14 @@ def generate_build_script(data):
     build_list += "cd -\n"
     return build_list
 
+
 def jsonarray(devices, manufacture, name, filename):
     if not manufacture in devices:
         devices[manufacture] = []
     jsondata = {"name": name, "filename": filename.lower()}
     devices[manufacture].append(jsondata)
     return devices
+
 
 def generate_manifest(data):
     global FS_SIZE, release
@@ -185,6 +168,7 @@ def generate_manifest(data):
                     jsonarray(devices, manufacture, name, filename)
     return json.dumps(devices, indent = 2)
 
+
 def deduplicate(data):
     # Remove duplicate lines
     clean_data = ""
@@ -195,6 +179,7 @@ def deduplicate(data):
             lines_seen.add(line)
     return clean_data
 
+
 def createdir(dir):
     try:
         if not os.path.exists(dir):
@@ -202,6 +187,7 @@ def createdir(dir):
     except:
         bail('Directory "' + dir + '" does not exist and cannot be created')
     return 0
+
 
 def readfile(file):
     try:
@@ -212,6 +198,7 @@ def readfile(file):
         bail("Cannot open input file: " + file)
     return data
 
+
 def writefile(data, file):
     try:
         with open(file, 'w') as f:
@@ -221,6 +208,7 @@ def writefile(data, file):
         bail("Cannot write to output file: " + file)
     return 0
 
+
 def mkexec(file):
     # chmod 755
     try:
@@ -229,6 +217,7 @@ def mkexec(file):
         error = "{}:{}".format(sys.exc_info()[0], sys.exc_info()[1])
         bail("Cannot make executable: " + file, error)
     return 0
+
 
 def main(argv):
     global inputfile, outputdir, release
@@ -260,13 +249,12 @@ def main(argv):
     writefile(manifest_list, manifest)
 
     # Print result and exit
-    print('\nStats:')
-    print('  - Devices\t: {}'.format(qty_devices))
-    print('  - Images\t: {}'.format(qty_images))
-    print("\n")
-    print('Image directory created\t: {}/'.format(outputdir))
-    print('Manifest file created\t: {}'.format(manifest))
-    print('Build script created\t: {}\n'.format(build_script))
+    print('[i] Stats:')
+    print('    - Devices: {}'.format(qty_devices))
+    print('    - Images : {}'.format(qty_images))
+    print('[i] Image directory: {}'.format(outputdir))
+    print('[i] Manifest file  : {}'.format(manifest))
+    print('[i] Build script   : {}'.format(build_script))
 
     exit(0)
 
