@@ -5,7 +5,7 @@
 ##
 ## It parses the YAML sections of devices/devices.cfg and creates:
 ##
-## - "./build-<release>.sh": shell script to build all images
+## - "./release-<release>.sh": shell script to build all images
 ## - "<outputdir>/manifest.json": manifest file mapping image name to display name
 ##
 ## Dependencies:
@@ -15,7 +15,7 @@
 ## ./prep-release.py -i <input file> -o <output directory> -r <release>
 ##
 ## E.g.:
-## ./prep-release.py -i devices/devices.cfg -o /media/re4son/dev/NetHunter/2020.3/images -r 2020.3
+## ./prep-release.py -i devices/devices.cfg -o /media/kali/NetHunter/2020.3/images -r 2020.3
 
 import json
 import datetime
@@ -23,7 +23,7 @@ import yaml # python3 -m pip install pyyaml --user
 import getopt, os, stat, sys
 
 FS_SIZE = "full"
-build_script = "" # Generated automatically (./build-<release>.sh)
+build_script = "" # Generated automatically (./release-<release>.sh)
 manifest = ""     # Generated automatically (<outputdir>/manifest.json)
 release = ""
 outputdir = ""
@@ -239,7 +239,7 @@ def main(argv):
 
     # Assign variables
     manifest = outputdir + "/manifest.json"
-    build_script = "./build-" + release + ".sh"
+    build_script = "./release-" + release + ".sh"
     data = readfile(inputfile)
 
     # Get data
