@@ -10,7 +10,7 @@
 #   python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
 #
 # Install:
-#   sudo apt -y install python3 python3-requests
+#   sudo apt -y install python3 python3-requests python3-yaml
 
 from __future__ import print_function
 import os, sys
@@ -18,20 +18,14 @@ import requests
 import zipfile
 import fnmatch
 import shutil
-
-try:
-    # Python 3 compatibility
-    import configparser
-except ImportError:
-    # Python 2 compatibility
-    import ConfigParser
 import re
 import argparse
 import datetime
 import hashlib
+import yaml # $ python3 -m pip install pyyaml --user
 
 OS = ""
-devices_cfg = os.path.join("devices", "devices.cfg")
+devices_yml = os.path.join("devices", "devices.yml")
 
 dl_headers = {
     "User-Agent": "NetHunter Installer",
@@ -315,7 +309,7 @@ def readkey(key, default=""):
     global Config
     global Device
     try:
-        return Config.get(Device, key)
+        return Config.get(key, default)
     except:
         return default
 
@@ -376,7 +370,7 @@ def setupkernel():
     global LibDir
     global Flasher
     global args
-    global devices_cfg
+    global devices_yml
 
     out_path = os.path.join("tmp_out", "boot-patcher")
 
@@ -587,7 +581,7 @@ def setupupdate():
         {"supersu": readkey("supersu")},
     )
 
-    # Overwrite screen resolution if defined in devices.cfg
+    # Overwrite screen resolution if defined in devices.yml
     if Resolution:
         file_name = os.path.join(out_path, "wallpaper", "resolution.txt")
         file_handle = open(file_name, "w")
@@ -651,6 +645,28 @@ def scan_kernel_image():
         return OS_SUGGESTION
 
 
+def read_file(file):
+    try:
+        print('[i] Reading: {}'.format(file))
+        with open(file) as f:
+            data = f.read()
+            f.close()
+    except Exception as e:
+        print("[-] Cannot open input file: {} - {}".format(file, e), file=sys.stderr)
+        sys.exit(1)
+    return data
+
+
+def yaml_parse(data):
+    result = ""
+    lines = data.split('\n')
+    for line in lines:
+        if not line.startswith('#'):
+            ## yaml doesn't like tabs so let's replace them with four spaces
+            result += "{}\n".format(line.replace('\t', '    '))
+    return yaml.safe_load(result)
+
+
 def main():
     global Config
     global Device
@@ -662,7 +678,7 @@ def main():
     global Flasher
     global Resolution
     global args
-    global devices_cfg
+    global devices_yml
 
     supersu_beta = False
 
@@ -680,15 +696,19 @@ def main():
     # Remove any existing builds that might be left
     cleanup(True)
 
-    # Read devices.cfg, get device names
-    if not os.path.exists(devices_cfg):
-        abort('Could not find %s! Maybe you need to run ./bootstrap.sh?' % devices_cfg)
-    try:
-        Config = configparser.ConfigParser(strict=False)
-        Config.read(devices_cfg)
-        devicenames = Config.sections()
-    except:
-        abort('Could not parse %s! Maybe you need to run ./bootstrap.sh?' % devices_cfg)
+    # Read devices.yml, get device names
+    if not os.path.exists(devices_yml):
+        abort('Could not find %s! Maybe you need to run ./bootstrap.sh?' % devices_yml)
+
+    data = read_file(devices_yml)
+    yml = yaml_parse(data)
+
+    default = ""
+    devicenames = []
+    for element in yml:
+        for device_model in element.keys():
+            for build in element[device_model].get('builds', default):
+                devicenames.append(build.get('id', default))
 
     help_device = "Allowed device names: \n"
     for device in devicenames:
@@ -776,9 +796,14 @@ def main():
 
     if args.device:
         if args.device in devicenames:
-            Device = args.device
+            for element in yml:
+                for device_model in element.keys():
+                    for build in element[device_model].get('builds', default):
+                        if args.device == build.get('id', default):
+                            Config = build
+                            Device = args.device
         else:
-            abort('Device %s not found in %s' % (args.device, devices_cfg))
+            abort('Device %s not found in %s' % (args.device, devices_yml))
     elif args.generic:
         Arch = args.generic
         Device = "generic"
