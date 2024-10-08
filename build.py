@@ -710,8 +710,8 @@ def main():
     devicenames = []
     for element in yml:
         for device_model in element.keys():
-            for build in element[device_model].get('builds', default):
-                devicenames.append(build.get('id', default))
+            for kernel in element[device_model].get('kernels', default):
+                devicenames.append(kernel.get('id', default))
 
     help_device = "Allowed device names: \n"
     for device in devicenames:
@@ -801,9 +801,9 @@ def main():
         if args.device in devicenames:
             for element in yml:
                 for device_model in element.keys():
-                    for build in element[device_model].get('builds', default):
-                        if args.device == build.get('id', default):
-                            Config = build
+                    for kernel in element[device_model].get('kernels', default):
+                        if args.device == kernel.get('id', default):
+                            Config = kernel
                             Device = args.device
         else:
             abort('Device %s not found in %s' % (args.device, devices_yml))
