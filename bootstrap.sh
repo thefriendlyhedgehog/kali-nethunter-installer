@@ -10,10 +10,6 @@ ABORT() {
 
 cd "$(dirname "$0")" || ABORT "Failed to enter script directory!"
 
-if [ ! "$(basename "$(pwd)")" = "nethunter-installer" ]; then
-	ABORT "You must run this script from the nethunter-installer directory!"
-fi
-
 if [ -d devices ]; then
 	echo "The devices directory already exists, choose an option:"
 	echo "   U) Update devices to latest commit (default)"

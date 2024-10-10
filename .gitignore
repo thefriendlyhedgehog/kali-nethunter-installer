@@ -1,0 +1,7 @@
+.DS_Store
+update/data/app/*.apk
+update/supersu.zip
+tmp_out
+devices
+build-*.sh
+*.zip
