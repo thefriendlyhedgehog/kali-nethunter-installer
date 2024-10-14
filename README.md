@@ -23,15 +23,15 @@ About these files:
 
 ### Preparing the environment
 
-Before building **anything**, you will need to initialize the [devices repository](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices).
+Before building **anything**, you will need to initialize the [kernels repository](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels).
 
-The whole setup has been automated. As Kali NetHunter devices have an immense binary Git history, we suggest using shallow clone _(`--depth 1`)_, rather than **full history** when prompt:
+The whole setup has been automated. As Kali NetHunter kernels have an immense binary Git history, we suggest using shallow clone _(`--depth 1`)_, rather than **full history** when prompt:
 
 ```bash
 ./bootstrap.sh
 ```
 
-_This will clone [Kali NetHunter Devices](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices) into `./devices/`_
+_This will clone [Kali NetHunter Kernels](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kenrels) into `./kernels/`_
 
 ### Build command examples
 
@@ -104,21 +104,21 @@ Usage & Example
 ```bash
 ./prep-release.py --inputfile <input file> --outputdir <output directory> --release <release>
 
-./prep-release.py --inputfile devices/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
+./prep-release.py --inputfile kernels/devices.cfg --outputdir /opt/NetHunter/2021.3/images/ --release 2021.3
 ```
 
 --->
 
-## kali-nethunter-devices
+## kali-nethunter-kernels
 
 ### How to add a new/unsupported device
 
-See the `README.md` located in the Kali NetHunter Devices repository: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices>
-A starting point would be to review: `./devices/devices.cfg`
+See the `README.md` located in the Kali NetHunter Kernels repository: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels>
+A starting point would be to review: `./kernels/devices.cfg`
 
 ### Device changelog
 
-You can view changes in the commit log of the Kali NetHunter Devices repository: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices/commits>
+You can view changes in the commit log of the Kali NetHunter Kernels repository: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels/commits>
 
 
 

@@ -3,7 +3,7 @@
 ##############################################################
 ## Script to prepare Kali NetHunter quarterly releases
 ##
-## It parses the YAML sections of devices/devices.cfg and creates:
+## It parses the YAML sections of kernels/devices.cfg and creates:
 ##
 ## - "./build-<release>.sh": shell script to build all images
 ## - "<outputdir>/manifest.json": manifest file mapping image name to display name
@@ -15,7 +15,7 @@
 ## ./prep-release.py -i <input file> -o <output directory> -r <release>
 ##
 ## E.g.:
-## ./prep-release.py -i devices/devices.cfg -o /media/re4son/dev/NetHunter/2020.3/images -r 2020.3
+## ./prep-release.py -i kernels/devices.cfg -o /media/re4son/dev/NetHunter/2020.3/images -r 2020.3
 
 import json
 import datetime
@@ -59,7 +59,7 @@ def bail(message = "", strerror = ""):
         outstr += "\nMessage: {}\n".format(strerror)
     else:
         outstr += "\n\nUsage: {} -i <input file> -o <output directory> -r <release>".format(prog)
-        outstr += "\nE.g. : {} -i devices/devices.cfg -o images -r {}.1\n".format(prog, datetime.datetime.now().year)
+        outstr += "\nE.g. : {} -i kernels/devices.cfg -o images -r {}.1\n".format(prog, datetime.datetime.now().year)
     print(outstr)
     sys.exit(2)
 
