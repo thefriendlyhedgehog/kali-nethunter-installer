@@ -119,7 +119,3 @@ A starting point would be to review: `./kernels/devices.cfg`
 ### Device changelog
 
 You can view changes in the commit log of the Kali NetHunter Kernels repository: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels/commits>
-
-
-
-Wed  5 Jun 2024 22:00:31 UTC
