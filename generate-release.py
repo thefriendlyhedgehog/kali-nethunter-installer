@@ -150,11 +150,11 @@ def generate_manifest(data):
     default = ""
     devices = {}
 
-    ## Add Kali NetHunter Generic
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
+    ## Add Kali NetHunter generic
+    jsonarray(devices, "NetHunter generic", "NetHunter generic ARM64 (full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "full"))
+    jsonarray(devices, "NetHunter generic", "NetHunter generic ARM64 (minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "arm64", "minimal"))
+    jsonarray(devices, "NetHunter generic", "NetHunter generic ARMhf (full)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "full"))
+    jsonarray(devices, "NetHunter generic", "NetHunter generic ARMhf (minimal)", "kali-nethunter-{}-{}-{}-kalifs-{}.zip".format(release, "generic", "armhf", "minimal"))
 
     # Iterate over all the devices
     for element in data:
