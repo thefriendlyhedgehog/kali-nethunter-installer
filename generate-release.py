@@ -117,8 +117,8 @@ def generate_build_script(data):
     for element in data:
         # Iterate over all the versions
         for key in element.keys():
-            qty_devices += 1
             if 'images' in element[key]:
+                qty_devices += 1
                 for image in element[key]['images']:
                     qty_images += 1
                     build_list += "\n"
@@ -249,9 +249,9 @@ def main(argv):
     writefile(manifest_list, manifest)
 
     # Print result and exit
-    print('[i] Stats:')
-    print('    - Devices: {}'.format(qty_devices))
-    print('    - Images : {}'.format(qty_images))
+    print('[i] Release image statistics:')
+    print('    - Images to create : {}'.format(qty_images))
+    print('    - Supported devices: {}'.format(qty_devices))
     print('[i] Image directory: {}'.format(outputdir))
     print('[i] Manifest file  : {}'.format(manifest))
     print('[i] Build script   : {}'.format(build_script))
