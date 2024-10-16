@@ -7,7 +7,7 @@
 ##   $ ./$0 -i <input file> -o <output directory> -r <release>
 ##
 ## E.g.:
-##   $ ./build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
+##   $ ./build.py -d hammerhead --marshmallow --rootfs full --release 2024.3
 ##
 ## Dependencies:
 ##   $ sudo apt -y install python3 python3-requests python3-yaml

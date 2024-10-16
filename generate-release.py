@@ -11,7 +11,7 @@
 ##   $ ./$0 -i <input file> -o <output directory> -r <release>
 ##
 ## E.g.:
-##   $ ./generate-release.py -i ../devices/devices.yml -o /media/kali/NetHunter/images -r 2020.3
+##   $ ./generate-release.py -i ../devices/devices.yml -o /media/kali/NetHunter/images -r 2024.3
 ##
 ## Dependencies:
 ##   $ sudo apt -y install python3 python3-yaml
