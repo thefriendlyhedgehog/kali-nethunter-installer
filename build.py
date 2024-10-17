@@ -31,7 +31,7 @@ android = ""
 tmp_path = "tmp_out"
 
 dl_headers = {
-    "User-Agent": "NetHunter Installer",
+    "User-Agent": "Kali NetHunter Installer",
     "Accept-Encoding": "identity",
 }
 
@@ -320,6 +320,7 @@ def zip(src, dst):
 def readkey(key, default=""):
     global YAML
     global kernel
+
     try:
         # As 'author' is now in versions, need to go a little deeper
         if key not in YAML:
@@ -366,7 +367,6 @@ def setupkernel():
     global android
     global flasher
     global args
-    global devices_yml
     global tmp_path
 
     print("[i] Setting up kernel")
@@ -594,7 +594,7 @@ def setupnethunter():
 def cleanup(domsg=False):
     if os.path.exists(tmp_path):
         if domsg:
-            print("[i] Removing temporary build directory:" + tmp_path)
+            print("[i] Removing temporary build directory: " + tmp_path)
         shutil.rmtree(tmp_path)
 
 
@@ -676,7 +676,6 @@ def main():
     global supersu
 
     supersu_beta = False
-
     IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
     devices_yml = os.path.join("devices", "devices.yml")
     t = datetime.datetime.now()
