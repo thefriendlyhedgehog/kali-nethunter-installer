@@ -82,6 +82,8 @@ dl_apps = {
 
 
 def copytree(src, dst):
+    print("[i] Copying: %s -> %s" % (src, dst))
+
     def shouldcopy(f):
         global IgnoredFiles
         for pattern in IgnoredFiles:
@@ -197,7 +199,7 @@ def supersu(forcedown, beta):
             os.remove(suzip)
 
     if os.path.isfile(suzip):
-        print("[i] Found SuperSU zip at: " + suzip)
+        print("[i] Found SuperSU: " + suzip)
     else:
         if beta:
             surl = getdlpage(dl_supersu["beta"][0])
@@ -222,6 +224,8 @@ def allapps(forcedown):
 
     if forcedown:
         print("[i] Force re-downloading all NetHunter apps")
+    else:
+        print("[i] Downloading all NetHunter apps")
 
     for key, value in dl_apps.items():
         apk_name = key + ".apk"
@@ -237,7 +241,7 @@ def allapps(forcedown):
 
         # Only download apk if we don't have it already
         if os.path.isfile(apk_path):
-            print("[+] Found %s at: %s" % (apk_name, apk_path))
+            print("[+] Found %s: %s" % (apk_name, apk_path))
         else:
             download(apk_url, apk_path, apk_hash)
 
@@ -255,30 +259,34 @@ def rootfs(forcedown, fs_size):
 
     if forcedown:
         # For force re-download, remove previous rootfs
-        print("[+] Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
+        print("[i] Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
         if os.path.isfile(fs_localpath):
             print("[i] Deleting: " + fs_localpath)
             os.remove(fs_localpath)
+    else:
+        print("[i] Downloading Kali rootfs")
 
     # Only download Kali rootfs if we don't have it already
     if os.path.isfile(fs_localpath):
-        print("[+] Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_localpath))
+        print("[+] Found local Kali %s %s rootfs: %s" % (fs_arch, fs_size, fs_localpath))
     else:
         print("[i] Downloading Kali %s %s rootfs (last-snapshot)" % (fs_arch, fs_size))
         download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
 
-    print("[+] Finished downloading rootfs")
+    print("[+] Finished downloading Kali rootfs")
 
 
 def addrootfs(fs_size, dst):
     global Arch
+
+    print("[i] Adding Kali rootfs archive to the installer zip")
+
     fs_arch = Arch
     fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_localpath = os.path.join("rootfs", fs_file)
 
     try:
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
-        print("[i] Adding Kali rootfs archive to the installer zip...")
         zf.write(os.path.abspath(fs_localpath), fs_file)
         print("[+]   Added: " + fs_file)
         zf.close()
@@ -290,9 +298,10 @@ def addrootfs(fs_size, dst):
 
 
 def zip(src, dst):
+    print("[i] Creating ZIP file: " + dst)
+
     try:
         zf = zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED)
-        print("[i] Creating ZIP file: " + dst)
         abs_src = os.path.abspath(src)
         for dirname, subdirs, files in os.walk(src):
             for filename in files:
@@ -318,6 +327,8 @@ def readkey(key, default=""):
 
 
 def configfile(file_name, values):
+    print("[+] Updating: " + file_name)
+
     # Open file as read only and copy to string
     file_handle = open(file_name, "r")
     file_string = file_handle.read()
@@ -342,6 +353,8 @@ def configfile(file_name, values):
 
 
 def configfile_pure(file_name, values):
+    print("[+] Updating: " + file_name)
+
     # Same as "configfile" but without apostrophies
     # Open file as read only and copy to string
     file_handle = open(file_name, "r")
@@ -375,19 +388,21 @@ def setupkernel():
     global args
     global devices_yml
 
+    print("[i] Setting up kernel")
+
     out_path = os.path.join("tmp_out", "boot-patcher")
 
     # Blindly copy directories
-    print("[i] Kernel: Copying common files...")
+    print("[i] Kernel: Copying common files")
     copytree("common", out_path)
 
-    print("[i] Kernel: Copying %s arch specific common files..." % Arch)
+    print("[i] Kernel: Copying %s arch specific common files" % Arch)
     copytree(os.path.join("common", "arch", Arch), out_path)
 
-    print("[i] Kernel: Copying boot-patcher files...")
+    print("[i] Kernel: Copying boot-patcher files")
     copytree("boot-patcher", out_path)
 
-    print("[i] Kernel: Copying %s arch specific boot-patcher files..." % Arch)
+    print("[i] Kernel: Copying %s arch specific boot-patcher files" % Arch)
     copytree(os.path.join("boot-patcher", "arch", Arch), out_path)
 
     if Device == "generic":
@@ -407,7 +422,7 @@ def setupkernel():
     if Flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
         x = "update-binary-anykernel_only" if args.kernel else "update-binary-anykernel"
-        print("[i] Replacing NetHunter Flasher with AnyKernel3: " + x)
+        print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
         shutil.move(
             os.path.join(
                 out_path,
@@ -435,7 +450,7 @@ def setupkernel():
         )
         i = 1
         for devicename in devicenames.split(","):
-            print('[i] anykernel devicename: ' + devicename)
+            print('[i] AnyKernel3 devicename: ' + devicename)
             key = "device.name" + str(i)
             configfile_pure(os.path.join(out_path, "anykernel.sh"), {key: devicename})
             i += 1
@@ -464,7 +479,7 @@ def setupkernel():
         )
 
         # Set up variables in boot-patcher.sh
-        print("[i] Kernel: Configuring boot-patcher script for " + Device)
+        print("[i] Kernel: Configuring LazyFlasher's boot-patcher.sh script for " + Device)
         configfile(
             os.path.join(out_path, "boot-patcher.sh"),
             {
@@ -494,65 +509,65 @@ def setupkernel():
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
             arch = "ARMv7" if kernel_image[:1] == 'z' else "ARMv8"
-            print("[+] Found {} kernel image at: {}".format(arch, kernel_location))
+            print("[+] Found {} kernel image: {}".format(arch, kernel_location))
             shutil.copy(kernel_location, os.path.join(out_path, kernel_image))
             kernel_found = True
             break
     if not kernel_found:
-        abort('Unable to find {} kernel image at: {}'.format(OS, device_path))
+        abort('Unable to find {} kernel image: {}'.format(OS, device_path))
 
     # Copy dtb.img if it exists
     dtb_location = os.path.join(device_path, "dtb.img")
     if os.path.exists(dtb_location):
-        print("[+] Found DTB image at: " + dtb_location)
+        print("[+] Found DTB image: " + dtb_location)
         shutil.copy(dtb_location, os.path.join(out_path, "dtb.img"))
 
     # Copy dtb if it exists
     dtb_location = os.path.join(device_path, "dtb")
     if os.path.exists(dtb_location):
-        print("[+] Found DTB file at: " + dtb_location)
+        print("[+] Found DTB file: " + dtb_location)
         shutil.copy(dtb_location, os.path.join(out_path, "dtb"))
 
     # Copy dtbo.img if it exists
     dtbo_location = os.path.join(device_path, "dtbo.img")
     if os.path.exists(dtbo_location):
-        print("[+] Found DTBO image at: " + dtbo_location)
+        print("[+] Found DTBO image: " + dtbo_location)
         shutil.copy(dtbo_location, os.path.join(out_path, "dtbo.img"))
 
     # Copy any patch.d scripts
     patchd_path = os.path.join(device_path, "patch.d")
     if os.path.exists(patchd_path):
-        print("[+] Found additional patch.d scripts at: " + patchd_path)
+        print("[+] Found additional patch.d scripts: " + patchd_path)
         copytree(patchd_path, os.path.join(out_path, "patch.d"))
 
     # Copy any ramdisk files
     ramdisk_path = os.path.join(device_path, "ramdisk")
     if os.path.exists(ramdisk_path):
-        print("[+] Found additional ramdisk files at: " + ramdisk_path)
+        print("[+] Found additional ramdisk files: " + ramdisk_path)
         copytree(ramdisk_path, os.path.join(out_path, "ramdisk-patch"))
 
     # Copy any modules
     modules_path = os.path.join(device_path, "modules")
     if os.path.exists(modules_path):
-        print("[+] Found additional kernel modules at: " + modules_path)
+        print("[+] Found additional kernel modules: " + modules_path)
         copytree(modules_path, os.path.join(out_path, "modules"))
 
     # Copy any device specific system binaries, libs, or init.d scripts
     system_path = os.path.join(device_path, "system")
     if os.path.exists(system_path):
-        print("[+] Found additional /system files at: " + system_path)
+        print("[+] Found additional /system files: " + system_path)
         copytree(system_path, os.path.join(out_path, "system"))
 
     # Copy any /data/local folder files
     local_path = os.path.join(device_path, "local")
     if os.path.exists(local_path):
-        print("[+] Found additional /data/local files at: " + local_path)
+        print("[+] Found additional /data/local files: " + local_path)
         copytree(local_path, os.path.join(out_path, "data", "local"))
 
     # Copy any AnyKernel3 additions
     ak_patches_path = os.path.join(device_path, "ak_patches")
     if os.path.exists(ak_patches_path):
-        print("[+] Found additional AnyKernel3 patches at: " + ak_patches_path)
+        print("[+] Found additional AnyKernel3 patches: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
 
     print("[+] Finished setting up kernel")
@@ -562,19 +577,21 @@ def setupupdate():
     global Arch
     global Resolution
 
+    print("[+] Setting up NetHunter")
+
     out_path = "tmp_out"
 
     # Blindly copy directories
-    print("[i] NetHunter: Copying common files...")
+    print("[i] NetHunter: Copying common files")
     copytree("common", out_path)
 
-    print("[i] NetHunter: Copying %s arch specific common files..." % Arch)
+    print("[i] NetHunter: Copying %s arch specific common files" % Arch)
     copytree(os.path.join("common", "arch", Arch), out_path)
 
-    print("[i] NetHunter: Copying update files...")
+    print("[i] NetHunter: Copying update files")
     copytree("update", out_path)
 
-    print("[i] NetHunter: Copying %s arch specific update files..." % Arch)
+    print("[i] NetHunter: Copying %s arch specific update files" % Arch)
     copytree(os.path.join("update", "arch", Arch), out_path)
 
     # Set up variables in update-binary script
