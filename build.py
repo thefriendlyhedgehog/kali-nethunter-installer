@@ -733,7 +733,7 @@ def main():
         "-fs",
         action="store",
         metavar="SIZE",
-        help="Build with Kali chroot rootfs (full, minimal or nano)",
+        help="Build with Kali rootfs (full, minimal or nano)",
     )
     parser.add_argument(
         "--force-download", "-f", action="store_true", help="Force re-downloading external resources"
@@ -751,13 +751,11 @@ def main():
     )
     parser.add_argument(
         "--no-branding",
-        "-nb",
         action="store_true",
         help="Build without wallpaper or boot animation",
     )
     parser.add_argument(
         "--no-freespace-check",
-        "-nf",
         action="store_true",
         help="Build without free space check",
     )
