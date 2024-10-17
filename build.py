@@ -28,7 +28,7 @@ import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip i
 import zipfile
 
 OS = ""
-devices_yml = os.path.join("devices", "devices.yml")
+tmp_path = "tmp_out"
 
 dl_headers = {
     "User-Agent": "NetHunter Installer",
@@ -387,10 +387,11 @@ def setupkernel():
     global Flasher
     global args
     global devices_yml
+    global tmp_path
 
     print("[i] Setting up kernel")
 
-    out_path = os.path.join("tmp_out", "boot-patcher")
+    out_path = os.path.join(tmp_path, "boot-patcher")
 
     # Blindly copy directories
     print("[i] Kernel: Copying common files")
@@ -579,31 +580,29 @@ def setupupdate():
 
     print("[+] Setting up NetHunter")
 
-    out_path = "tmp_out"
-
     # Blindly copy directories
     print("[i] NetHunter: Copying common files")
-    copytree("common", out_path)
+    copytree("common", tmp_path)
 
     print("[i] NetHunter: Copying %s arch specific common files" % Arch)
-    copytree(os.path.join("common", "arch", Arch), out_path)
+    copytree(os.path.join("common", "arch", Arch), tmp_path)
 
     print("[i] NetHunter: Copying update files")
-    copytree("update", out_path)
+    copytree("update", tmp_path)
 
     print("[i] NetHunter: Copying %s arch specific update files" % Arch)
-    copytree(os.path.join("update", "arch", Arch), out_path)
+    copytree(os.path.join("update", "arch", Arch), tmp_path)
 
     # Set up variables in update-binary script
     print("[i] NetHunter: Configuring installer script for " + Device)
     configfile(
-        os.path.join(out_path, "META-INF", "com", "google", "android", "update-binary"),
+        os.path.join(tmp_path, "META-INF", "com", "google", "android", "update-binary"),
         {"supersu": readkey("supersu")},
     )
 
     # Overwrite screen resolution if defined in devices.yml
     if Resolution:
-        file_name = os.path.join(out_path, "wallpaper", "resolution.txt")
+        file_name = os.path.join(tmp_path, "wallpaper", "resolution.txt")
         file_handle = open(file_name, "w")
         file_handle.write(Resolution)
         file_handle.close()
@@ -612,10 +611,10 @@ def setupupdate():
 
 
 def cleanup(domsg):
-    if os.path.exists("tmp_out"):
+    if os.path.exists(tmp_path):
         if domsg:
-            print("[i] Removing temporary build directory: ./tmp_out")
-        shutil.rmtree("tmp_out")
+            print("[i] Removing temporary build directory:" + tmp_path)
+        shutil.rmtree(tmp_path)
 
 
 def done():
@@ -703,6 +702,7 @@ def main():
     supersu_beta = False
 
     IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
+    devices_yml = os.path.join("devices", "devices.yml")
     t = datetime.datetime.now()
     TimeStamp = "%04d%02d%02d_%02d%02d%02d" % (
         t.year,
@@ -1020,7 +1020,7 @@ def main():
         if args.kernel:
             file_name = "kernel-nethunter-%s.zip" % file_tag
 
-            zip(os.path.join("tmp_out", "boot-patcher"), file_name)
+            zip(os.path.join(tmp_path, "boot-patcher"), file_name)
 
             print("[+] Created kernel installer: " + file_name)
             done()
@@ -1035,11 +1035,11 @@ def main():
     # Change bootanimation folder for product partition devices
     if Device.find("oneplus8") == 0:
         shutil.copytree(
-            os.path.join("tmp_out", "system", "media"),
-            os.path.join("tmp_out", "product", "media"),
+            os.path.join(tmp_path, "system", "media"),
+            os.path.join(tmp_path, "product", "media"),
             dirs_exist_ok=True,
         )
-        shutil.rmtree(os.path.join("tmp_out", "system", "media"))
+        shutil.rmtree(os.path.join(tmp_path, "system", "media"))
 
     file_prefix = ""
     if not args.rootfs:
@@ -1047,7 +1047,7 @@ def main():
 
     file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
 
-    zip("tmp_out", file_name)
+    zip(tmp_path, file_name)
 
     # Add the Kali rootfs archive if --rootfs is specified
     if args.rootfs:
