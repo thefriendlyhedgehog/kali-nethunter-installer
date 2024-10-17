@@ -27,7 +27,7 @@ import sys
 import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
 import zipfile
 
-OS = ""
+android = ""
 tmp_path = "tmp_out"
 
 dl_headers = {
@@ -318,10 +318,10 @@ def zip(src, dst):
 
 
 def readkey(key, default=""):
-    global Config
-    global Device
+    global YAML
+    global kernel
     try:
-        return Config.get(key, default)
+        return YAML.get(key, default)
     except:
         return default
 
@@ -356,9 +356,9 @@ def configfile(file_name, values, pure=False):
 
 
 def setupkernel():
-    global Config
-    global Device
-    global OS
+    global YAML
+    global kernel
+    global android
     global Flasher
     global args
     global devices_yml
@@ -381,7 +381,7 @@ def setupkernel():
     print("[i] Kernel: Copying %s arch specific boot-patcher files" % Arch)
     copytree(os.path.join("boot-patcher", "arch", Arch), out_path)
 
-    if Device == "generic":
+    if kernel == "generic":
         # Set up variables in the kernel installer script
         print("[i] Kernel: Configuring installer script for generic %s devices" % Arch)
         configfile(
@@ -393,11 +393,11 @@ def setupkernel():
         # There's nothing left to configure
         print("[+] Finished setting up (generic) kernel")
         return
-    print("[i] Kernel: Configuring installer script for " + Device)
+    print("[i] Kernel: Configuring installer script for " + kernel)
 
     if Flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
-        x = "update-binary-anykernel_only" if args.kernel else "update-binary-anykernel"
+        x = "update-binary-anykernel_only" if args.installer else "update-binary-anykernel"
         print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
         shutil.move(
             os.path.join(
@@ -457,7 +457,7 @@ def setupkernel():
         )
 
         # Set up variables in boot-patcher.sh
-        print("[i] Kernel: Configuring LazyFlasher's boot-patcher.sh script for " + Device)
+        print("[i] Kernel: Configuring LazyFlasher's boot-patcher.sh script for " + kernel)
         configfile(
             os.path.join(out_path, "boot-patcher.sh"),
             {
@@ -468,7 +468,7 @@ def setupkernel():
 
     scan_kernel_image()
 
-    device_path = os.path.join("devices", OS, Device)
+    device_path = os.path.join("devices", android, kernel)
 
     # Copy kernel image from version/device to boot-patcher folder
     kernel_images = [
@@ -492,7 +492,7 @@ def setupkernel():
             kernel_found = True
             break
     if not kernel_found:
-        abort('Unable to find {} kernel image: {}'.format(OS, device_path))
+        abort('Unable to find {} kernel image: {}'.format(android, device_path))
 
     # Copy dtb.img if it exists
     dtb_location = os.path.join(device_path, "dtb.img")
@@ -551,7 +551,7 @@ def setupkernel():
     print("[+] Finished setting up kernel")
 
 
-def setupupdate():
+def setupnethunter():
     global Arch
     global Resolution
 
@@ -571,7 +571,7 @@ def setupupdate():
     copytree(os.path.join("update", "arch", Arch), tmp_path)
 
     # Set up variables in update-binary script
-    print("[i] NetHunter: Configuring installer script for " + Device)
+    print("[i] NetHunter: Configuring installer script for " + kernel)
     configfile(
         os.path.join(tmp_path, "META-INF", "com", "google", "android", "update-binary"),
         {"supersu": readkey("supersu")},
@@ -606,11 +606,11 @@ def abort(err):
 
 
 def scan_kernel_image():
-    global OS
-    OS_SUGGESTION = ""
+    global android
+    android_suggestion = ""
     i = 0
 
-    print("[+] Searching for kernel images for device model: " + Device)
+    print("[+] Searching for kernel images for device model: " + kernel)
     subdirectories = [ x.path for x in os.scandir("devices") if x.is_dir() and not x.path.startswith('{}.'.format("devices/"))]
     # Remove non Android version directories
     subdirectories.remove('{}bin'.format("devices/"))
@@ -620,13 +620,13 @@ def scan_kernel_image():
     for android_version_dir in subdirectories:
         android_version_dir = android_version_dir.lower()
         android_version_dir = android_version_dir.replace("devices/", "")
-        scan_path = os.path.join("devices", android_version_dir, Device)
+        scan_path = os.path.join("devices", android_version_dir, kernel)
         if os.path.exists(scan_path):
             print("[+]   Found matching Android version kernel image: " + scan_path)
             i += 1
-            OS_SUGGESTION = android_version_dir
-    if not OS and OS_SUGGESTION and i == 1:
-        return OS_SUGGESTION
+            android_suggestion = android_version_dir
+    if not android and android_suggestion and i == 1:
+        return android_suggestion
 
 
 def read_file(file):
@@ -652,10 +652,10 @@ def yaml_parse(data):
 
 
 def main():
-    global Config
-    global Device
+    global YAML
+    global kernel
     global Arch
-    global OS
+    global android
     global IgnoredFiles
     global TimeStamp
     global Flasher
@@ -688,15 +688,15 @@ def main():
     yml = yaml_parse(data)
 
     default = ""
-    devicenames = []
+    kernels = []
     for element in yml:
         for device_model in element.keys():
             for kernel in element[device_model].get('kernels', default):
-                devicenames.append(kernel.get('id', default))
+                kernels.append(kernel.get('id', default))
 
-    help_device = "Allowed device names: \n"
-    for device in devicenames:
-        help_device += "    %s\n" % device
+    help_device = "Allowed kernel IDs: \n"
+    for kernel in kernels:
+        help_device += "    %s\n" % kernel
 
     parser = argparse.ArgumentParser(
         description="Kali NetHunter recovery flashable zip builder"
@@ -708,7 +708,7 @@ def main():
         metavar="ARCH",
         help="Build a generic installer (modify ramdisk only)",
     )
-    parser.add_argument("--device", "-d", action="store", help=help_device)
+    parser.add_argument("--kernel", "-k", action="store", help=help_device)
     parser.add_argument("--kitkat", "-4", action="store_true", help="Android 4.4")
     parser.add_argument("--lollipop", "-5", action="store_true", help="Android 5")
     parser.add_argument("--marshmallow", "-6", action="store_true", help="Android 6")
@@ -735,11 +735,10 @@ def main():
         "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
     )
     parser.add_argument(
-        "--kernel", "-k", action="store_true", help="Build kernel installer only"
+        "--installer", "-i", action="store_true", help="Build kernel installer only"
     )
     parser.add_argument(
-        "--no-kernel",
-        "-nk",
+        "--no-installer",
         action="store_true",
         help="Build without the kernel installer",
     )
@@ -771,26 +770,26 @@ def main():
 
     args = parser.parse_args()
 
-    if args.kernel and args.no_kernel:
+    if args.installer and args.no_installer:
         abort(
-            "You seem to be having trouble deciding whether you want the kernel installer or not: --kernel // --no-kernel"
+            "You seem to be having trouble deciding whether you want the kernel installer or not: --installer // --no-installer"
         )
-    if args.device and args.generic:
+    if args.kernel and args.generic:
         abort('The device and generic switches are mutually exclusive: --device // --generic')
 
-    if args.device:
-        if args.device in devicenames:
+    if args.kernel:
+        if args.kernel in kernels:
             for element in yml:
                 for device_model in element.keys():
-                    for kernel in element[device_model].get('kernels', default):
-                        if args.device == kernel.get('id', default):
-                            Config = kernel
-                            Device = args.device
+                    for k in element[device_model].get('kernels', default):
+                        if args.kernel == k.get('id', default):
+                            YAML = k
+                            kernel = args.kernel
         else:
-            abort('Device %s not found in %s' % (args.device, devices_yml))
+            abort('kernel %s not found in %s' % (args.kernel, devices_yml))
     elif args.generic:
         Arch = args.generic
-        Device = "generic"
+        kernel = "generic"
     elif args.force_download:
         print('[i] Only downloading external resources')
         allapps(True)
@@ -803,51 +802,51 @@ def main():
         abort('No valid arguments supplied. Try -h or --help')
 
     # If we found a device, set architecture and parse android OS release
-    if args.device:
+    if args.kernel:
         Arch = readkey("arch", "armhf")
 
         i = 0
         if args.kitkat:
-            OS = "kitkat"
+            android = "kitkat"
             i += 1
         if args.lollipop:
-            OS = "lollipop"
+            android = "lollipop"
             i += 1
         if args.marshmallow:
-            OS = "marshmallow"
+            android = "marshmallow"
             i += 1
         if args.nougat:
-            OS = "nougat"
+            android = "nougat"
             i += 1
         if args.oreo:
-            OS = "oreo"
+            android = "oreo"
             i += 1
         if args.pie:
-            OS = "pie"
+            android = "pie"
             i += 1
         if args.ten:
-            OS = "ten"
+            android = "ten"
             i += 1
         if args.eleven:
-            OS = "eleven"
+            android = "eleven"
             i += 1
         if args.twelve:
-            OS = "twelve"
+            android = "twelve"
             i += 1
         if args.thirteen:
-            OS = "thirteen"
+            android = "thirteen"
             i += 1
         if args.fourteen:
-            OS = "fourteen"
+            android = "fourteen"
             i += 1
         if args.wearos:
-            OS = "wearos"
+            android = "wearos"
             i += 1
         if i == 0:
-            OS = scan_kernel_image()
+            android = scan_kernel_image()
 
-            if OS:
-                print("[*] Auto selecting kernel image: " + OS)
+            if android:
+                print("[*] Auto selecting kernel image: " + android)
             else:
                 abort(
                     "Missing Android version"
@@ -868,10 +867,10 @@ def main():
 
     if args.generic:
         print("[i] Generic image: true")
-    if args.device:
-        print("[i] Device module image: " + Device)
+    if args.kernel:
+        print("[i] kernel module image: " + kernel)
 
-    x = OS if OS else '-'
+    x = android if android else '-'
     print("[i] Android version: " + x)
 
     if args.force_download:
@@ -880,9 +879,9 @@ def main():
     if args.uninstaller:
         print("[i] Create additional uninstaller: true")
 
-    if args.kernel:
+    if args.installer:
         print("[i] Kernel installer only: true")
-    if args.no_kernel:
+    if args.no_installer:
         print("[i] Skip kernel installer: true")
 
     if args.no_branding:
@@ -921,12 +920,12 @@ def main():
         print("[+] Created uninstaller: " + file_name)
 
     # If no device or generic arch is specified, we are done
-    if not (args.device or args.generic):
+    if not (args.kernel or args.generic):
         print('[i] Not creating device model or generic image')
         done()
 
     # We don't need the apps or SuperSU if we are only building the kernel installer
-    if not args.kernel:
+    if not args.installer:
         allapps(args.force_download)
         # Download SuperSU if we want it
         if args.supersu:
@@ -941,12 +940,12 @@ def main():
         file_tag = args.release
     else:
         file_tag = TimeStamp
-    file_tag += "-" + Device
-    if args.device:
-        file_tag += "-" + OS
+    file_tag += "-" + kernel
+    if args.kernel:
+        file_tag += "-" + android
     else:
         file_tag += "-" + Arch
-    if args.no_branding and not args.kernel:
+    if args.no_branding and not args.installer:
         file_tag += "-nobranding"
     if args.supersu:
         file_tag += "-rooted"
@@ -964,7 +963,7 @@ def main():
         IgnoredFiles.append("bootanimation.zip")
         IgnoredFiles.append("NetHunterStorePrivilegedExtension.apk")
         IgnoredFiles.append("NetHunterStore.apk")
-        if args.device == "ticwatchpro":
+        if args.kernel == "ticwatchpro":
             IgnoredFiles.append("NetHunterKeX.apk")
     # Don't include wearos bootanimation by default
     else:
@@ -975,11 +974,11 @@ def main():
         IgnoredFiles.append("freespace.sh")
 
     # Don't set up the kernel installer if --nokernel is specified
-    if not args.no_kernel:
+    if not args.no_installer:
         setupkernel()
 
         # Build a kernel installer zip and exit if --kernel is specified
-        if args.kernel:
+        if args.installer:
             file_name = "kernel-nethunter-%s.zip" % file_tag
 
             zip(os.path.join(tmp_path, "boot-patcher"), file_name)
@@ -992,10 +991,10 @@ def main():
         IgnoredFiles.append("supersu.zip")
 
     # Set up the update zip
-    setupupdate()
+    setupnethunter()
 
     # Change bootanimation folder for product partition devices
-    if Device.find("oneplus8") == 0:
+    if kernel.find("oneplus8") == 0:
         shutil.copytree(
             os.path.join(tmp_path, "system", "media"),
             os.path.join(tmp_path, "product", "media"),

@@ -124,7 +124,7 @@ def generate_build_script(data):
                     build_list += "\n"
                     build_list += "# {}\n".format(image.get('name'))
                     build_list += "# -----------------------------------------------\n"
-                    build_list += "./build.py -d {} --{} -fs {} -r ${{RELEASE}} && mv -v *${{RELEASE}}*.zip ${{OUT_DIR}}/\n".format(image.get('id', default), image.get('android', default), image.get('rootfs', FS_SIZE))
+                    build_list += "./build.py --kernel {} --{} --rootfs {} --r ${{RELEASE}} && mv -vf *${{RELEASE}}*.zip ${{OUT_DIR}}/\n".format(image.get('id', default), image.get('android', default), image.get('rootfs', FS_SIZE))
 
     ## Create sha files for each image
     build_list += "\n"
