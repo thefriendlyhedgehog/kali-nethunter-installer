@@ -249,8 +249,8 @@ def allapps(forcedown):
 
 
 def rootfs(forcedown, fs_size):
-    global Arch
-    fs_arch = Arch
+    global arch
+    fs_arch = arch
     fs_host = "https://kali.download/nethunter-images/current/rootfs/"
     fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_url = fs_host + fs_file
@@ -277,11 +277,11 @@ def rootfs(forcedown, fs_size):
 
 
 def addrootfs(fs_size, dst):
-    global Arch
+    global arch
 
     print("[i] Adding Kali rootfs archive to the installer zip")
 
-    fs_arch = Arch
+    fs_arch = arch
     fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_localpath = os.path.join("rootfs", fs_file)
 
@@ -359,7 +359,7 @@ def setupkernel():
     global YAML
     global kernel
     global android
-    global Flasher
+    global flasher
     global args
     global devices_yml
     global tmp_path
@@ -372,30 +372,30 @@ def setupkernel():
     print("[i] Kernel: Copying common files")
     copytree("common", out_path)
 
-    print("[i] Kernel: Copying %s arch specific common files" % Arch)
-    copytree(os.path.join("common", "arch", Arch), out_path)
+    print("[i] Kernel: Copying %s arch specific common files" % arch)
+    copytree(os.path.join("common", "arch", arch), out_path)
 
     print("[i] Kernel: Copying boot-patcher files")
     copytree("boot-patcher", out_path)
 
-    print("[i] Kernel: Copying %s arch specific boot-patcher files" % Arch)
-    copytree(os.path.join("boot-patcher", "arch", Arch), out_path)
+    print("[i] Kernel: Copying %s arch specific boot-patcher files" % arch)
+    copytree(os.path.join("boot-patcher", "arch", arch), out_path)
 
     if kernel == "generic":
         # Set up variables in the kernel installer script
-        print("[i] Kernel: Configuring installer script for generic %s devices" % Arch)
+        print("[i] Kernel: Configuring installer script for generic %s devices" % arch)
         configfile(
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
-            {"generic": Arch},
+            {"generic": arch},
         )
         # There's nothing left to configure
         print("[+] Finished setting up (generic) kernel")
         return
     print("[i] Kernel: Configuring installer script for " + kernel)
 
-    if Flasher == "anykernel":
+    if flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
         x = "update-binary-anykernel_only" if args.installer else "update-binary-anykernel"
         print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
@@ -486,8 +486,8 @@ def setupkernel():
     for kernel_image in kernel_images:
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
-            arch = "ARMv7" if kernel_image[:1] == 'z' else "ARMv8"
-            print("[+] Found {} kernel image: {}".format(arch, kernel_location))
+            arm_arch = "ARMv7" if kernel_image[:1] == 'z' else "ARMv8"
+            print("[+] Found {} kernel image: {}".format(arm_arch, kernel_location))
             shutil.copy(kernel_location, os.path.join(out_path, kernel_image))
             kernel_found = True
             break
@@ -552,8 +552,8 @@ def setupkernel():
 
 
 def setupnethunter():
-    global Arch
-    global Resolution
+    global arch
+    global resolution
 
     print("[+] Setting up NetHunter")
 
@@ -561,14 +561,14 @@ def setupnethunter():
     print("[i] NetHunter: Copying common files")
     copytree("common", tmp_path)
 
-    print("[i] NetHunter: Copying %s arch specific common files" % Arch)
-    copytree(os.path.join("common", "arch", Arch), tmp_path)
+    print("[i] NetHunter: Copying %s arch specific common files" % arch)
+    copytree(os.path.join("common", "arch", arch), tmp_path)
 
     print("[i] NetHunter: Copying update files")
     copytree("update", tmp_path)
 
-    print("[i] NetHunter: Copying %s arch specific update files" % Arch)
-    copytree(os.path.join("update", "arch", Arch), tmp_path)
+    print("[i] NetHunter: Copying %s arch specific update files" % arch)
+    copytree(os.path.join("update", "arch", arch), tmp_path)
 
     # Set up variables in update-binary script
     print("[i] NetHunter: Configuring installer script for " + kernel)
@@ -578,10 +578,10 @@ def setupnethunter():
     )
 
     # Overwrite screen resolution if defined in devices.yml
-    if Resolution:
+    if resolution:
         file_name = os.path.join(tmp_path, "wallpaper", "resolution.txt")
         file_handle = open(file_name, "w")
-        file_handle.write(Resolution)
+        file_handle.write(resolution)
         file_handle.close()
 
     print("[+] Finished setting up NetHunter")
@@ -654,12 +654,12 @@ def yaml_parse(data):
 def main():
     global YAML
     global kernel
-    global Arch
+    global arch
     global android
     global IgnoredFiles
     global TimeStamp
-    global Flasher
-    global Resolution
+    global flasher
+    global resolution
     global args
     global devices_yml
 
@@ -788,7 +788,7 @@ def main():
         else:
             abort('kernel %s not found in %s' % (args.kernel, devices_yml))
     elif args.generic:
-        Arch = args.generic
+        arch = args.generic
         kernel = "generic"
     elif args.force_download:
         print('[i] Only downloading external resources')
@@ -803,7 +803,7 @@ def main():
 
     # If we found a device, set architecture and parse android OS release
     if args.kernel:
-        Arch = readkey("arch", "armhf")
+        arch = readkey("arch", "armhf")
 
         i = 0
         if args.kitkat:
@@ -900,15 +900,15 @@ def main():
     x = args.rootfs if args.rootfs else '-'
     print("[i] rootfs    : " + x)
 
-    Flasher = readkey("flasher")
-    Flasher = Flasher.replace('"', "")
-    x = Flasher if Flasher else 'LazyFlasher'
-    print("[i] Flasher   : " + x)
+    flasher = readkey("flasher")
+    flasher = flasher.replace('"', "")
+    x = flasher if flasher else 'LazyFlasher'
+    print("[i] flasher   : " + x)
 
-    Resolution = readkey("resolution")
-    Resolution = Resolution.replace('"', "")
-    x = Resolution if Resolution else '-'
-    print("[i] Resolution: " + x)
+    resolution = readkey("resolution")
+    resolution = resolution.replace('"', "")
+    x = resolution if resolution else '-'
+    print("[i] resolution: " + x)
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
@@ -944,7 +944,7 @@ def main():
     if args.kernel:
         file_tag += "-" + android
     else:
-        file_tag += "-" + Arch
+        file_tag += "-" + arch
     if args.no_branding and not args.installer:
         file_tag += "-nobranding"
     if args.supersu:
