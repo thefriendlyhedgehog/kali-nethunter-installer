@@ -1,37 +1,37 @@
 #!/usr/bin/env python3
 
-##############################################################
-# Script to build/compile/merge Kali NetHunter installer per device
-#
-# Usage:
-#   python3 build.py -i <input file> -o <output directory> -r <release>
-#
-# E.g.:
-#   python3 build.py -d hammerhead --marshmallow --rootfs full --release 2021.3
-#
-# Install:
-#   sudo apt -y install python3 python3-requests
+###############################################################
+## Script to build/compile/merge Kali NetHunter installer per device model's kernel id
+##
+## Usage:
+##   $ ./$0 -i <input file> -o <output directory> -r <release>
+##
+## E.g.:
+##   $ ./build.py -d hammerhead --marshmallow --rootfs full --release 2024.3
+##
+## Dependencies:
+##   $ sudo apt -y install python3 python3-requests python3-yaml
+##   OR
+##   $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install requests pyyaml
 
 from __future__ import print_function
-import os, sys
-import requests
-import zipfile
-import fnmatch
-import shutil
-
-try:
-    # Python 3 compatibility
-    import configparser
-except ImportError:
-    # Python 2 compatibility
-    import ConfigParser
-import re
 import argparse
 import datetime
+import fnmatch
 import hashlib
+import os
+import re
+import requests # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install requests
+import shutil
+import sys
+import yaml # $ python3 -m venv .env; source .env/bin/activate; python3 -m pip install pyyaml
+import zipfile
+
+android = ""
+tmp_path = "tmp_out"
 
 dl_headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.51 Safari/537.36",
+    "User-Agent": "Kali NetHunter Installer",
     "Accept-Encoding": "identity",
 }
 
@@ -82,6 +82,8 @@ dl_apps = {
 
 
 def copytree(src, dst):
+    print("[i] Copying: %s -> %s" % (src, dst))
+
     def shouldcopy(f):
         global IgnoredFiles
         for pattern in IgnoredFiles:
@@ -117,10 +119,10 @@ def download(url, file_name, verify_sha):
 
     if u.headers.get("Content-Length"):
         file_size = int(u.headers["Content-Length"])
-        print("Downloading: %s (%s bytes)" % (os.path.basename(file_name), file_size))
+        print("[i] Downloading: %s (%s bytes) - %s" % (os.path.basename(file_name), file_size, url))
     else:
         file_size = 0
-        print("Downloading: %s (unknown size)" % os.path.basename(file_name))
+        print("[i] Downloading: %s (unknown size) - %s" % (os.path.basename(file_name), url))
 
     sha = hashlib.sha512()
     f = open(file_name, "wb")
@@ -143,10 +145,10 @@ def download(url, file_name, verify_sha):
         download_ok = True
     except requests.exceptions.RequestException as e:
         print()
-        print("Error: " + str(e))
+        print("[-] Error: " + str(e), file=sys.stderr)
     except KeyboardInterrupt:
         print()
-        print("Download cancelled")
+        print("[-] Download cancelled", file=sys.stderr)
 
     f.flush()
     os.fsync(f.fileno())
@@ -154,25 +156,25 @@ def download(url, file_name, verify_sha):
 
     if download_ok:
         sha = sha.hexdigest()
-        print("SHA512: " + sha)
+        print("[i] SHA512: " + sha)
         if verify_sha:
-            print("Expect: " + verify_sha)
+            print("[i] Expect: " + verify_sha)
             if sha == verify_sha:
-                print("Hash matches: OK")
+                print("[+] Hash matches: OK")
             else:
                 download_ok = False
-                print("Hash mismatch! " + file_name)
+                print("[-] Hash mismatch! " + file_name, file=sys.stderr)
         else:
-            print("Warning: No SHA512 hash specified for verification!")
+            print("[-] Warning: No SHA512 hash specified for verification!", file=sys.stderr)
 
     if download_ok:
-        print("Download OK: " + file_name)
+        print("[+] Download OK: {}\n".format(file_name))
     else:
         # We should delete partially downloaded file so the next try doesn't skip it!
         if os.path.isfile(file_name):
             os.remove(file_name)
         # Better debug what file cannot be downloaded
-        abort('There was a problem downloading the file "' + file_name + '"')
+        abort('There was a problem downloading the file: ' + file_name)
 
 
 def supersu(forcedown, beta):
@@ -183,20 +185,22 @@ def supersu(forcedown, beta):
             u = requests.head(url, headers=dl_headers)
             return u.url
         except requests.exceptions.ConnectionError as e:
-            print("Connection error: " + str(e))
+            print("[-] Connection error: " + str(e), file=sys.stderr)
         except requests.exceptions.RequestException as e:
-            print("Error: " + str(e))
+            print("[-] Error: " + str(e), file=sys.stderr)
 
     suzip = os.path.join("update", "supersu.zip")
 
-    # Remove previous supersu.zip if force redownloading
-    if os.path.isfile(suzip):
-        if forcedown:
+    # Remove previous supersu.zip if force re-downloading
+    if forcedown:
+        print("[i] Force re-downloading SuperSU")
+        if os.path.isfile(suzip):
+            print("[i] Deleting: " + suzip)
             os.remove(suzip)
-        else:
-            print("Found SuperSU zip at: " + suzip)
 
-    if not os.path.isfile(suzip):
+    if os.path.isfile(suzip):
+        print("[i] Found SuperSU: " + suzip)
+    else:
         if beta:
             surl = getdlpage(dl_supersu["beta"][0])
         else:
@@ -208,7 +212,9 @@ def supersu(forcedown, beta):
             else:
                 download(surl + "?retrieve_file=1", suzip, dl_supersu["stable"][1])
         else:
-            abort("Could not retrieve download URL for SuperSU")
+            abort('Could not retrieve download URL for SuperSU')
+
+    print("[+] Finished setting up SuperSU")
 
 
 def allapps(forcedown):
@@ -217,7 +223,9 @@ def allapps(forcedown):
     app_path = os.path.join("update", "data", "app")
 
     if forcedown:
-        print("Force redownloading all apps")
+        print("[i] Force re-downloading all NetHunter apps")
+    else:
+        print("[i] Downloading all NetHunter apps")
 
     for key, value in dl_apps.items():
         apk_name = key + ".apk"
@@ -225,88 +233,108 @@ def allapps(forcedown):
         apk_url = value[0]
         apk_hash = value[1] if len(value) == 2 else False
 
-        # For force redownload, remove previous APK
+        # For force re-download, remove previous APK
         if os.path.isfile(apk_path):
             if forcedown:
+                print("[i] Deleting: " + apk_path)
                 os.remove(apk_path)
-            else:
-                print("Found %s at: %s" % (apk_name, apk_path))
 
         # Only download apk if we don't have it already
-        if not os.path.isfile(apk_path):
+        if os.path.isfile(apk_path):
+            print("[+] Found %s: %s" % (apk_name, apk_path))
+        else:
             download(apk_url, apk_path, apk_hash)
 
-    print("Finished downloading all apps")
+    print("[+] Finished downloading NetHunter all apps")
 
 
 def rootfs(forcedown, fs_size):
-    global Arch
-    fs_arch = Arch
+    global arch
+    fs_arch = arch
     fs_host = "https://kali.download/nethunter-images/current/rootfs/"
-    fs_file = "kalifs-" + fs_arch + "-" + fs_size + ".tar.xz"
+    fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_url = fs_host + fs_file
 
-    fs_path = os.path.join("rootfs", fs_file)
+    fs_localpath = os.path.join("rootfs", fs_file)
 
     if forcedown:
         # For force re-download, remove previous rootfs
-        print("Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
-        if os.path.isfile(fs_path):
-            print("Deleting: %s" % fs_path)
-            os.remove(fs_path)
+        print("[i] Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
+        if os.path.isfile(fs_localpath):
+            print("[i] Deleting: " + fs_localpath)
+            os.remove(fs_localpath)
+    else:
+        print("[i] Downloading Kali rootfs")
 
     # Only download Kali rootfs if we don't have it already
-    if os.path.isfile(fs_path):
-        print("Found local Kali %s %s rootfs at: %s" % (fs_arch, fs_size, fs_path))
+    if os.path.isfile(fs_localpath):
+        print("[+] Found local Kali %s %s rootfs: %s" % (fs_arch, fs_size, fs_localpath))
     else:
-        print("Downloading Kali %s %s rootfs from: %s" % (fs_arch, fs_size, fs_path, fs_host))
-        download(fs_url, fs_path, False)  # We should add SHA512 retrieval function
+        print("[i] Downloading Kali %s %s rootfs (last-snapshot)" % (fs_arch, fs_size))
+        download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
+
+    print("[+] Finished downloading Kali rootfs")
 
 
 def addrootfs(fs_size, dst):
-    global Arch
-    fs_arch = Arch
-    fs_file = "kalifs-" + fs_arch + "-" + fs_size + ".tar.xz"
-    fs_path = os.path.join("rootfs", fs_file)
+    global arch
+
+    print("[i] Adding Kali rootfs archive to the installer zip")
 
     try:
+    fs_arch = arch
+    fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
+    fs_localpath = os.path.join("rootfs", fs_file)
+
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
-        print("Adding Kali rootfs archive to the installer zip...")
-        zf.write(os.path.abspath(fs_path), fs_file)
-        print("  Added: " + fs_file)
+        zf.write(os.path.abspath(fs_localpath), fs_file)
+        print("[+]   Added: " + fs_file)
         zf.close()
     except IOError as e:
-        print("IOError = " + e.reason)
-        abort("Unable to add to the zip file")
+        print("[-] IOError = " + e.reason, file=sys.stderr)
+        abort('Unable to add to the zip file')
+
+    print("[+] Finished adding rootfs")
 
 
 def zip(src, dst):
+    print("[i] Creating ZIP file: " + dst)
+
     try:
         zf = zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED)
-        print("Creating ZIP file: " + dst)
         abs_src = os.path.abspath(src)
         for dirname, subdirs, files in os.walk(src):
             for filename in files:
                 absname = os.path.abspath(os.path.join(dirname, filename))
                 arcname = absname[len(abs_src) + 1 :]
                 zf.write(absname, arcname)
-                print("  Added: " + arcname)
+                print("[+]   Added: " + arcname)
         zf.close()
     except IOError as e:
-        print("IOError = " + e.reason)
-        abort("Unable to create the ZIP file")
+        print("[-] IOError = " + e.reason, file=sys.stderr)
+        abort('Unable to create the ZIP file')
+
+    print("[+] Finished creating zip")
 
 
 def readkey(key, default=""):
-    global Config
-    global Device
+    global YAML
+    global kernel
+
     try:
-        return Config.get(Device, key)
+        # As 'author' is now in versions, need to go a little deeper
+        if key not in YAML:
+            for version in YAML.get('versions', default):
+                if android == version.get('android', default):
+                    return version.get(key, default).replace('"', "")
+        return YAML.get(key, default)
     except:
         return default
 
 
-def configfile(file_name, values):
+def configfile(file_name, values, pure=False):
+    print("[+] Updating: " + file_name)
+
     # Open file as read only and copy to string
     file_handle = open(file_name, "r")
     file_string = file_handle.read()
@@ -318,6 +346,9 @@ def configfile(file_name, values):
         if value and not (
             value[0] == value[-1] and (value[0] == '"' or value[0] == "'")
         ):
+            if pure:
+                value = "%s" % value
+            else:
             value = '"%s"' % value
 
         file_string = re.sub(
@@ -330,123 +361,89 @@ def configfile(file_name, values):
     file_handle.close()
 
 
-def configfile_pure(file_name, values):
-    # Same as "configfile" but without apostrophies
-    # Open file as read only and copy to string
-    file_handle = open(file_name, "r")
-    file_string = file_handle.read()
-    file_handle.close()
-
-    # Replace values of variables
-    for key, value in values.items():
-        # Quote value if not already quoted
-        if value and not (
-            value[0] == value[-1] and (value[0] == '"' or value[0] == "'")
-        ):
-            value = "%s" % value
-
-        file_string = re.sub(
-            "^" + re.escape(key) + "=.*$", key + "=" + value, file_string, flags=re.M
-        )
-
-    # Open file as writable and save the updated values
-    file_handle = open(file_name, "w")
-    file_handle.write(file_string)
-    file_handle.close()
-
-
 def setupkernel():
-    global Config
-    global Device
-    global OS
-    global LibDir
-    global Flasher
+    global YAML
+    global kernel
+    global android
+    global flasher
     global args
+    global tmp_path
 
-    out_path = os.path.join("tmp_out", "boot-patcher")
+    print("[i] Setting up kernel")
+
+    out_path = os.path.join(tmp_path, "boot-patcher")
 
     # Blindly copy directories
-    print("Kernel: Copying common files...")
+    print("[i] Kernel: Copying common files")
     copytree("common", out_path)
 
-    print("Kernel: Copying " + Arch + " arch specific common files...")
-    copytree(os.path.join("common", "arch", Arch), out_path)
+    print("[i] Kernel: Copying %s arch specific common files" % arch)
+    copytree(os.path.join("common", "arch", arch), out_path)
 
-    print("Kernel: Copying boot-patcher files...")
+    print("[i] Kernel: Copying boot-patcher files")
     copytree("boot-patcher", out_path)
 
-    print("Kernel: Copying " + Arch + " arch specific boot-patcher files...")
-    copytree(os.path.join("boot-patcher", "arch", Arch), out_path)
+    print("[i] Kernel: Copying %s arch specific boot-patcher files" % arch)
+    copytree(os.path.join("boot-patcher", "arch", arch), out_path)
 
-    if Device == "generic":
+    if kernel == "generic":
         # Set up variables in the kernel installer script
-        print("Kernel: Configuring installer script for generic %s devices" % Arch)
+        print("[i] Kernel: Configuring installer script for generic %s devices" % arch)
         configfile(
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
-            {"generic": Arch},
+            {"generic": arch},
         )
         # There's nothing left to configure
+        print("[+] Finished setting up (generic) kernel")
         return
-    print("Kernel: Configuring installer script for " + Device)
+    print("[i] Kernel: Configuring installer script for " + kernel)
 
-    if Flasher == "anykernel":
-        # Replace Lazy Flasher with AnyKernel3
-        print("Replacing NetHunter Flasher with AnyKernel3")
-        if args.kernel:
-            shutil.move(
-                os.path.join(
-                    out_path,
-                    "META-INF",
-                    "com",
-                    "google",
-                    "android",
-                    "update-binary-anykernel_only",
-                ),
-                os.path.join(
-                    out_path, "META-INF", "com", "google", "android", "update-binary"
-                ),
-            )
-        else:
-            shutil.move(
-                os.path.join(
-                    out_path,
-                    "META-INF",
-                    "com",
-                    "google",
-                    "android",
-                    "update-binary-anykernel",
-                ),
-                os.path.join(
-                    out_path, "META-INF", "com", "google", "android", "update-binary"
-                ),
-            )
+    if flasher == "anykernel":
+        # Replace LazyFlasher with AnyKernel3
+        x = "update-binary-anykernel_only" if args.installer else "update-binary-anykernel"
+        print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
+        shutil.move(
+            os.path.join(
+                out_path,
+                "META-INF",
+                "com",
+                "google",
+                "android",
+                x,
+            ),
+            os.path.join(
+                out_path, "META-INF", "com", "google", "android", "update-binary"
+            ),
+        )
         # Set up variables in the anykernel script
-        devicenames = readkey("devicenames")
-        configfile_pure(
+        configfile(
             os.path.join(out_path, "anykernel.sh"),
             {
-                "kernel.string": readkey("kernelstring", "NetHunter kernel"),
-                "do.modules": readkey("modules", "0"),
-                "block": readkey("block") + ";",
-                "is_slot_device": readkey("slot_device", "1") + ";",
-                "ramdisk_compression": readkey("ramdisk", "auto") + ";",
+                "kernel.string": kernelstring,
+                "do.modules": modules,
+                "block": block + ";",
+                "is_slot_device": slot_device + ";",
+                "ramdisk_compression": ramdisk + ";",
             },
+            True,
         )
         i = 1
         for devicename in devicenames.split(","):
+            print('[i] AnyKernel3 devicename: ' + devicename)
             key = "device.name" + str(i)
-            configfile_pure(os.path.join(out_path, "anykernel.sh"), {key: devicename})
+            configfile(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
             i += 1
 
-        configfile_pure(
+        configfile(
             os.path.join(out_path, "banner"),
             {
-                "   Kernel": readkey("kernelstring", "NetHunter kernel"),
-                "   Version": readkey("version", "1.0"),
-                "   Author": readkey("author", "Unkown"),
+                "   Kernel": kernelstring,
+                "   Version": version,
+                "   Author": author,
             },
+            True,
         )
 
     else:
@@ -456,24 +453,26 @@ def setupkernel():
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
             {
-                "kernel_string": readkey("kernelstring", "NetHunter kernel"),
-                "kernel_author": readkey("author", "Unknown"),
-                "kernel_version": readkey("version", "1.0"),
-                "device_names": readkey("devicenames"),
+                "kernel_string": kernelstring,
+                "kernel_author": author,
+                "kernel_version": version,
+                "device_names": devicenames,
             },
         )
 
         # Set up variables in boot-patcher.sh
-        print("Kernel: Configuring boot-patcher script for " + Device)
+        print("[i] Kernel: Configuring LazyFlasher's boot-patcher.sh script for " + kernel)
         configfile(
             os.path.join(out_path, "boot-patcher.sh"),
             {
-                "boot_block": readkey("block"),
-                "ramdisk_compression": readkey("ramdisk", "gzip"),
+                "boot_block": block,
+                "ramdisk_compression": ramdisk,
             },
         )
 
-    device_path = os.path.join("devices", OS, Device)
+    scan_kernel_image()
+
+    device_path = os.path.join("devices", android, kernel)
 
     # Copy kernel image from version/device to boot-patcher folder
     kernel_images = [
@@ -491,149 +490,194 @@ def setupkernel():
     for kernel_image in kernel_images:
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
-            print("Found kernel image at: " + kernel_location)
+            arm_arch = "ARMv7" if kernel_image[:1] == 'z' else "ARMv8"
+            print("[+] Found {} kernel image: {}".format(arm_arch, kernel_location))
             shutil.copy(kernel_location, os.path.join(out_path, kernel_image))
             kernel_found = True
             break
     if not kernel_found:
-        abort("Unable to find kernel image at: " + device_path)
-        exit(0)
+        abort('Unable to find {} kernel image: {}'.format(android, device_path))
 
     # Copy dtb.img if it exists
     dtb_location = os.path.join(device_path, "dtb.img")
     if os.path.exists(dtb_location):
-        print("Found DTB image at: " + dtb_location)
+        print("[+] Found DTB image: " + dtb_location)
         shutil.copy(dtb_location, os.path.join(out_path, "dtb.img"))
 
     # Copy dtb if it exists
     dtb_location = os.path.join(device_path, "dtb")
     if os.path.exists(dtb_location):
-        print("Found DTB file at: " + dtb_location)
+        print("[+] Found DTB file: " + dtb_location)
         shutil.copy(dtb_location, os.path.join(out_path, "dtb"))
 
     # Copy dtbo.img if it exists
     dtbo_location = os.path.join(device_path, "dtbo.img")
     if os.path.exists(dtbo_location):
-        print("Found DTBO image at: " + dtbo_location)
+        print("[+] Found DTBO image: " + dtbo_location)
         shutil.copy(dtbo_location, os.path.join(out_path, "dtbo.img"))
 
     # Copy any patch.d scripts
     patchd_path = os.path.join(device_path, "patch.d")
     if os.path.exists(patchd_path):
-        print("Found additional patch.d scripts at: " + patchd_path)
+        print("[+] Found additional patch.d scripts: " + patchd_path)
         copytree(patchd_path, os.path.join(out_path, "patch.d"))
 
     # Copy any ramdisk files
     ramdisk_path = os.path.join(device_path, "ramdisk")
     if os.path.exists(ramdisk_path):
-        print("Found additional ramdisk files at: " + ramdisk_path)
+        print("[+] Found additional ramdisk files: " + ramdisk_path)
         copytree(ramdisk_path, os.path.join(out_path, "ramdisk-patch"))
 
     # Copy any modules
     modules_path = os.path.join(device_path, "modules")
     if os.path.exists(modules_path):
-        print("Found additional kernel modules at: " + modules_path)
+        print("[+] Found additional kernel modules: " + modules_path)
         copytree(modules_path, os.path.join(out_path, "modules"))
 
     # Copy any device specific system binaries, libs, or init.d scripts
     system_path = os.path.join(device_path, "system")
     if os.path.exists(system_path):
-        print("Found additional /system files at: " + system_path)
+        print("[+] Found additional /system files: " + system_path)
         copytree(system_path, os.path.join(out_path, "system"))
 
     # Copy any /data/local folder files
     local_path = os.path.join(device_path, "local")
     if os.path.exists(local_path):
-        print("Found additional /data/local files at: " + local_path)
+        print("[+] Found additional /data/local files: " + local_path)
         copytree(local_path, os.path.join(out_path, "data", "local"))
 
     # Copy any AnyKernel3 additions
     ak_patches_path = os.path.join(device_path, "ak_patches")
     if os.path.exists(ak_patches_path):
-        print("Found additional AnyKernel3 patches at: " + ak_patches_path)
+        print("[+] Found additional AnyKernel3 patches: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
 
+    print("[+] Finished setting up kernel")
 
-def setupupdate():
-    global Arch
-    global Resolution
 
-    out_path = "tmp_out"
+def setupnethunter():
+    global arch
+    global resolution
+
+    print("[+] Setting up NetHunter")
 
     # Blindly copy directories
-    print("NetHunter: Copying common files...")
-    copytree("common", out_path)
+    print("[i] NetHunter: Copying common files")
+    copytree("common", tmp_path)
 
-    print("NetHunter: Copying " + Arch + " arch specific common files...")
-    copytree(os.path.join("common", "arch", Arch), out_path)
+    print("[i] NetHunter: Copying %s arch specific common files" % arch)
+    copytree(os.path.join("common", "arch", arch), tmp_path)
 
-    print("NetHunter: Copying update files...")
-    copytree("update", out_path)
+    print("[i] NetHunter: Copying update files")
+    copytree("update", tmp_path)
 
-    print("NetHunter: Copying " + Arch + " arch specific update files...")
-    copytree(os.path.join("update", "arch", Arch), out_path)
+    print("[i] NetHunter: Copying %s arch specific update files" % arch)
+    copytree(os.path.join("update", "arch", arch), tmp_path)
 
     # Set up variables in update-binary script
-    print("NetHunter: Configuring installer script for " + Device)
+    print("[i] NetHunter: Configuring installer script for " + kernel)
     configfile(
-        os.path.join(out_path, "META-INF", "com", "google", "android", "update-binary"),
-        {"supersu": readkey("supersu")},
+        os.path.join(tmp_path, "META-INF", "com", "google", "android", "update-binary"),
+        {"supersu": supersu},
     )
 
-    # Overwrite screen resolution if defined in devices.cfg
-    if Resolution:
-        file_name = os.path.join(out_path, "wallpaper", "resolution.txt")
+    # Overwrite screen resolution if defined in devices.yml
+    if resolution:
+        file_name = os.path.join(tmp_path, "wallpaper", "resolution.txt")
         file_handle = open(file_name, "w")
-        file_handle.write(Resolution)
+        file_handle.write(resolution)
         file_handle.close()
 
+    print("[+] Finished setting up NetHunter")
 
-def cleanup(domsg):
-    if os.path.exists("tmp_out"):
+
+def cleanup(domsg=False):
+    if os.path.exists(tmp_path):
         if domsg:
-            print("Removing temporary build directory")
-        shutil.rmtree("tmp_out")
+            print("[i] Removing temporary build directory: " + tmp_path)
+        shutil.rmtree(tmp_path)
 
 
 def done():
-    cleanup(False)
+    cleanup()
     exit(0)
 
 
 def abort(err):
-    print("Error: " + err)
+    print("[-] Error: " + err, file=sys.stderr)
     cleanup(True)
     exit(1)
 
 
-def setuparch():
-    global Arch
-    global LibDir
+def scan_kernel_image():
+    global android
+    android_suggestion = ""
+    i = 0
 
-    if Arch == "armhf" or Arch == "i386":
-        LibDir = os.path.join("system", "lib")
-    elif Arch == "arm64" or Arch == "amd64":
-        LibDir = os.path.join("system", "lib64")
-    else:
-        abort("Unknown device architecture: " + Arch)
+    print("[+] Searching for kernel images for device model: " + kernel)
+    subdirectories = [ x.path for x in os.scandir("devices") if x.is_dir() and not x.path.startswith('{}.'.format("devices/"))]
+    # Remove non Android version directories
+    subdirectories.remove('{}bin'.format("devices/"))
+    subdirectories.remove('{}example_scripts'.format("devices/"))
+    subdirectories.remove('{}patches'.format("devices/"))
+
+    for android_version_dir in subdirectories:
+        android_version_dir = android_version_dir.lower()
+        android_version_dir = android_version_dir.replace("devices/", "")
+        scan_path = os.path.join("devices", android_version_dir, kernel)
+        if os.path.exists(scan_path):
+            print("[+]   Found matching Android version kernel image: " + scan_path)
+            i += 1
+            android_suggestion = android_version_dir
+    if not android and android_suggestion and i == 1:
+        return android_suggestion
+
+
+def read_file(file):
+    try:
+        print('[i] Reading: {}'.format(file))
+        with open(file) as f:
+            data = f.read()
+            f.close()
+    except Exception as e:
+        print("[-] Cannot open input file: {} - {}".format(file, e), file=sys.stderr)
+        sys.exit(1)
+    return data
+
+
+def yaml_parse(data):
+    result = ""
+    lines = data.split('\n')
+    for line in lines:
+        if not line.startswith('#'):
+            ## yaml doesn't like tabs so let's replace them with four spaces
+            result += "{}\n".format(line.replace('\t', '    '))
+    return yaml.safe_load(result)
 
 
 def main():
-    global Config
-    global Device
-    global Arch
-    global OS
-    global LibDir
+    global YAML
     global IgnoredFiles
-    global TimeStamp
-    global Flasher
-    global Resolution
     global args
+    global devices_yml
+    global kernel
+    global arch
+    global android
+    global kernelstring
+    global flasher
+    global resolution
+    global devicenames
+    global ramdisk
+    global block
+    global version
+    global modules
+    global slot_device
+    global author
+    global supersu
 
     supersu_beta = False
-
-    devices_cfg = os.path.join("devices", "devices.cfg")
     IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
+    devices_yml = os.path.join("devices", "devices.yml")
     t = datetime.datetime.now()
     TimeStamp = "%04d%02d%02d_%02d%02d%02d" % (
         t.year,
@@ -647,66 +691,26 @@ def main():
     # Remove any existing builds that might be left
     cleanup(True)
 
-    # Read devices.cfg, get device names
-    try:
-        Config = configparser.ConfigParser(strict=False)
-        Config.read(devices_cfg)
-        devicenames = Config.sections()
-    except:
-        abort("Could not read %s! Maybe you need to run ./bootstrap.sh?" % devices_cfg)
+    # Read devices.yml, get device names
+    if not os.path.exists(devices_yml):
+        abort('Could not find %s! Maybe you need to run ./bootstrap.sh?' % devices_yml)
 
-    help_device = "Allowed device names: \n"
-    for device in devicenames:
-        help_device += "    %s\n" % device
+    data = read_file(devices_yml)
+    yml = yaml_parse(data)
+
+    default = ""
+    kernels = []
+    for element in yml:
+        for device_model in element.keys():
+            for kernel in element[device_model].get('kernels', default):
+                kernels.append(kernel.get('id', default))
+
+    help_device = "Allowed kernel IDs: \n"
+    for kernel in kernels:
+        help_device += "    %s\n" % kernel
 
     parser = argparse.ArgumentParser(
         description="Kali NetHunter recovery flashable zip builder"
-    )
-    parser.add_argument("--device", "-d", action="store", help=help_device)
-    parser.add_argument("--kitkat", "-kk", action="store_true", help="Android 4.4.4")
-    parser.add_argument("--lollipop", "-l", action="store_true", help="Android 5")
-    parser.add_argument("--marshmallow", "-m", action="store_true", help="Android 6")
-    parser.add_argument("--nougat", "-n", action="store_true", help="Android 7")
-    parser.add_argument("--oreo", "-o", action="store_true", help="Android 8")
-    parser.add_argument("--pie", "-p", action="store_true", help="Android 9")
-    parser.add_argument("--ten", "-q", action="store_true", help="Android 10")
-    parser.add_argument("--eleven", "-R", action="store_true", help="Android 11")
-    parser.add_argument("--twelve", "-S", action="store_true", help="Android 12")
-    parser.add_argument("--thirteen", "-T", action="store_true", help="Android 13")
-    parser.add_argument("--fourteen", "-U", action="store_true", help="Android 14")
-    parser.add_argument("--wearos", "-w", action="store_true", help="WearOS")
-    parser.add_argument(
-        "--forcedown", "-f", action="store_true", help="Force redownloading"
-    )
-    parser.add_argument(
-        "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
-    )
-    parser.add_argument(
-        "--kernel", "-k", action="store_true", help="Build kernel installer only"
-    )
-    parser.add_argument(
-        "--nokernel",
-        "-nk",
-        action="store_true",
-        help="Build without the kernel installer",
-    )
-    parser.add_argument(
-        "--nobrand",
-        "-nb",
-        action="store_true",
-        help="Build without wallpaper or boot animation",
-    )
-    parser.add_argument(
-        "--nofreespace",
-        "-nf",
-        action="store_true",
-        help="Build without free space check",
-    )
-    parser.add_argument(
-        "--supersu",
-        "-su",
-        action="store_true",
-        help="Build with SuperSU installer included",
     )
     parser.add_argument(
         "--generic",
@@ -715,12 +719,55 @@ def main():
         metavar="ARCH",
         help="Build a generic installer (modify ramdisk only)",
     )
+    parser.add_argument("--kernel", "-k", action="store", help=help_device)
+    parser.add_argument("--kitkat", "-4", action="store_true", help="Android 4.4")
+    parser.add_argument("--lollipop", "-5", action="store_true", help="Android 5")
+    parser.add_argument("--marshmallow", "-6", action="store_true", help="Android 6")
+    parser.add_argument("--nougat", "-7", action="store_true", help="Android 7")
+    parser.add_argument("--oreo", "-8", action="store_true", help="Android 8")
+    parser.add_argument("--pie", "-9", action="store_true", help="Android 9")
+    parser.add_argument("--ten", "-10", action="store_true", help="Android 10")
+    parser.add_argument("--eleven", "-11", action="store_true", help="Android 11")
+    parser.add_argument("--twelve", "-12", action="store_true", help="Android 12")
+    parser.add_argument("--thirteen", "-13", action="store_true", help="Android 13")
+    parser.add_argument("--fourteen", "-14", action="store_true", help="Android 14")
+    parser.add_argument("--wearos", "-w", action="store_true", help="Wear OS")
     parser.add_argument(
         "--rootfs",
         "-fs",
         action="store",
         metavar="SIZE",
-        help="Build with Kali chroot rootfs (full, minimal or nano)",
+        help="Build with Kali rootfs (full, minimal or nano)",
+    )
+    parser.add_argument(
+        "--force-download", "-f", action="store_true", help="Force re-downloading external resources"
+    )
+    parser.add_argument(
+        "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
+    )
+    parser.add_argument(
+        "--installer", "-i", action="store_true", help="Build kernel installer only"
+    )
+    parser.add_argument(
+        "--no-installer",
+        action="store_true",
+        help="Build without the kernel installer",
+    )
+    parser.add_argument(
+        "--no-branding",
+        action="store_true",
+        help="Build without wallpaper or boot animation",
+    )
+    parser.add_argument(
+        "--no-freespace-check",
+        action="store_true",
+        help="Build without free space check",
+    )
+    parser.add_argument(
+        "--supersu",
+        "-su",
+        action="store_true",
+        help="Build with SuperSU installer included",
     )
     parser.add_argument(
         "--release",
@@ -732,87 +779,89 @@ def main():
 
     args = parser.parse_args()
 
-    if args.kernel and args.nokernel:
+    if args.installer and args.no_installer:
         abort(
-            "You seem to be having trouble deciding whether you want the kernel installer or not"
+            "You seem to be having trouble deciding whether you want the kernel installer or not: --installer // --no-installer"
         )
-    if args.device and args.generic:
-        abort("The device and generic switches are mutually exclusive")
+    if args.kernel and args.generic:
+        abort('The device and generic switches are mutually exclusive: --device // --generic')
 
-    if args.device:
-        if args.device in devicenames:
-            Device = args.device
+    if args.kernel:
+        if args.kernel in kernels:
+            for element in yml:
+                for device_model in element.keys():
+                    for k in element[device_model].get('kernels', default):
+                        if args.kernel == k.get('id', default):
+                            YAML = k
+                            kernel = args.kernel
         else:
-            abort("Device %s not found in %s" % (args.device, devices_cfg))
+            abort('kernel %s not found in %s' % (args.kernel, devices_yml))
     elif args.generic:
-        Arch = args.generic
-        Device = "generic"
-        setuparch()
-    elif args.forcedown:
+        arch = args.generic
+        kernel = "generic"
+    elif args.force_download:
+        print('[i] Only downloading external resources')
+        allapps(True)
         if args.supersu:
             supersu(True, supersu_beta)
-        allapps(True)
+        if args.rootfs:
+            rootfs(args.force_download, args.rootfs)
         done()
     elif not args.uninstaller:
-        abort("No valid arguments supplied. Try -h or --help")
-
-    Flasher = readkey("flasher")
-    Flasher = Flasher.replace('"', "")
-    print("Flasher: " + Flasher)
-
-    Resolution = readkey("resolution")
-    Resolution = Resolution.replace('"', "")
-    print("Resolution: " + Resolution)
+        abort('No valid arguments supplied. Try -h or --help')
 
     # If we found a device, set architecture and parse android OS release
-    if args.device:
-        Arch = readkey("arch", "armhf")
-        setuparch()
-
+    if args.kernel:
         i = 0
         if args.kitkat:
-            OS = "kitkat"
+            android = "kitkat"
             i += 1
         if args.lollipop:
-            OS = "lollipop"
+            android = "lollipop"
             i += 1
         if args.marshmallow:
-            OS = "marshmallow"
+            android = "marshmallow"
             i += 1
         if args.nougat:
-            OS = "nougat"
+            android = "nougat"
             i += 1
         if args.oreo:
-            OS = "oreo"
+            android = "oreo"
             i += 1
         if args.pie:
-            OS = "pie"
+            android = "pie"
             i += 1
         if args.ten:
-            OS = "ten"
+            android = "ten"
             i += 1
         if args.eleven:
-            OS = "eleven"
+            android = "eleven"
             i += 1
         if args.twelve:
-            OS = "twelve"
+            android = "twelve"
             i += 1
         if args.thirteen:
-            OS = "thirteen"
+            android = "thirteen"
             i += 1
         if args.fourteen:
-            OS = "fourteen"
+            android = "fourteen"
             i += 1
         if args.wearos:
-            OS = "wearos"
+            android = "wearos"
             i += 1
         if i == 0:
-            abort(
-                "Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --thirteen, --fourteen, --wearos"
-            )
+            android = scan_kernel_image()
+
+            if android:
+                print("[*] Auto selecting kernel image: " + android)
+            else:
+                abort(
+                    "Missing Android version"
+                )
         elif i > 1:
+            scan_kernel_image()
             abort(
-                "Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie, --ten, --eleven, --twelve, --thirteen, --fourteen, --wearos"
+                "Select only one Android version, not " + str(i)
             )
 
         if args.rootfs and not (
@@ -822,50 +871,133 @@ def main():
                 "Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano"
             )
 
+
+    #
+    # Read arguments
+    #
+
+    kernelstring = readkey("kernelstring", "NetHunter kernel")
+    devicenames = readkey("devicenames")
+    arch = readkey("arch", "armhf")
+    flasher = readkey("flasher", "LazyFlasher")
+    x = 'auto' if flasher == "anykernel" else 'gzip'
+    ramdisk = readkey("ramdisk", x)
+    resolution = readkey("resolution")
+    block = readkey("block")
+    version = readkey("version", "1.0")
+    supersu = readkey("supersu", "auto") # REF: See commit 922bea58931a50299e159d222285792303e69005
+    modules = readkey("modules", "0")
+    slot_device = readkey("slot_device", "1")
+    author = readkey("author", "Unknown")
+
+    #
+    # Feedback
+    #
+
+    # Feedback about command line arguments
+    if args.generic:
+        print("[i] Generic image: true")
+    if args.kernel:
+        print("[i] Kernel ID: " + kernel)
+
+    print("[i] Android version: " + android)
+
+    if args.force_download:
+        print("[i] Force downloading external resources: true")
+
+    if args.uninstaller:
+        print("[i] Create additional uninstaller: true")
+
+    if args.installer:
+        print("[i] Kernel installer only: true")
+    if args.no_installer:
+        print("[i] Skip kernel installer: true")
+
+    if args.no_branding:
+        print("[i] Skip branding: true")
+
+    if args.no_freespace_check:
+        print("[i] Disable freespace check: true")
+
+    if args.supersu:
+        print("[i] Include SuperSU: true")
+        print("[i] SuperSU beta: " + supersu_beta)
+
+    x = args.release if args.release else TimeStamp
+    print("[i] NetHunter release version: " + x)
+
+    x = args.rootfs if args.rootfs else '-'
+    print("[i] rootfs: " + x)
+
+    # Feedback with values from ./devices.yml
+    print("[i] From: " + devices_yml)
+    print("[i]   kernelstring: " + kernelstring)
+    x = devicenames if devicenames else '-'
+    x = x.split(",") if flasher == "anykernel" else x
+    print("[i]   devicenames : " + x)
+    print("[i]   arch        : " + arch)
+    print("[i]   flasher     : " + flasher)
+    print("[i]   ramdisk     : " + ramdisk)
+    x = resolution if resolution else '-'
+    print("[i]   resolution  : " + x)
+    x = block if block else '-'
+    print("[i]   block       : " + x)
+    print("[i]   version     : " + version)
+    x = supersu if supersu else '-'
+    print("[i]   supersu     : " + x)
+    if flasher == "anykernel":
+        print("[i]   modules     : " + modules)
+        print("[i]   slot_device : " + slot_device)
+    print("[i]   author      : " + author)
+
+    #
+    # Do actions
+    #
+
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
-        if args.release:
-            file_name = "uninstaller-nethunter-" + args.release + ".zip"
-        else:
-            file_name = "uninstaller-nethunter-" + TimeStamp + ".zip"
+        x = args.release if args.release else TimeStamp
+        file_name = "uninstaller-nethunter-%s.zip" % x
 
         zip("uninstaller", file_name)
 
-        print("Created uninstaller: " + file_name)
+        print("[+] Created uninstaller: " + file_name)
 
     # If no device or generic arch is specified, we are done
-    if not (args.device or args.generic):
+    if not (args.kernel or args.generic):
+        print('[i] Not creating device model or generic image')
         done()
 
     # We don't need the apps or SuperSU if we are only building the kernel installer
-    if not args.kernel:
-        allapps(args.forcedown)
+    if not args.installer:
+        allapps(args.force_download)
         # Download SuperSU if we want it
         if args.supersu:
-            supersu(args.forcedown, supersu_beta)
+            supersu(args.force_download, supersu_beta)
 
     # Download Kali rootfs if we are building a zip with the chroot environment included
     if args.rootfs:
-        rootfs(args.forcedown, args.rootfs)
+        rootfs(args.force_download, args.rootfs)
 
     # Set file name tag depending on the options chosen
     if args.release:
         file_tag = args.release
     else:
         file_tag = TimeStamp
-    file_tag += "-" + Device
-    if args.device:
-        file_tag += "-" + OS
+    file_tag += "-" + kernel
+    if args.kernel:
+        file_tag += "-" + android
     else:
-        file_tag += "-" + Arch
-    if args.nobrand and not args.kernel:
-        file_tag += "-nobrand"
+        file_tag += "-" + arch
+    if args.no_branding and not args.installer:
+        file_tag += "-nobranding"
     if args.supersu:
         file_tag += "-rooted"
     if args.rootfs:
         file_tag += "-kalifs-" + args.rootfs
+
     # Don't include wallpaper or boot animation if --nobrand is specified
-    if args.nobrand:
+    if args.no_branding:
         IgnoredFiles.append("wallpaper")
         IgnoredFiles.append("bootanimation.zip")
 
@@ -875,27 +1007,27 @@ def main():
         IgnoredFiles.append("bootanimation.zip")
         IgnoredFiles.append("NetHunterStorePrivilegedExtension.apk")
         IgnoredFiles.append("NetHunterStore.apk")
-        if args.device == "ticwatchpro":
+        if args.kernel == "ticwatchpro":
             IgnoredFiles.append("NetHunterKeX.apk")
     # Don't include wearos bootanimation by default
     else:
         IgnoredFiles.append("bootanimation_wearos.zip")
 
     # Don't include free space script if --nofreespace is specified
-    if args.nofreespace:
+    if args.no_freespace_check:
         IgnoredFiles.append("freespace.sh")
 
     # Don't set up the kernel installer if --nokernel is specified
-    if not args.nokernel:
+    if not args.no_installer:
         setupkernel()
 
         # Build a kernel installer zip and exit if --kernel is specified
-        if args.kernel:
-            file_name = "kernel-nethunter-" + file_tag + ".zip"
+        if args.installer:
+            file_name = "kernel-nethunter-%s.zip" % file_tag
 
-            zip(os.path.join("tmp_out", "boot-patcher"), file_name)
+            zip(os.path.join(tmp_path, "boot-patcher"), file_name)
 
-            print("Created kernel installer: " + file_name)
+            print("[+] Created kernel installer: " + file_name)
             done()
 
     # Don't include SuperSU unless --supersu is specified
@@ -903,24 +1035,24 @@ def main():
         IgnoredFiles.append("supersu.zip")
 
     # Set up the update zip
-    setupupdate()
+    setupnethunter()
 
     # Change bootanimation folder for product partition devices
-    if Device.find("oneplus8") == 0:
+    if kernel.find("oneplus8") == 0:
         shutil.copytree(
-            os.path.join("tmp_out", "system", "media"),
-            os.path.join("tmp_out", "product", "media"),
+            os.path.join(tmp_path, "system", "media"),
+            os.path.join(tmp_path, "product", "media"),
             dirs_exist_ok=True,
         )
-        shutil.rmtree(os.path.join("tmp_out", "system", "media"))
+        shutil.rmtree(os.path.join(tmp_path, "system", "media"))
 
     file_prefix = ""
     if not args.rootfs:
         file_prefix += "update-"
 
-    file_name = file_prefix + "nethunter-" + file_tag + ".zip"
+    file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
 
-    zip("tmp_out", file_name)
+    zip(tmp_path, file_name)
 
     # Add the Kali rootfs archive if --rootfs is specified
     if args.rootfs:
@@ -933,7 +1065,7 @@ def main():
         )
         os.system(bootanimation_rename)
 
-    print("Created Kali NetHunter installer: " + file_name)
+    print("[+] Created Kali NetHunter installer: " + file_name)
     done()
 
 
