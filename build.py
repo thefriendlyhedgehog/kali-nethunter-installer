@@ -413,15 +413,14 @@ def setupkernel():
             ),
         )
         # Set up variables in the anykernel script
-        devicenames = readkey("devicenames")
         configfile(
             os.path.join(out_path, "anykernel.sh"),
             {
-                "kernel.string": readkey("kernelstring", "NetHunter kernel"),
-                "do.modules": readkey("modules", "0"),
-                "block": readkey("block") + ";",
-                "is_slot_device": readkey("slot_device", "1") + ";",
-                "ramdisk_compression": readkey("ramdisk", "auto") + ";",
+                "kernel.string": kernelstring,
+                "do.modules": modules,
+                "block": block + ";",
+                "is_slot_device": slot_device + ";",
+                "ramdisk_compression": ramdisk + ";",
             },
             True,
         )
@@ -435,9 +434,9 @@ def setupkernel():
         configfile(
             os.path.join(out_path, "banner"),
             {
-                "   Kernel": readkey("kernelstring", "NetHunter kernel"),
-                "   Version": readkey("version", "1.0"),
-                "   Author": readkey("author", "Unknown"),
+                "   Kernel": kernelstring,
+                "   Version": version,
+                "   Author": author,
             },
             True,
         )
@@ -449,10 +448,10 @@ def setupkernel():
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
             {
-                "kernel_string": readkey("kernelstring", "NetHunter kernel"),
-                "kernel_author": readkey("author", "Unknown"),
-                "kernel_version": readkey("version", "1.0"),
-                "device_names": readkey("devicenames"),
+                "kernel_string": kernelstring,
+                "kernel_author": author,
+                "kernel_version": version,
+                "device_names": devicenames,
             },
         )
 
@@ -461,8 +460,8 @@ def setupkernel():
         configfile(
             os.path.join(out_path, "boot-patcher.sh"),
             {
-                "boot_block": readkey("block"),
-                "ramdisk_compression": readkey("ramdisk", "gzip"),
+                "boot_block": block,
+                "ramdisk_compression": ramdisk,
             },
         )
 
@@ -574,7 +573,7 @@ def setupnethunter():
     print("[i] NetHunter: Configuring installer script for " + kernel)
     configfile(
         os.path.join(tmp_path, "META-INF", "com", "google", "android", "update-binary"),
-        {"supersu": readkey("supersu")},
+        {"supersu": supersu},
     )
 
     # Overwrite screen resolution if defined in devices.yml
@@ -653,15 +652,23 @@ def yaml_parse(data):
 
 def main():
     global YAML
+    global IgnoredFiles
+    global args
+    global devices_yml
     global kernel
     global arch
     global android
-    global IgnoredFiles
-    global TimeStamp
+    global kernelstring
     global flasher
     global resolution
-    global args
-    global devices_yml
+    global devicenames
+    global ramdisk
+    global block
+    global version
+    global modules
+    global slot_device
+    global author
+    global supersu
 
     supersu_beta = False
 
@@ -803,8 +810,6 @@ def main():
 
     # If we found a device, set architecture and parse android OS release
     if args.kernel:
-        arch = readkey("arch", "armhf")
-
         i = 0
         if args.kitkat:
             android = "kitkat"
@@ -865,13 +870,35 @@ def main():
             )
 
 
+    #
+    # Read arguments
+    #
+
+    kernelstring = readkey("kernelstring", "NetHunter kernel")
+    devicenames = readkey("devicenames")
+    arch = readkey("arch", "armhf")
+    flasher = readkey("flasher", "LazyFlasher")
+    x = 'auto' if flasher == "anykernel" else 'gzip'
+    ramdisk = readkey("ramdisk", x)
+    resolution = readkey("resolution")
+    block = readkey("block")
+    version = readkey("version", "1.0")
+    supersu = readkey("supersu", "auto") # REF: See commit 922bea58931a50299e159d222285792303e69005
+    modules = readkey("modules", "0")
+    slot_device = readkey("slot_device", "1")
+    author = readkey("author", "Unknown")
+
+    #
+    # Feedback
+    #
+
+    # Feedback about command line arguments
     if args.generic:
         print("[i] Generic image: true")
     if args.kernel:
-        print("[i] kernel module image: " + kernel)
+        print("[i] Kernel ID: " + kernel)
 
-    x = android if android else '-'
-    print("[i] Android version: " + x)
+    print("[i] Android version: " + android)
 
     if args.force_download:
         print("[i] Force downloading external resources: true")
@@ -898,17 +925,32 @@ def main():
     print("[i] NetHunter release version: " + x)
 
     x = args.rootfs if args.rootfs else '-'
-    print("[i] rootfs    : " + x)
+    print("[i] rootfs: " + x)
 
-    flasher = readkey("flasher")
-    flasher = flasher.replace('"', "")
-    x = flasher if flasher else 'LazyFlasher'
-    print("[i] flasher   : " + x)
-
-    resolution = readkey("resolution")
-    resolution = resolution.replace('"', "")
+    # Feedback with values from ./devices.yml
+    print("[i] From: " + devices_yml)
+    print("[i]   kernelstring: " + kernelstring)
+    x = devicenames if devicenames else '-'
+    x = x.split(",") if flasher == "anykernel" else x
+    print("[i]   devicenames : " + x)
+    print("[i]   arch        : " + arch)
+    print("[i]   flasher     : " + flasher)
+    print("[i]   ramdisk     : " + ramdisk)
     x = resolution if resolution else '-'
-    print("[i] resolution: " + x)
+    print("[i]   resolution  : " + x)
+    x = block if block else '-'
+    print("[i]   block       : " + x)
+    print("[i]   version     : " + version)
+    x = supersu if supersu else '-'
+    print("[i]   supersu     : " + x)
+    if flasher == "anykernel":
+        print("[i]   modules     : " + modules)
+        print("[i]   slot_device : " + slot_device)
+    print("[i]   author      : " + author)
+
+    #
+    # Do actions
+    #
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
