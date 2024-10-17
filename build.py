@@ -326,7 +326,7 @@ def readkey(key, default=""):
         return default
 
 
-def configfile(file_name, values):
+def configfile(file_name, values, pure=False):
     print("[+] Updating: " + file_name)
 
     # Open file as read only and copy to string
@@ -340,34 +340,10 @@ def configfile(file_name, values):
         if value and not (
             value[0] == value[-1] and (value[0] == '"' or value[0] == "'")
         ):
+            if pure:
+                value = "%s" % value
+            else:
             value = '"%s"' % value
-
-        file_string = re.sub(
-            "^" + re.escape(key) + "=.*$", key + "=" + value, file_string, flags=re.M
-        )
-
-    # Open file as writable and save the updated values
-    file_handle = open(file_name, "w")
-    file_handle.write(file_string)
-    file_handle.close()
-
-
-def configfile_pure(file_name, values):
-    print("[+] Updating: " + file_name)
-
-    # Same as "configfile" but without apostrophies
-    # Open file as read only and copy to string
-    file_handle = open(file_name, "r")
-    file_string = file_handle.read()
-    file_handle.close()
-
-    # Replace values of variables
-    for key, value in values.items():
-        # Quote value if not already quoted
-        if value and not (
-            value[0] == value[-1] and (value[0] == '"' or value[0] == "'")
-        ):
-            value = "%s" % value
 
         file_string = re.sub(
             "^" + re.escape(key) + "=.*$", key + "=" + value, file_string, flags=re.M
@@ -383,7 +359,6 @@ def setupkernel():
     global Config
     global Device
     global OS
-    global LibDir
     global Flasher
     global args
     global devices_yml
@@ -439,7 +414,7 @@ def setupkernel():
         )
         # Set up variables in the anykernel script
         devicenames = readkey("devicenames")
-        configfile_pure(
+        configfile(
             os.path.join(out_path, "anykernel.sh"),
             {
                 "kernel.string": readkey("kernelstring", "NetHunter kernel"),
@@ -448,21 +423,23 @@ def setupkernel():
                 "is_slot_device": readkey("slot_device", "1") + ";",
                 "ramdisk_compression": readkey("ramdisk", "auto") + ";",
             },
+            True,
         )
         i = 1
         for devicename in devicenames.split(","):
             print('[i] AnyKernel3 devicename: ' + devicename)
             key = "device.name" + str(i)
-            configfile_pure(os.path.join(out_path, "anykernel.sh"), {key: devicename})
+            configfile(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
             i += 1
 
-        configfile_pure(
+        configfile(
             os.path.join(out_path, "banner"),
             {
                 "   Kernel": readkey("kernelstring", "NetHunter kernel"),
                 "   Version": readkey("version", "1.0"),
                 "   Author": readkey("author", "Unknown"),
             },
+            True,
         )
 
     else:
@@ -610,7 +587,7 @@ def setupupdate():
     print("[+] Finished setting up NetHunter")
 
 
-def cleanup(domsg):
+def cleanup(domsg=False):
     if os.path.exists(tmp_path):
         if domsg:
             print("[i] Removing temporary build directory:" + tmp_path)
@@ -618,7 +595,7 @@ def cleanup(domsg):
 
 
 def done():
-    cleanup(False)
+    cleanup()
     exit(0)
 
 
@@ -626,18 +603,6 @@ def abort(err):
     print("[-] Error: " + err, file=sys.stderr)
     cleanup(True)
     exit(1)
-
-
-def setuparch():
-    global Arch
-    global LibDir
-
-    if Arch == "armhf" or Arch == "i386":
-        LibDir = os.path.join("system", "lib")
-    elif Arch == "arm64" or Arch == "amd64":
-        LibDir = os.path.join("system", "lib64")
-    else:
-        abort('Unknown device architecture: ' + Arch)
 
 
 def scan_kernel_image():
@@ -691,7 +656,6 @@ def main():
     global Device
     global Arch
     global OS
-    global LibDir
     global IgnoredFiles
     global TimeStamp
     global Flasher
@@ -827,7 +791,6 @@ def main():
     elif args.generic:
         Arch = args.generic
         Device = "generic"
-        setuparch()
     elif args.force_download:
         print('[i] Only downloading external resources')
         allapps(True)
@@ -842,7 +805,6 @@ def main():
     # If we found a device, set architecture and parse android OS release
     if args.device:
         Arch = readkey("arch", "armhf")
-        setuparch()
 
         i = 0
         if args.kitkat:
