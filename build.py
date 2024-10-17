@@ -281,11 +281,11 @@ def addrootfs(fs_size, dst):
 
     print("[i] Adding Kali rootfs archive to the installer zip")
 
+    try:
     fs_arch = arch
     fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_localpath = os.path.join("rootfs", fs_file)
 
-    try:
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
         zf.write(os.path.abspath(fs_localpath), fs_file)
         print("[+]   Added: " + fs_file)
@@ -321,6 +321,11 @@ def readkey(key, default=""):
     global YAML
     global kernel
     try:
+        # As 'author' is now in versions, need to go a little deeper
+        if key not in YAML:
+            for version in YAML.get('versions', default):
+                if android == version.get('android', default):
+                    return version.get(key, default).replace('"', "")
         return YAML.get(key, default)
     except:
         return default
