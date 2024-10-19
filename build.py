@@ -388,7 +388,7 @@ def setupkernel():
 
     if kernel == "generic":
         # Set up variables in the kernel installer script
-        print("[i] Kernel: Configuring installer script for generic %s devices" % arch)
+        print("[i] Kernel: Configuring installer script for generic %s kernel" % arch)
         configfile(
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
@@ -472,7 +472,7 @@ def setupkernel():
 
     scan_kernel_image()
 
-    device_path = os.path.join("devices", android, kernel)
+    device_path = os.path.join("kernels", android, kernel)
 
     # Copy kernel image from version/device to boot-patcher folder
     kernel_images = [
@@ -614,17 +614,17 @@ def scan_kernel_image():
     android_suggestion = ""
     i = 0
 
-    print("[+] Searching for kernel images for device model: " + kernel)
-    subdirectories = [ x.path for x in os.scandir("devices") if x.is_dir() and not x.path.startswith('{}.'.format("devices/"))]
+    print("[+] Searching for kernel: " + kernel)
+    subdirectories = [ x.path for x in os.scandir("kernels") if x.is_dir() and not x.path.startswith('{}.'.format("kernels/"))]
     # Remove non Android version directories
-    subdirectories.remove('{}bin'.format("devices/"))
-    subdirectories.remove('{}example_scripts'.format("devices/"))
-    subdirectories.remove('{}patches'.format("devices/"))
+    subdirectories.remove('{}bin'.format("kernels/"))
+    subdirectories.remove('{}example_scripts'.format("kernels/"))
+    subdirectories.remove('{}patches'.format("kernels/"))
 
     for android_version_dir in subdirectories:
         android_version_dir = android_version_dir.lower()
-        android_version_dir = android_version_dir.replace("devices/", "")
-        scan_path = os.path.join("devices", android_version_dir, kernel)
+        android_version_dir = android_version_dir.replace("kernels/", "")
+        scan_path = os.path.join("kernels", android_version_dir, kernel)
         if os.path.exists(scan_path):
             print("[+]   Found matching Android version kernel image: " + scan_path)
             i += 1
@@ -677,7 +677,7 @@ def main():
 
     supersu_beta = False
     IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
-    devices_yml = os.path.join("devices", "devices.yml")
+    devices_yml = os.path.join("kernels", "devices.yml")
     t = datetime.datetime.now()
     TimeStamp = "%04d%02d%02d_%02d%02d%02d" % (
         t.year,
