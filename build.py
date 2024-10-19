@@ -141,7 +141,6 @@ def download(url, file_name, verify_sha):
 
             status = status + chr(8) * (len(status) + 1)
             print(status + "\r", end="")
-        print()
         download_ok = True
     except requests.exceptions.RequestException as e:
         print()
@@ -886,8 +885,8 @@ def main():
     block = readkey("block")
     version = readkey("version", "1.0")
     supersu = readkey("supersu", "auto") # REF: See commit 922bea58931a50299e159d222285792303e69005
-    modules = readkey("modules", "0")
-    slot_device = readkey("slot_device", "1")
+    modules = str(readkey("modules", "0"))
+    slot_device = str(readkey("slot_device", "1"))
     author = readkey("author", "Unknown")
 
     #
@@ -929,12 +928,12 @@ def main():
     x = args.rootfs if args.rootfs else '-'
     print("[i] rootfs: " + x)
 
-    # Feedback with values from ./devices.yml
+    # Feedback with values from devices.yml
     print("[i] From: " + devices_yml)
     print("[i]   kernelstring: " + kernelstring)
     x = devicenames if devicenames else '-'
     x = x.split(",") if flasher == "anykernel" else x
-    print("[i]   devicenames : " + x)
+    print("[i]   devicenames : " , x)
     print("[i]   arch        : " + arch)
     print("[i]   flasher     : " + flasher)
     print("[i]   ramdisk     : " + ramdisk)

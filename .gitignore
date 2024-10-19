@@ -1,7 +1,21 @@
-.DS_Store
+## ./build.py - External Android apps
 update/data/app/*.apk
 update/supersu.zip
-tmp_out
-build-*.sh
+
+## ./build.py - Working path
+tmp_out/
+
+## ./build.py - output
 *.zip
+
+## ./bootstrap.sh - https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels
 kernels/
+
+## ./generate-release.py - output
+release-*.sh
+
+## Python virtual environments
+.env/
+
+## OS - macOS
+.DS_Store
