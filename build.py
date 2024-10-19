@@ -282,9 +282,9 @@ def addrootfs(fs_size, dst):
     print("[i] Adding Kali rootfs archive to the installer zip")
 
     try:
-    fs_arch = arch
-    fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
-    fs_localpath = os.path.join("rootfs", fs_file)
+        fs_arch = arch
+        fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
+        fs_localpath = os.path.join("rootfs", fs_file)
 
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
         zf.write(os.path.abspath(fs_localpath), fs_file)
@@ -349,7 +349,7 @@ def configfile(file_name, values, pure=False):
             if pure:
                 value = "%s" % value
             else:
-            value = '"%s"' % value
+                value = '"%s"' % value
 
         file_string = re.sub(
             "^" + re.escape(key) + "=.*$", key + "=" + value, file_string, flags=re.M
