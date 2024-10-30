@@ -730,6 +730,7 @@ def main():
     parser.add_argument("--twelve", "-12", action="store_true", help="Android 12")
     parser.add_argument("--thirteen", "-13", action="store_true", help="Android 13")
     parser.add_argument("--fourteen", "-14", action="store_true", help="Android 14")
+    parser.add_argument("--fifteen", "-15", action="store_true", help="Android 15")
     parser.add_argument("--wearos", "-w", action="store_true", help="Wear OS")
     parser.add_argument(
         "--rootfs",
@@ -844,6 +845,9 @@ def main():
             i += 1
         if args.fourteen:
             android = "fourteen"
+            i += 1
+        if args.fifteen:
+            android = "fifteen"
             i += 1
         if args.wearos:
             android = "wearos"
