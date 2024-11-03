@@ -401,7 +401,7 @@ def setupkernel():
 
     if flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
-        x = "update-binary-anykernel_only" if args.installer else "update-binary-anykernel"
+        x = "update-binary-anykernel_only" if not args.no_installer else "update-binary-anykernel"
         print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
         shutil.move(
             os.path.join(
@@ -573,6 +573,9 @@ def setupnethunter():
     print("[i] NetHunter: Copying %s arch specific update files" % arch)
     copytree(os.path.join("update", "arch", arch), tmp_path)
 
+    print("[i] NetHunter: Copying kernel zip")
+    copytree("kernel", tmp_path)
+
     # Set up variables in update-binary script
     print("[i] NetHunter: Configuring installer script for " + kernel)
     configfile(
@@ -587,15 +590,14 @@ def setupnethunter():
         file_handle.write(resolution)
         file_handle.close()
 
-    print("[+] Finished setting up NetHunter")
-
+    setupkernel()
+    zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
 
 def cleanup(domsg=False):
     if os.path.exists(tmp_path):
         if domsg:
             print("[i] Removing temporary build directory: " + tmp_path)
         shutil.rmtree(tmp_path)
-
 
 def done():
     cleanup()

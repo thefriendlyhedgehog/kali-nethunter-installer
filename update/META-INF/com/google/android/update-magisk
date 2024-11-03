@@ -258,6 +258,26 @@ do_install() {
     return 0
 }
 
+do_flash() {
+    ui_print "Found Kali kernel to be installed: $KERNEL"
+    unzip -p "$ZIPFILE" "$KERNEL" >"$KERNEL"
+    busybox sh $TMP/tools/magic-flash "$KERNEL" | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
+}
+
+flash_kernel() {
+    # Check zip for kernel-* first
+    [ -e "$ZIPFILE" ] && {
+        KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
+#        # Check other locations if zip didn't contain a kernel-*
+        [ "$KERNEL" ] || {
+            ui_print "No kernel found. Skipping...."
+            return
+        }
+        do_flash
+    }
+
+}
+
 do_chroot() {
     # Chroot Common Path    
     NHSYS=/data/local/nhsystem
@@ -268,7 +288,7 @@ do_chroot() {
         KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
         # Check other locations if zip didn't contain a kalifs-*
         [ "$KALIFS" ] || {
-            ui_print "No Kali rootfs found.Aborting...."
+            ui_print "No Kali rootfs found. Skipping...."
             return
         }
     
@@ -488,6 +508,9 @@ set_perm_recursive "$BIN" 0 0 0755 0755
 # Adding required permissions for NetHunter app
 ui_print "Granting required permissions to NetHunter app"
 sh $TMP/tools/nh_perm.sh
+
+# Install kernel
+flash_kernel;
 
 # Install chroot
 do_chroot;
