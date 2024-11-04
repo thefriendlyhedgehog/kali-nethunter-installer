@@ -63,7 +63,7 @@ symlink() {
 set_wallpaper() {
     [ -d $TMP/wallpaper ] || return 1
     ui_print "Installing NetHunter wallpaper";
- 	
+
     #Define wallpaper Variables
     wp=/data/system/users/0/wallpaper
     wpinfo=${wp}_info.xml

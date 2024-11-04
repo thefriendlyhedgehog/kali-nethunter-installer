@@ -9,26 +9,26 @@ console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 print() {
-	echo "ui_print - $1" > $console
-	echo
+  echo "ui_print - $1" > $console
+  echo
 }
 
 sutmp=$1
 supersu=$2
 
 if [ "$supersu" = "systemless" ]; then
-	print "Installing SuperSU in systemless mode"
-	cat <<EOF > "/system/.supersu"
+  print "Installing SuperSU in systemless mode"
+  cat <<EOF > "/system/.supersu"
 SYSTEMLESS=true
 EOF
 elif [ "$supersu" = "system" ]; then
-	print "Installing SuperSU in system mode"
-	cat <<EOF > "/system/.supersu"
+  print "Installing SuperSU in system mode"
+  cat <<EOF > "/system/.supersu"
 SYSTEMLESS=false
 EOF
 else
-	print "Installing SuperSU in automatic mode"
-	cat <<EOF > "/system/.supersu"
+  print "Installing SuperSU in automatic mode"
+  cat <<EOF > "/system/.supersu"
 SYSTEMLESS=detect
 EOF
 fi

@@ -9,8 +9,8 @@ console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 print() {
-	echo "ui_print - $1" > $console
-	echo
+  echo "ui_print - $1" > $console
+  echo
 }
 
 xbin=/system/xbin
@@ -32,6 +32,6 @@ ln -s $xbin/$busybox_nh busybox_nh
 $xbin/busybox_nh --install -s $xbin
 
 [ -e $xbin/busybox ] || {
-	print "$xbin/busybox not found! Symlinking..."
-	ln -s $xbin/busybox_nh $xbin/busybox
+  print "$xbin/busybox not found! Symlinking..."
+  ln -s $xbin/busybox_nh $xbin/busybox
 }

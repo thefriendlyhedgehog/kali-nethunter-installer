@@ -10,8 +10,8 @@ console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 print() {
-	echo "ui_print - $1" > $console
-	echo
+  echo "ui_print - $1" > $console
+  echo
 }
 
 get_bb() {
@@ -78,12 +78,12 @@ case $AndroidV in
 esac
 
 if [ -z $FreeSpace ]; then
-	print "Warning: Could not get free space status, continuing anyway!"
-	exit 0
+  print "Warning: Could not get free space status, continuing anyway!"
+  exit 0
 fi
 
 if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
-	exit 0
+  exit 0
 
 else
 print "Free space (before): $FreeSpace MB" 
@@ -97,34 +97,34 @@ print "Aborting Installation..."
 exit 1
 else
 for app in $MoveableApps; do
-	if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
-		break
-	fi
-	if [ -d "$SA/$app/" ]; then
-		if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
-			print "Removing $SA/$app/ (extra)"
-			rm -rf "$SA/$app/"
-		else
-			print "Moving $app/ to $DA"
-			mv "$SA/$app/" "$DA/"
-		fi
-	fi
-	if [ -f "$SA/$app.apk" ]; then
-		if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
-			print "Removing $SA/$app.apk (extra)"
-			rm -f "$SA/$app.apk"
-		else
-			print "Moving $app.apk to $DA"
-			mv "$SA/$app.apk" "$DA/"
-		fi
-	fi
+  if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
+    break
+  fi
+  if [ -d "$SA/$app/" ]; then
+    if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
+      print "Removing $SA/$app/ (extra)"
+      rm -rf "$SA/$app/"
+    else
+      print "Moving $app/ to $DA"
+      mv "$SA/$app/" "$DA/"
+    fi
+  fi
+  if [ -f "$SA/$app.apk" ]; then
+    if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
+      print "Removing $SA/$app.apk (extra)"
+      rm -f "$SA/$app.apk"
+    else
+      print "Moving $app.apk to $DA"
+      mv "$SA/$app.apk" "$DA/"
+    fi
+  fi
 done
 
 print "Free space (after): $FreeSpace MB"
 
 if [ ! "$FreeSpace" -gt "$SpaceRequired" ]; then
-	print "Unable to free up $SpaceRequired MB of space on '$MNT'!"
-	exit 1
+  print "Unable to free up $SpaceRequired MB of space on '$MNT'!"
+  exit 1
 fi
 
 exit 0

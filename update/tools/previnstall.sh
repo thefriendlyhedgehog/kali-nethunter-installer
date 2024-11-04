@@ -12,8 +12,8 @@ console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 print() {
-	echo "ui_print - $1" > $console
-	echo
+  echo "ui_print - $1" > $console
+  echo
 }
 
 NH=/data/local/kali-$ARCH
@@ -25,11 +25,11 @@ rm -rf "$NHSYS/dev/"* "$NHAPP/dev/"* "$NH/dev/"*
 
 # We probably don't want two old chroots in the same folder, so pick newer location in /data/local first
 if [ -d "$NH" ]; then
-	print "Detected previous install of Kali $ARCH, moving chroot..."
-	mv "$NH" "$NHSYS"
+  print "Detected previous install of Kali $ARCH, moving chroot..."
+  mv "$NH" "$NHSYS"
 elif [ -d "$NHAPP" ]; then
-	print "Detected previous install of Kali $ARCH, moving chroot..."
-	mv "$NHAPP" "$NHSYS"
+  print "Detected previous install of Kali $ARCH, moving chroot..."
+  mv "$NHAPP" "$NHSYS"
 fi
 
 # Just to be safe lets remove old version of NetHunter app
