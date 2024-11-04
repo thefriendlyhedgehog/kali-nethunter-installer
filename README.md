@@ -13,10 +13,6 @@ About these files:
 
 - `build.py` will create a one off image
 - `prep-release.py` will create a bash script (`./build-<release>.sh`) to generate multiple images, each time calling `./build.py <...>` prep-release is used by the Kali developers for their quarterly releases and serve no other purpose
-
-- [kernel-installer-script.sh](boot-patcher/META-INF/com/google/android/update-binary) - Kali NetHunter kernel installer backend
-- [uninstaller-script.sh](uninstaller/META-INF/com/google/android/update-binary) - Kali NetHunter uninstaller
-- [update-script.sh](update/META-INF/com/google/android/update-binary) - Kali NetHunter installer
 -->
 
 ## Instructions
