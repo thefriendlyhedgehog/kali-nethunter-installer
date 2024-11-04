@@ -1,6 +1,11 @@
 #!/sbin/sh
 # Check for previous install of Kali Chroot
 
+print() {
+  echo "ui_print - $1" > $console
+  echo
+}
+
 tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 . "$tmp/env.sh"
@@ -10,11 +15,6 @@ ARCH=armhf
 
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
-
-print() {
-  echo "ui_print - $1" > $console
-  echo
-}
 
 NH=/data/local/kali-$ARCH
 NHAPP=/data/data/com.offsec.nethunter/files/chroot/kali-$ARCH
@@ -35,8 +35,8 @@ fi
 # Just to be safe lets remove old version of NetHunter app
 rm -rf /data/data/com.offsec.nethunter
 rm -rf /data/app/com.offsec.nethunter
-rm -f /data/app/NetHunter.apk
-rm -f /data/app/nethunter.apk
+rm -f  /data/app/NetHunter.apk
+rm -f  /data/app/nethunter.apk
 rm -rf /system/app/NetHunter
 
 sleep 3

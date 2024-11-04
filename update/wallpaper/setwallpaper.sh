@@ -1,6 +1,11 @@
 #!/sbin/sh
 # Set the wallpaper based on device screen resolution
 
+print() {
+  echo "ui_print - $1" > "$console"
+  echo
+}
+
 tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 cd "$tmp"
@@ -12,11 +17,6 @@ wpinfo=${wp}_info.xml
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
-print() {
-  echo "ui_print - $1" > "$console"
-  echo
-}
-
 #Try to Grab the Wallpaper Height and Width from /sys 
 res_w=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f1 -dx)
 res_h=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f2 -dx)
@@ -24,23 +24,22 @@ res_h=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f2 -dx)
 res="$res_w"x"$res_h" #Resolution Size
 
 #check if we grabbed Resolution from /sys or not
-if [ -z $res_h ] || [ -z $res_w ];then
-unset res res_h res_w
+if [ -z $res_h ] || [ -z $res_w ]; then
+  unset res res_h res_w
 
-res=$(tools/screenres) #Try the old method for old devices
+  res=$(tools/screenres) #Try the old method for old devices
 
-if [ ! "$res" ] || [[ "$res" == *"failed"* ]] || [ -f "wallpaper/resolution.txt" ]; then
-  if [ -f "wallpaper/resolution.txt" ]; then
-    res=$(cat wallpaper/resolution.txt)
-  else
-              print "Can't get screen resolution from kernel! Skipping..."
-          exit 1
+  if [ ! "$res" ] || [[ "$res" == *"failed"* ]] || [ -f "wallpaper/resolution.txt" ]; then
+    if [ -f "wallpaper/resolution.txt" ]; then
+      res=$(cat wallpaper/resolution.txt)
+    else
+      print "Can't get screen resolution from kernel! Skipping..."
+      exit 1
+    fi
   fi
-fi
 
-res_w=$(echo "$res" | cut -f1 -dx)
-res_h=$(echo "$res" | cut -f2 -dx)
-
+  res_w=$(echo "$res" | cut -f1 -dx)
+  res_h=$(echo "$res" | cut -f2 -dx)
 fi
 
 print "Found screen resolution: $res"
@@ -67,4 +66,3 @@ fi
 print "NetHunter wallpaper applied successfully"
 
 exit 0
-

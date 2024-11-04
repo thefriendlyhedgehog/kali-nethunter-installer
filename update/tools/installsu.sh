@@ -1,17 +1,17 @@
 #!/sbin/sh
 # Install SuperSU in the specified mode
 
+print() {
+  echo "ui_print - $1" > $console
+  echo
+}
+
 tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 . "$tmp/env.sh"
 
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
-
-print() {
-  echo "ui_print - $1" > $console
-  echo
-}
 
 sutmp=$1
 supersu=$2

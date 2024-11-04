@@ -1,13 +1,12 @@
 #!/sbin/sh
 # Kali NetHunter installer
 
-## Detect bootmode.
+## Detect bootmode
 ## "BOOTMODE=true"  = Device has booted into system (NetHunter installated as Magisk module)
 ## "BOOTMODE=false" = Device has booted into recovery (NetHunter installed through TWRP)
 BOOTMODE=false;
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
 $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
-
 
 ###################################
 ##                               ##
@@ -16,73 +15,70 @@ $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMO
 ###################################
 
 if $BOOTMODE; then
+  #################
+  # Initialization
+  #################
+  umask 022
 
-    #################
-    # Initialization
-    #################
+  require_new_magisk() {
+    echo "*******************************"
+    echo " Please install Magisk v20.4+! "
+    echo "*******************************"
+    exit 1
+  }
 
-    umask 022
+  #########################
+  # Load util_functions.sh
+  #########################
+  OUTFD=$2
+  ZIPFILE=$3
 
-    require_new_magisk() {
-        echo "*******************************"
-        echo " Please install Magisk v20.4+! "
-        echo "*******************************"
-        exit 1
-    }
+  mount /data 2>/dev/null
 
-    #########################
-    # Load util_functions.sh
-    #########################
+  [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+  . /data/adb/magisk/util_functions.sh
+  [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
-    OUTFD=$2
-    ZIPFILE=$3
+  #########################
+  # Install module
+  #########################
+  rm -rf $TMPDIR
+  mkdir -p $TMPDIR
 
-    mount /data 2>/dev/null
+  setup_flashable
+  mount_partitions
+  api_level_arch_detect
 
-    [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
-    . /data/adb/magisk/util_functions.sh
-    [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
+  # Setup busybox and binaries
+  boot_actions
 
-    #########################
-    # Install module
-    #########################
-    rm -rf $TMPDIR
-    mkdir -p $TMPDIR
+  # Extract prop file
+  unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+  [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
-    setup_flashable
-    mount_partitions
-    api_level_arch_detect
+  MODDIRNAME=modules_update
+  MODID=$(grep_prop id $TMPDIR/module.prop)
+  MODNAME=$(grep_prop name $TMPDIR/module.prop)
+  MODAUTH=$(grep_prop author $TMPDIR/module.prop)
+  MODPATH=$NVBASE/$MODDIRNAME/$MODID
 
-    # Setup busybox and binaries
-    boot_actions
+  # Create mod paths
+  rm -rf $MODPATH
+  mkdir -p $MODPATH
 
-    # Extract prop file
-    unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
-    [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
+  ## Install NetHunter
+  unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
+  set_perm_recursive $MODPATH 0 0 0755 0644
+  [ -f $MODPATH/update-magisk ] && . $MODPATH/update-magisk
 
-    MODDIRNAME=modules_update
-    MODID=`grep_prop id $TMPDIR/module.prop`
-    MODNAME=`grep_prop name $TMPDIR/module.prop`
-    MODAUTH=`grep_prop author $TMPDIR/module.prop`
-    MODPATH=$NVBASE/$MODDIRNAME/$MODID
+  # Clean up
+  rm -rf $MODPATH/update-magisk \
+  $MODPATH/system/placeholder $MODPATH/customize.sh \
+  $MODPATH/README.md $MODPATH/.git*
+  rm -rf $TMPDIR
+  cd /
 
-    # Create mod paths
-    rm -rf $MODPATH
-    mkdir -p $MODPATH
-
-    ## Install NetHunter
-    unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
-    set_perm_recursive $MODPATH 0 0 0755 0644
-    [ -f $MODPATH/update-magisk ] && . $MODPATH/update-magisk
-
-    # Clean up
-    rm -rf $MODPATH/update-magisk \
-    $MODPATH/system/placeholder $MODPATH/customize.sh \
-    $MODPATH/README.md $MODPATH/.git*
-    rm -rf $TMPDIR
-    cd /
-
-    exit 0
+  exit 0
 fi
 
 ###################################
@@ -131,11 +127,11 @@ abort() {
 }
 
 cleanup() {
-    [ "$ZIPFILE" ] && {
-       rm /tmp/console 
-    }
-    cd $(dirname $tmp)
-    rm -rf $tmp
+  [ "$ZIPFILE" ] && {
+   rm /tmp/console
+  }
+  cd $(dirname $tmp)
+  rm -rf $tmp
 }
 
 install() {
@@ -198,7 +194,11 @@ setup_mountpoint() {
     $BB mkdir -p $1;
   fi;
 }
-is_mounted() { $BB mount | $BB grep -q " $1 "; }
+
+is_mounted() {
+  $BB mount | $BB grep -q " $1 ";
+}
+
 mount_apex() {
   [ -d /system_root/system/apex ] || return 1;
   local apex dest loop minorx num var;
@@ -322,6 +322,7 @@ mount_all() {
     fi;
   fi;
 }
+
 umount_all() {
   local mount;
   (if is_mounted /system; then
@@ -348,6 +349,7 @@ umount_all() {
     $BB umount -l /cache;
   fi) 2>/dev/null;
 }
+
 setup_env() {
   $BB mount -o bind /dev/urandom /dev/random;
   if [ -L /etc ]; then
@@ -368,6 +370,7 @@ setup_env() {
   OLD_LD_CFG=$LD_CONFIG_FILE;
   unset LD_LIBRARY_PATH LD_PRELOAD LD_CONFIG_FILE;
 }
+
 restore_env() {
   local dir;
   [ "$OLD_LD_PATH" ] && export LD_LIBRARY_PATH=$OLD_LD_PATH;
@@ -390,9 +393,9 @@ restore_env() {
 
 get_bb() {
     cd $tmp/tools
-    BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
-    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
-    chmod 755 $BB #make busybox executable
+    BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
+    BB=$tmp/tools/$BB_latest # Use NetHunter Busybox from tools
+    chmod 0755 $BB # make busybox executable
     echo $BB
     cd - >/dev/null
 }
@@ -403,7 +406,7 @@ install_recovery_bb() {
     cd $tmp/tools
 
     # Try to pick the latest version of busybox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
-    recovery_bb=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+    recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
     cp $recovery_bb busybox_tmp
     setperm 0755 0755 busybox_tmp
 
@@ -438,18 +441,18 @@ cd "$tmp"
 . ./env.sh
 
 [ -e /dev/block/mapper ] && {
-    print " "
-    print "********** Dynamic Device Detected **********"
-    print " "
-    print "This NetHunter package cannot be"
-    print "installed on this device via recovery"
-    print "Please Flash this file via Magisk Manager"
-    print "as Module And ensure, You have USB DEBUGGING"
-    print "enabled for using ADB"
-    print " "
-    print "******* NetHunter Installation failed *******"
-    cleanup 
-    exit 1
+  print " "
+  print "********** Dynamic Device Detected **********"
+  print " "
+  print "This NetHunter package cannot be"
+  print "installed on this device via recovery"
+  print "Please Flash this file via Magisk Manager"
+  print "as Module And ensure, You have USB DEBUGGING"
+  print "enabled for using ADB"
+  print " "
+  print "******* NetHunter Installation failed *******"
+  cleanup
+  exit 1
 }
 
 
@@ -457,10 +460,10 @@ progress 0.0
 print "Starting the installation"
 
 setperm 0755 0755 tools
-BB=$(get_bb) #get latest busybox
+BB=$(get_bb) # get latest busybox
 install_recovery_bb
 
-setup_env #setup environment for nethunter installation
+setup_env # setup environment for nethunter installation
 SYSTEM="/system" 
 
 progress 0.1
@@ -493,62 +496,60 @@ print "SDK Version: $SDK"
 print "Installing apps:"
 
 if [ $SDK -ge 26 ]; then
-    # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
-    print "- Installing NetHunter.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter
-    cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
-    # and NetHunterTerminal.apk because nethunter.apk depends on it
-    print "- Installing NetHunterTerminal.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter-Terminal
-    cp $tmp/data/app/NetHunterTerminal.apk ${SYSTEM}/app/NetHunter-Terminal/
-    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
-    ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
-    [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
-        mkdir -p /tmp/NetHunter-Terminal/
-        unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
-        mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
-    }
-    mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
-    mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
+  # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
+  print "- Installing NetHunter.apk"
+  mkdir -p ${SYSTEM}/app/NetHunter
+  cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
+  # and NetHunterTerminal.apk because nethunter.apk depends on it
+  print "- Installing NetHunterTerminal.apk"
+  mkdir -p ${SYSTEM}/app/NetHunter-Terminal
+  cp $tmp/data/app/NetHunterTerminal.apk ${SYSTEM}/app/NetHunter-Terminal/
+  unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
+  ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
+  [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
+    mkdir -p /tmp/NetHunter-Terminal/
+    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
+    mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
+  }
+  mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
+  mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
 
-    # and NetHunterKeX.apk because nethunter.apk depends on it
-    print "- Installing NetHunter-KeX.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter-KeX
-    cp $tmp/data/app/NetHunterKeX.apk ${SYSTEM}/app/NetHunter-KeX/
-    unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
-    ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
-    [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
-        mkdir -p /tmp/NetHunter-KeX/
-        unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
-        mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
-    }
-    mv ${SYSTEM}/app/NetHunter-KeX/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-KeX/lib/arm
-    mv ${SYSTEM}/app/NetHunter-KeX/lib/arm64-v8a ${SYSTEM}/app/NetHunter-KeX/lib/arm64
+  # and NetHunterKeX.apk because nethunter.apk depends on it
+  print "- Installing NetHunter-KeX.apk"
+  mkdir -p ${SYSTEM}/app/NetHunter-KeX
+  cp $tmp/data/app/NetHunterKeX.apk ${SYSTEM}/app/NetHunter-KeX/
+  unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
+  ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
+  [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
+    mkdir -p /tmp/NetHunter-KeX/
+    unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
+    mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
+  }
+  mv ${SYSTEM}/app/NetHunter-KeX/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-KeX/lib/arm
+  mv ${SYSTEM}/app/NetHunter-KeX/lib/arm64-v8a ${SYSTEM}/app/NetHunter-KeX/lib/arm64
 
 
-    # and NetHunterStore.apk because we need it 
-    print "- Installing NetHunter-Store.apk"
-    mkdir -p ${SYSTEM}/app/NetHunter-Store
-    cp $tmp/data/app/NetHunterStore.apk ${SYSTEM}/app/NetHunter-Store/
-
+  # and NetHunterStore.apk because we need it
+  print "- Installing NetHunter-Store.apk"
+  mkdir -p ${SYSTEM}/app/NetHunter-Store
+  cp $tmp/data/app/NetHunterStore.apk ${SYSTEM}/app/NetHunter-Store/
 else
-    installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
-    installapp "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
-    installapp "NetHunter KeX" "NetHunterKeX.apk" "com.offsec.nethunter.kex"
-    installapp "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
+  installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
+  installapp "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
+  installapp "NetHunter KeX" "NetHunterKeX.apk" "com.offsec.nethunter.kex"
+  installapp "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
 fi
+
 ## Installing privileged extension
 print "- Installing NetHunterStorePrivilegedExtension.apk"
 mkdir -p ${SYSTEM}/priv-app/NetHunterStorePrivilegedExtension
 cp $tmp/data/app/NetHunterStorePrivilegedExtension.apk ${SYSTEM}/priv-app/NetHunterStorePrivilegedExtension/
-if [ $SDK -ge 26 ]
-then
+if [ $SDK -ge 26 ]; then
   mkdir ${SYSTEM}/etc/permissions
-  chmod 755 ${SYSTEM}/etc/permissions
-        [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
-            install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
-        }
-
+  chmod 0755 ${SYSTEM}/etc/permissions
+  [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
+      install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
+  }
 fi
 print "Done installing apps"
 
@@ -556,8 +557,7 @@ progress 0.5
 
 [ -f tools/freespace.sh ] && {
   # This actually runs twice when the NetHunter kernel zip is included
- sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
- 
+  sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
 }
 
 print "Running busybox installer..."
@@ -624,7 +624,7 @@ progress 0.7
 }
  
 [ -d system/addon.d/80-nethunter.sh ] && {
-    print "Installing ${SYSTEM}/addon.d backup scripts"
+  print "Installing ${SYSTEM}/addon.d backup scripts"
   install "/system/80-nethunter.sh" 0755 0755 "${SYSTEM}/80-nethunter.sh"
 }
 
@@ -640,8 +640,8 @@ progress 0.8
 [ -d "$patchtmp" ] && {
   print "Running kernel installer..."
   sh "$patchtmp/META-INF/com/google/android/update-binary"
-        # setup environment again (all are restored by boot-patcher)
-        setup_env
+  # setup environment again (all are restored by boot-patcher)
+  setup_env
 }
 
 progress 0.9
@@ -649,7 +649,7 @@ progress 0.9
 print "Running Kali chroot installer..."
 sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
 
-restore_env #restore environment after installation
+restore_env # restore environment after installation
 
 print " "
 print "************************************************"
