@@ -2,6 +2,7 @@
 # AnyKernel3 Backend (DO NOT CHANGE)
 # osm0sis @ xda-developers
 # Modified for NetHunter
+# REF: https://github.com/osm0sis/AnyKernel3/blob/master/META-INF/com/google/android/update-binary
 
 # NetHuner additions
 OUTFD=$(cat /tmp/console);
