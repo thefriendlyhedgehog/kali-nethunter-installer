@@ -527,7 +527,7 @@ cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/";
 ui_print "Unmounting...";
 cd /;
 
-# Restore environmet after Installations
+# Restore environment after installations
 if [ -d /dev/block/mapper ]; then
   for block in system; do
     for slot in "" _a _b; do
