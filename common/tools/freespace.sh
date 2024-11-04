@@ -9,8 +9,8 @@ print() {
 get_bb() {
   cd $tmp/tools
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  BB=$tmp/tools/$BB_latest # Use NetHunter Busybox from tools
-  chmod 0755 $BB # Make busybox executable
+  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
+  chmod 0755 $BB # Make BusyBox executable
   echo $BB
   cd - >/dev/null
 }
@@ -64,7 +64,7 @@ SA=$MNT/app
 DA=/data/app
 AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
 
-# twrp df from /sbin doesn't has -m flag so we use busybox instead and use df from it
+# twrp df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
 BB=$(get_bb)
 FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 case $AndroidV in 

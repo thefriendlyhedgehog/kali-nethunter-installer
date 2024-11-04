@@ -1,5 +1,5 @@
 #!/sbin/sh
-# Install NetHunter's busybox
+# Install NetHunter's BusyBox
 
 print() {
   echo "ui_print - $1" > $console

@@ -1,7 +1,7 @@
 #!/sbin/sh
 # AnyKernel3 Backend (DO NOT CHANGE)
 # osm0sis @ xda-developers
-# Modified for nethunter
+# Modified for NetHunter
 
 # NetHuner additions
 OUTFD=$(cat /tmp/console);

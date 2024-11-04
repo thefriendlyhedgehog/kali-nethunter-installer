@@ -156,7 +156,7 @@ sysfs /sys sysfs default 0 0
 
   cp "$(command -v busybox)" $NEWROOT/sbin/busybox
 
-  # install busybox into path
+  # install BusyBox into path
   $NEWROOT/sbin/busybox --install $NEWROOT/sbin
 
   export TMPDIR=/tmp

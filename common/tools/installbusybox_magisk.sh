@@ -1,5 +1,5 @@
 #!/sbin/sh
-# Install NetHunter's busybox
+# Install NetHunter's BusyBox
 # Must be called from the NetHunter magisk module script
 
 print_ui > /dev/null 2>&1 || {

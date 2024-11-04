@@ -49,7 +49,7 @@ if $BOOTMODE; then
   mount_partitions
   api_level_arch_detect
 
-  # Setup busybox and binaries
+  # Setup BusyBox and binaries
   boot_actions
 
   # Extract prop file
@@ -334,7 +334,7 @@ umount_all() {
     $BB umount /system_root;
     $BB umount -l /system_root;
   fi;
-  umount /vendor; # busybox umount /vendor breaks recovery on some hacky devices
+  umount /vendor; # BusyBox umount /vendor breaks recovery on some hacky devices
   umount -l /vendor;
   for mount in /mnt/system /mnt/vendor /product /mnt/product /persist; do
     $BB umount $mount;
@@ -394,23 +394,23 @@ restore_env() {
 get_bb() {
     cd $tmp/tools
     BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
-    BB=$tmp/tools/$BB_latest # Use NetHunter Busybox from tools
-    chmod 0755 $BB # make busybox executable
+    BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
+    chmod 0755 $BB # make BusyBox executable
     echo $BB
     cd - >/dev/null
 }
 
 install_recovery_bb() {
-    # To identify the latest busybox version, we need the command "ls -v" which is not supported by all twrp versions
-    # We will pick the best available busybox version and use that to run "ls -v" to pick the latest version for the recovery partition
+    # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all twrp versions
+    # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
     cd $tmp/tools
 
-    # Try to pick the latest version of busybox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
+    # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
     recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
     cp $recovery_bb busybox_tmp
     setperm 0755 0755 busybox_tmp
 
-    # Now that we picked a reasonably current busybox, use that to copy the absolute latest to the recovery partition using "ls -v"
+    # Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
     nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
     print "Installing $nethunter_bb applets to /sbin"
     cp $nethunter_bb /sbin/busybox_nh
@@ -460,10 +460,10 @@ progress 0.0
 print "Starting the installation"
 
 setperm 0755 0755 tools
-BB=$(get_bb) # get latest busybox
+BB=$(get_bb) # get latest BusyBox
 install_recovery_bb
 
-setup_env # setup environment for nethunter installation
+setup_env # setup environment for NetHunter installation
 SYSTEM="/system" 
 
 progress 0.1
@@ -560,7 +560,7 @@ progress 0.5
   sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
 }
 
-print "Running busybox installer..."
+print "Running BusyBox installer..."
 sh tools/installbusybox.sh
 
 progress 0.6

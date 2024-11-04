@@ -221,7 +221,7 @@ do_install() {
 
   # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter App supports searching these directory after first boot
   CHROOT="$NHSYS/kali-$FS_ARCH" # Legacy rootfs directory prior to 2020.1
-  ROOTFS="$NHSYS/kalifs"        # New symlink allowing to swap chroots via nethunter app on the fly
+  ROOTFS="$NHSYS/kalifs"        # New symlink allowing to swap chroots via NetHunter app on the fly
   PRECHROOT=$( find /data/local/nhsystem -type d -iname kali-* | head -n 1 ) # previous chroot location
 
   # Remove previous chroot
@@ -357,7 +357,7 @@ pm uninstall  com.offsec.nethunter.kex &> /dev/null
 pm uninstall  com.offsec.nhterm &> /dev/null
 pm uninstall  com.offsec.nethunter.store &> /dev/null
 
-# Remove Osmosis busybox module
+# Remove Osmosis BusyBox module
 [ -d /data/adb/modules/busybox-ndk ] && {
   # Follow Magisk way to disable and remove modules
   touch /data/adb/modules/busybox-ndk/disable
@@ -404,7 +404,7 @@ pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 ui_print "Done installing apps";
 
-# Install Busybox
+# Install BusyBox
 [ -f $TMP/tools/installbusybox_magisk.sh ] && . $TMP/tools/installbusybox_magisk.sh
 
 # SetUp Kali NetHunter wallpaper of Correct Resolution if there is one available

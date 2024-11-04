@@ -9,8 +9,8 @@ print() {
 get_bb() {
   cd $tmp/tools
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
-  BB=$tmp/tools/$BB_latest # Use NetHunter Busybox from tools
-  chmod 0755 $BB # make busybox executable
+  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
+  chmod 0755 $BB # make BusyBox executable
   echo $BB
   cd - >/dev/null
 }
@@ -36,10 +36,10 @@ do_install() {
 
   mkdir -p "$NHSYS"
 
-  # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter App supports searching these directory after first boot
+  # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
 
   CHROOT="$NHSYS/kali-$NH_ARCH" # Legacy rootfs directory prior to 2020.1
-  ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via nethunter app on the fly
+  ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via NetHunter app on the fly
   PRECHROOT=$($BB find /data/local/nhsystem -type d -name  "*-*" | head -n 1)  # Generic previous chroot location
 
   # Remove previous chroot
