@@ -926,7 +926,7 @@ def main():
 
     if args.supersu:
         print("[i] Include SuperSU: true")
-        print("[i] SuperSU beta: " + supersu_beta)
+        print("[i] SuperSU beta: " , supersu_beta)
 
     x = args.release if args.release else TimeStamp
     print("[i] NetHunter release version: " + x)
