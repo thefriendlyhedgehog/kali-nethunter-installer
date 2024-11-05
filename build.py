@@ -364,6 +364,24 @@ def update_config(file_name, values, pure=False):
     file_handle.close()
 
 
+def setup_common(out_path=""):
+    global tmp_path
+
+    print("[i] Setting up common files")
+
+    if not out_path:
+        out_path = os.path.join(tmp_path, "boot-patcher")
+
+    # Blindly copy directories (thats not in IgnoredFiles)
+    print("[i] Common: Copying common files")
+    copytree("common", out_path)
+
+    print("[i] Common: Copying %s arch specific common files" % arch)
+    copytree(os.path.join("common", "arch", arch), out_path)
+
+    print("[+] Finished setting up common files")
+
+
 def setup_installer():
     global YAML
     global kernel
@@ -372,16 +390,11 @@ def setup_installer():
     global args
     global tmp_path
 
-    print("[i] Setting up kernel")
+    setup_common()
+
+    print("[i] Setting up kernel installer")
 
     out_path = os.path.join(tmp_path, "boot-patcher")
-
-    # Blindly copy directories
-    print("[i] Installer: Copying common files")
-    copytree("common", out_path)
-
-    print("[i] Installer: Copying %s arch specific common files" % arch)
-    copytree(os.path.join("common", "arch", arch), out_path)
 
     print("[i] Installer: Copying boot-patcher files")
     copytree("boot-patcher", out_path)
@@ -562,14 +575,9 @@ def setup_nethunter():
     global arch
     global resolution
 
+    setup_common(tmp_path)
+
     print("[+] Setting up NetHunter")
-
-    # Blindly copy directories
-    print("[i] NetHunter: Copying common files")
-    copytree("common", tmp_path)
-
-    print("[i] NetHunter: Copying %s arch specific common files" % arch)
-    copytree(os.path.join("common", "arch", arch), tmp_path)
 
     print("[i] NetHunter: Copying update files")
     copytree("update", tmp_path)
