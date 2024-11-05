@@ -262,8 +262,9 @@ do_install() {
 
 do_flash() {
   ui_print "Found Kali kernel to be installed: $KERNEL"
-  unzip -p "$ZIPFILE" "$KERNEL" >"$KERNEL"
-  $TMP/boot-patcher/tools/busybox sh $TMP/tools/magic-flash "$KERNEL" | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
+  unzip -p "$ZIPFILE" "$KERNEL" >"$TMP/$KERNEL"
+  [ -f `which busybox` ] && FLASHBB="busybox" || FLASHBB="$TMP/boot-patcher/tools/busybox"
+  $FLASHBB sh $TMP/tools/magic-flash "$TMP/$KERNEL" | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
 }
 
 flash_kernel() {
