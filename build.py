@@ -189,17 +189,18 @@ def download_supersu(beta):
         except requests.exceptions.RequestException as e:
             print("[-] Error: " + str(e), file=sys.stderr)
 
-    suzip = os.path.join("update", "supersu.zip")
+    suzip_path = os.path.join("data", "supersu")
+    suzip_file = os.path.join(suzip_path, "supersu.zip")
 
     # Remove previous supersu.zip if force re-downloading
     if args.force_download:
         print("[i] Force re-downloading SuperSU")
-        if os.path.isfile(suzip):
-            print("[i] Deleting: " + suzip)
-            os.remove(suzip)
+        if os.path.isfile(suzip_file):
+            print("[i] Deleting: " + suzip_file)
+            os.remove(suzip_file)
 
-    if os.path.isfile(suzip):
-        print("[i] Found SuperSU: " + suzip)
+    if os.path.isfile(suzip_file):
+        print("[i] Found SuperSU: " + suzip_file)
     else:
         if beta:
             surl = getdlpage(dl_supersu["beta"][0])
@@ -208,9 +209,9 @@ def download_supersu(beta):
 
         if surl:
             if beta:
-                download(surl + "?retrieve_file=1", suzip, dl_supersu["beta"][1])
+                download(surl + "?retrieve_file=1", suzip_file, dl_supersu["beta"][1])
             else:
-                download(surl + "?retrieve_file=1", suzip, dl_supersu["stable"][1])
+                download(surl + "?retrieve_file=1", suzip_file, dl_supersu["stable"][1])
         else:
             abort('Could not retrieve download URL for SuperSU')
 
@@ -221,7 +222,7 @@ def download_nethunter_apps():
     global dl_apps
     global args
 
-    app_path = os.path.join("update", "data", "app")
+    app_path = os.path.join("data", "apps")
 
     if args.force_download:
         print("[i] Force re-downloading all NetHunter apps")
@@ -258,7 +259,8 @@ def download_rootfs(fs_size):
     fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_url = fs_host + fs_file
 
-    fs_localpath = os.path.join("rootfs", fs_file)
+    fs_path = os.path.join("data", "rootfs")
+    fs_localpath = os.path.join(fs_path, fs_file)
 
     if args.force_download:
         # For force re-download, remove previous rootfs
@@ -287,7 +289,7 @@ def zip_rootfs(fs_size, dst):
     try:
         fs_arch = arch
         fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
-        fs_localpath = os.path.join("rootfs", fs_file)
+        fs_localpath = os.path.join("data", "rootfs", fs_file)
 
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
         zf.write(os.path.abspath(fs_localpath), fs_file)
@@ -988,9 +990,11 @@ def main():
     # We don't need the apps or SuperSU if we are only building the kernel installer
     if not args.installer:
         download_nethunter_apps()
+        copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
         # Download SuperSU if we want it
         if args.supersu:
             download_supersu(supersu_beta)
+            shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
 
     # Download Kali rootfs if we are building a zip with the chroot environment included
     if args.rootfs:
