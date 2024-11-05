@@ -155,19 +155,19 @@ def download(url, file_name, verify_sha):
 
     if download_ok:
         sha = sha.hexdigest()
-        print("[i] SHA512: " + sha)
+        print("[i]   SHA512: " + sha)
         if verify_sha:
-            print("[i] Expect: " + verify_sha)
+            print("[i]   Expect: " + verify_sha)
             if sha == verify_sha:
-                print("[+] Hash matches: OK")
+                print("[+]   Hash matches: OK")
             else:
                 download_ok = False
-                print("[-] Hash mismatch! " + file_name, file=sys.stderr)
+                print("[-]   Hash mismatch! " + file_name, file=sys.stderr)
         else:
-            print("[-] Warning: No SHA512 hash specified for verification!", file=sys.stderr)
+            print("[-]   Warning: No SHA512 hash specified for verification!", file=sys.stderr)
 
     if download_ok:
-        print("[+] Download OK: {}\n".format(file_name))
+        print("[+]   Download OK: {}".format(file_name))
     else:
         # We should delete partially downloaded file so the next try doesn't skip it!
         if os.path.isfile(file_name):
