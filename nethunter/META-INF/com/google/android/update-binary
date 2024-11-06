@@ -88,7 +88,7 @@ fi
 ###################################
 
 ## Start build generated variables
-supersu=auto
+supersu="auto"
 ## End build generated variables
 
 if [ "$3" ]; then
