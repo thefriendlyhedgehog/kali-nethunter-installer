@@ -190,6 +190,8 @@ def download_supersu(beta):
             print("[-] Error: " + str(e), file=sys.stderr)
 
     suzip_path = os.path.join("data", "supersu")
+    if not os.path.exists(suzip_path):
+        os.makedirs(suzip_path)
     suzip_file = os.path.join(suzip_path, "supersu.zip")
 
     # Remove previous supersu.zip if force re-downloading
@@ -223,6 +225,8 @@ def download_nethunter_apps():
     global args
 
     app_path = os.path.join("data", "apps")
+    if not os.path.exists(app_path):
+        os.makedirs(app_path)
 
     if args.force_download:
         print("[i] Force re-downloading all NetHunter apps")
@@ -260,6 +264,8 @@ def download_rootfs(fs_size):
     fs_url = fs_host + fs_file
 
     fs_path = os.path.join("data", "rootfs")
+    if not os.path.exists(fs_path):
+        os.makedirs(fs_path)
     fs_localpath = os.path.join(fs_path, fs_file)
 
     if args.force_download:
