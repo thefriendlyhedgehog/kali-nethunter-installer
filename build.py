@@ -604,8 +604,6 @@ def setup_nethunter():
         file_handle.write(resolution)
         file_handle.close()
 
-    setup_installer()
-    zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
 
 def cleanup(domsg=False):
     if os.path.exists(tmp_path):
@@ -969,37 +967,6 @@ def main():
         print("[i]   slot_device : " + slot_device)
     print("[i]   author      : " + author)
 
-    #
-    # Do actions
-    #
-
-    # Build an uninstaller zip if --uninstaller is specified
-    if args.uninstaller:
-        x = args.release if args.release else TimeStamp
-        file_name = "uninstaller-nethunter-%s.zip" % x
-
-        zip("uninstaller", file_name)
-
-        print("[+] Created uninstaller: " + file_name)
-
-    # If no device or generic arch is specified, we are done
-    if not (args.kernel or args.generic):
-        print('[i] Not creating device model or generic image')
-        done()
-
-    # We don't need the apps or SuperSU if we are only building the kernel installer
-    if not args.installer:
-        download_nethunter_apps()
-        copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
-        # Download SuperSU if we want it
-        if args.supersu:
-            download_supersu(supersu_beta)
-            shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
-
-    # Download Kali rootfs if we are building a zip with the chroot environment included
-    if args.rootfs:
-        download_rootfs(args.rootfs)
-
     # Set file name tag depending on the options chosen
     if args.release:
         file_tag = args.release
@@ -1038,22 +1005,53 @@ def main():
     if args.no_freespace_check:
         IgnoredFiles.append("freespace.sh")
 
-    # Don't set up the kernel installer if --nokernel is specified
-    if not args.no_installer:
-        setup_installer()
-
-        # Build a kernel installer zip and exit if --kernel is specified
-        if args.installer:
-            file_name = "kernel-nethunter-%s.zip" % file_tag
-
-            zip(os.path.join(tmp_path, "boot-patcher"), file_name)
-
-            print("[+] Created kernel installer: " + file_name)
-            done()
-
     # Don't include SuperSU unless --supersu is specified
     if not args.supersu:
         IgnoredFiles.append("supersu.zip")
+
+    # Download Kali rootfs if we are building a zip with the chroot environment included
+    if args.rootfs:
+        download_rootfs(args.rootfs)
+
+    # We don't need the apps or SuperSU if we are only building the kernel installer
+    if not args.installer:
+        download_nethunter_apps()
+        copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
+        # Download SuperSU if we want it
+        if args.supersu:
+            download_supersu(supersu_beta)
+            shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
+
+    #
+    # Do actions
+    #
+
+    # Build an uninstaller zip if --uninstaller is specified
+    if args.uninstaller:
+        x = args.release if args.release else TimeStamp
+        file_name = "uninstaller-nethunter-%s.zip" % x
+
+        zip("uninstaller", file_name)
+
+        print("[+] Created uninstaller: " + file_name)
+
+    # If no device or generic arch is specified, we are done
+    if not (args.kernel or args.generic):
+        print('[i] Not creating device model or generic image')
+        done()
+
+    # Only build a kernel installer zip and exit if --installer is specified
+    if args.installer:
+        setup_installer()
+
+        file_name = "kernel-nethunter-%s.zip" % file_tag
+        zip(os.path.join(tmp_path, "boot-patcher"), file_name)
+
+        print("[+] Created kernel installer: " + file_name)
+        done()
+    elif not args.no_installer:
+        setup_installer()
+        zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
 
     # Set up the update zip
     setup_nethunter()
@@ -1067,10 +1065,7 @@ def main():
         )
         shutil.rmtree(os.path.join(tmp_path, "system", "media"))
 
-    file_prefix = ""
-    if not args.rootfs:
-        file_prefix += "update-"
-
+    file_prefix = "update-" if not args.rootfs else ""
     file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
 
     zip(tmp_path, file_name)
