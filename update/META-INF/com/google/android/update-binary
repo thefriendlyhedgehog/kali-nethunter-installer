@@ -87,14 +87,14 @@ fi
 ##                               ##
 ###################################
 
-## start build generated variables
+## Start build generated variables
 supersu=auto
-## end build generated variables
+## End build generated variables
 
 if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
-  # write the location of the console buffer to /tmp/console for other scripts to use
+  # Write the location of the console buffer to /tmp/console for other scripts to use
   echo "$console" > /tmp/console
 else
   console=$(cat /tmp/console)
@@ -144,7 +144,7 @@ install() {
 }
 
 # installapp "App Name" "appfile.apk" "play.store.package.name"
-# -> if the app package is found in the play store app database, then don't install it
+#   if the app package is found in the play store app database, then don't install it
 installapp() {
   installto=/data/app/
   if [ "$3" ]; then
@@ -153,7 +153,7 @@ installapp() {
       echo "Found app directory: $appdir"
       if [ ! -f /data/data/com.android.vending/databases/localappstate.db ]; then
         echo "Could not find Play Store app database!"
-      # this should also catch paid/alternative versions if they are suffixed
+      # This should also catch paid/alternative versions if they are suffixed
       elif strings /data/data/com.android.vending/databases/localappstate.db | grep -q "^$3"; then
         rm -f "/data/app/$2"
         print "- Found Play Store installed $1"
@@ -395,7 +395,7 @@ get_bb() {
     cd $tmp/tools
     BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
     BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
-    chmod 0755 $BB # make BusyBox executable
+    chmod 0755 $BB # Make BusyBox executable
     echo $BB
     cd - >/dev/null
 }
@@ -460,10 +460,10 @@ progress 0.0
 print "Starting the installation"
 
 setperm 0755 0755 tools
-BB=$(get_bb) # get latest BusyBox
+BB=$(get_bb) # Get latest BusyBox
 install_recovery_bb
 
-setup_env # setup environment for NetHunter installation
+setup_env # Setup environment for NetHunter installation
 SYSTEM="/system" 
 
 progress 0.1
@@ -640,7 +640,7 @@ progress 0.8
 [ -d "$patchtmp" ] && {
   print "Running kernel installer..."
   sh "$patchtmp/META-INF/com/google/android/update-binary"
-  # setup environment again (all are restored by boot-patcher)
+  # Setup environment again (all are restored by boot-patcher)
   setup_env
 }
 
@@ -649,7 +649,7 @@ progress 0.9
 print "Running Kali chroot installer..."
 sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
 
-restore_env # restore environment after installation
+restore_env # Restore environment after installation
 
 print " "
 print "************************************************"

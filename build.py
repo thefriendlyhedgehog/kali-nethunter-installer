@@ -441,7 +441,7 @@ def setup_installer():
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
         )
-        # Set up variables in the anykernel script
+        # Set up variables in the AnyKernel3 script
         update_config(
             os.path.join(out_path, "anykernel.sh"),
             {
@@ -603,7 +603,7 @@ def setup_nethunter():
         {"supersu": supersu},
     )
 
-    # Overwrite screen resolution if defined in devices.yml
+    # Overwrite screen resolution if defined in ./kernels/devices.yml
     if resolution:
         file_name = os.path.join(tmp_path, "wallpaper", "resolution.txt")
         file_handle = open(file_name, "w")
@@ -671,7 +671,7 @@ def yaml_parse(data):
     lines = data.split('\n')
     for line in lines:
         if not line.startswith('#'):
-            ## yaml doesn't like tabs so let's replace them with four spaces
+            # yaml doesn't like tabs so let's replace them with four spaces
             result += "{}\n".format(line.replace('\t', '    '))
     return yaml.safe_load(result)
 
@@ -822,6 +822,7 @@ def main():
         arch = args.generic
         kernel = "generic"
     elif args.force_download:
+        # Not sure how many people would use this ($0 --force-download)
         print('[i] Only downloading external resources (Caching, not building)')
         download_nethunter_apps()
         if args.supersu:
@@ -975,6 +976,10 @@ def main():
         print("[i]   slot_device : " + slot_device)
     print("[i]   author      : " + author)
 
+    #
+    # Filename output
+    #
+
     # Set file name tag depending on the options chosen
     if args.release:
         file_tag = args.release
@@ -992,7 +997,11 @@ def main():
     if args.rootfs:
         file_tag += "-kalifs-" + args.rootfs
 
-    # Don't include wallpaper or boot animation if --nobrand is specified
+    #
+    # Add any other files to ignore
+    #
+
+    # Don't include wallpaper or boot animation if --no-branding is specified
     if args.no_branding:
         IgnoredFiles.append("wallpaper")
         IgnoredFiles.append("bootanimation.zip")
@@ -1009,13 +1018,17 @@ def main():
     else:
         IgnoredFiles.append("bootanimation_wearos.zip")
 
-    # Don't include free space script if --nofreespace is specified
+    # Don't include free space script if --no-freespace-check is specified
     if args.no_freespace_check:
         IgnoredFiles.append("freespace.sh")
 
     # Don't include SuperSU unless --supersu is specified
     if not args.supersu:
         IgnoredFiles.append("supersu.zip")
+
+    #
+    # Download external resources
+    #
 
     # Download Kali rootfs if we are building a zip with the chroot environment included
     if args.rootfs:
@@ -1043,7 +1056,8 @@ def main():
 
         print("[+] Created uninstaller: " + file_name)
 
-    # If no device or generic arch is specified, we are done
+    # If no --kernel or --generic arch is specified, we are done
+    # ...this is more if you use caching ($0 --force-download)
     if not (args.kernel or args.generic):
         print('[i] Not creating device model or generic image')
         done()
@@ -1057,12 +1071,16 @@ def main():
 
         print("[+] Created kernel installer: " + file_name)
         done()
+    # Don't set up the kernel installer if --no-installer is specified
     elif not args.no_installer:
         setup_installer()
         zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
 
-    # Set up the update zip
     setup_nethunter()
+
+    #
+    # Device model specific
+    #
 
     # Change bootanimation folder for product partition devices
     if kernel.find("oneplus8") == 0:
@@ -1073,6 +1091,10 @@ def main():
         )
         shutil.rmtree(os.path.join(tmp_path, "system", "media"))
 
+    #
+    # Output
+    #
+
     file_prefix = "update-" if not args.rootfs else ""
     file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
 
@@ -1081,6 +1103,7 @@ def main():
     # Add the Kali rootfs archive if --rootfs is specified
     if args.rootfs:
         zip_rootfs(args.rootfs, file_name)
+    # Device model specific
     # Rename bootanimation archive if --wearos is specified
     if args.wearos:
         bootanimation_rename = (
