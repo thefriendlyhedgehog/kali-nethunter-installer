@@ -610,6 +610,8 @@ def setup_nethunter():
         file_handle.write(resolution)
         file_handle.close()
 
+    print("[+] Finished setting up NetHunter")
+
 
 def cleanup(domsg=False):
     if os.path.exists(tmp_path):
@@ -820,7 +822,7 @@ def main():
         arch = args.generic
         kernel = "generic"
     elif args.force_download:
-        print('[i] Only downloading external resources')
+        print('[i] Only downloading external resources (Caching, not building)')
         download_nethunter_apps()
         if args.supersu:
             download_supersu(supersu_beta)
