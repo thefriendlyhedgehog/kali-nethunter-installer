@@ -422,6 +422,7 @@ def setup_installer():
         # There's nothing left to configure
         print("[+] Finished setting up (generic) kernel installer")
         return
+
     print("[i] Installer: Configuring installer script for " + kernel)
 
     if flasher == "anykernel":
@@ -441,6 +442,7 @@ def setup_installer():
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
         )
+
         # Set up variables in the AnyKernel3 script
         update_config(
             os.path.join(out_path, "anykernel.sh"),
@@ -453,6 +455,7 @@ def setup_installer():
             },
             True,
         )
+
         i = 1
         for devicename in devicenames.split(","):
             print('[i] AnyKernel3 devicename: ' + devicename)
@@ -469,7 +472,6 @@ def setup_installer():
             },
             True,
         )
-
     else:
         # Set up variables in the kernel installer script
         update_config(
@@ -618,6 +620,7 @@ def cleanup(domsg=False):
         if domsg:
             print("[i] Removing temporary build directory: " + tmp_path)
         shutil.rmtree(tmp_path)
+
 
 def done():
     cleanup()
@@ -897,7 +900,6 @@ def main():
                 "Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano"
             )
 
-
     #
     # Read arguments
     #
@@ -985,15 +987,20 @@ def main():
         file_tag = args.release
     else:
         file_tag = TimeStamp
+
     file_tag += "-" + kernel
+
     if args.kernel:
         file_tag += "-" + android
     else:
         file_tag += "-" + arch
+
     if args.no_branding and not args.installer:
         file_tag += "-nobranding"
+
     if args.supersu:
         file_tag += "-rooted"
+
     if args.rootfs:
         file_tag += "-kalifs-" + args.rootfs
 
@@ -1038,6 +1045,7 @@ def main():
     if not args.installer:
         download_nethunter_apps()
         copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
+
         # Download SuperSU if we want it
         if args.supersu:
             download_supersu(supersu_beta)
@@ -1067,6 +1075,7 @@ def main():
         setup_installer()
 
         file_name = "kernel-nethunter-%s.zip" % file_tag
+
         zip(os.path.join(tmp_path, "boot-patcher"), file_name)
 
         print("[+] Created kernel installer: " + file_name)
@@ -1103,6 +1112,7 @@ def main():
     # Add the Kali rootfs archive if --rootfs is specified
     if args.rootfs:
         zip_rootfs(args.rootfs, file_name)
+
     # Device model specific
     # Rename bootanimation archive if --wearos is specified
     if args.wearos:
