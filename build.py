@@ -710,7 +710,7 @@ def main():
     global supersu
 
     supersu_beta = False
-    IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
+    IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea", "README.md"]
     devices_yml = os.path.join("kernels", "devices.yml")
     t = datetime.datetime.now()
     TimeStamp = "%04d%02d%02d_%02d%02d%02d" % (
