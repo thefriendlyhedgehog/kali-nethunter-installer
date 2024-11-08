@@ -322,6 +322,9 @@ ui_print "##  88     '88.   d8'        '8b  88        88  ##"
 ui_print "##  88       Y8b d8'          '8b 888888888 88  ##"
 ui_print "##                                              ##"
 ui_print "####  ############# NetHunter ####################"
+ui_print ""
+ui_print "NetHunter (Magisk)"
+ui_print ""
 
 # Extract the installer
 ui_print "Unpacking the installer...";

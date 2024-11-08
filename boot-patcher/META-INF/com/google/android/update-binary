@@ -104,6 +104,9 @@ print "##  88     '88.   d8'        '8b  88        88  ##"
 print "##  88       Y8b d8'          '8b 888888888 88  ##"
 print "##                                              ##"
 print "####  ############# NetHunter ####################"
+print ""
+print "Boot-Patcher" # Isn't just LazyFlasher
+print ""
 
 else 
 
