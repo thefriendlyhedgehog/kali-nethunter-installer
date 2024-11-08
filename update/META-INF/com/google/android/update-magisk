@@ -267,10 +267,10 @@ do_flash() {
 }
 
 flash_kernel() {
-  # Check zip for kernel-* first
+  # Check zip for nethunter-installer.zip first
   [ -e "$ZIPFILE" ] && {
-    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
-    # Check other locations if zip didn't contain a kernel-*
+    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^nethunter-installer/ { print $4; exit }')
+    # Check other locations if zip didn't contain a nethunter-installer.zip
     [ "$KERNEL" ] || {
       ui_print "No kernel found. Skipping...."
       return

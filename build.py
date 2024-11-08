@@ -1068,7 +1068,7 @@ def main():
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
         x = args.release if args.release else TimeStamp
-        file_name = "uninstaller-nethunter-%s.zip" % x
+        file_name = "nethunter-uninstaller-%s.zip" % x
 
         zip("uninstaller", file_name)
 
@@ -1077,7 +1077,7 @@ def main():
     if args.installer:
         setup_installer()
 
-        file_name = "kernel-nethunter-%s.zip" % file_tag
+        file_name = "nethunter-installer-%s.zip" % file_tag
 
         zip(os.path.join(tmp_path, "boot-patcher"), file_name)
 
@@ -1085,11 +1085,11 @@ def main():
     else
         # Don't set up the kernel installer if --no-installer is specified
         if args.no_installer:
-            file_name = "update-noinstaller-nethunter-%s.zip" % file_tag
+            file_name = "nethunter-noinstaller-%s.zip" % file_tag
         else:
-            file_name = "update-nethunter-%s.zip" % file_tag
+            file_name = "nethunter-%s.zip" % file_tag
             setup_installer()
-            zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
+            zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "nethunter-installer.zip"))
 
         setup_nethunter()
 
