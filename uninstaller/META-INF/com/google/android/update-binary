@@ -57,12 +57,13 @@ print""
 print "Uninstaller"
 print""
 
+print "- Mounting /system & /data";
 mount /system
 mount /data
 
 # Remove added firmware (folder would only exist if you installed NetHunter)
 [ -d "/system/etc/firmware/rtlwifi" ] && {
-  print "@Removing Firmware";
+  print "- Removing Firmware";
   rm -rf /system/etc/firmware/rtlwifi
   rm -rf /system/etc/firmware/zd1211
   rm -f /system/etc/firmware/ar9170-1.fw
@@ -77,24 +78,26 @@ mount /data
 }
 
 [ -d "/system/priv-app/NetHunter" ] && {
-  print "@Removing NetHunter.apk"
+  print "- Removing NetHunter.apk"
   rm -rf /system/priv-app/NetHunter
 }
 
 [ -d "/system/priv-app/NetHunter-Terminal" ] && {
-  print "@Removing Term-nh.apk"
+  print "- Removing Term-nh.apk"
   rm -rf /system/priv-app/NetHunter-Terminal
 }
 
 [ -d "/system/priv-app/NetHunter-VNC" ] && {
-  print "@Removing VNC-nh.apk"
+  print "- Removing VNC-nh.apk"
   rm -rf /system/priv-app/NetHunter-VCN
 }
 
 [ -d "/data/data/com.offsec.nethunter" ] && {
-  print "@Removing NetHunter chroot/data"
+  print "- Removing NetHunter chroot/data"
   rm -rf /data/data/com.offsec.nethunter
 }
 
+print "- Cleaning up"
 cleanup
-print "@Uninstall complete"
+
+print "- Uninstall complete"
