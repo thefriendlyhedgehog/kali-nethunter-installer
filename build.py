@@ -400,7 +400,7 @@ def setup_installer():
 
     setup_common()
 
-    print("[i] Setting up kernel installer")
+    print("[i] Setting up kernel installer (boot-patcher)")
 
     out_path = os.path.join(tmp_path, "boot-patcher")
 
@@ -420,7 +420,7 @@ def setup_installer():
             {"generic": arch},
         )
         # There's nothing left to configure
-        print("[+] Finished setting up (generic) kernel installer")
+        print("[+] Finished setting up 'generic' kernel installer (boot-patcher)")
         return
 
     print("[i] Installer: Configuring installer script for " + kernel)
@@ -578,7 +578,7 @@ def setup_installer():
         print("[+] Found additional AnyKernel3 patches: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
 
-    print("[+] Finished setting up kernel installer")
+    print("[+] Finished setting up kernel installer (boot-patcher)")
 
 
 def setup_nethunter():
@@ -589,11 +589,11 @@ def setup_nethunter():
 
     print("[+] Setting up NetHunter")
 
-    print("[i] NetHunter: Copying update files")
-    copytree("update", tmp_path)
+    print("[i] NetHunter: Copying files")
+    copytree("nethunter", tmp_path)
 
-    print("[i] NetHunter: Copying %s arch specific update files" % arch)
-    copytree(os.path.join("update", "arch", arch), tmp_path)
+    print("[i] NetHunter: Copying %s arch specific files" % arch)
+    copytree(os.path.join("nethunter", "arch", arch), tmp_path)
 
     print("[i] NetHunter: Copying kernel zip")
     copytree("kernel", tmp_path)
@@ -781,12 +781,12 @@ def main():
         "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
     )
     parser.add_argument(
-        "--installer", "-i", action="store_true", help="Build kernel installer only"
+        "--installer", "-i", action="store_true", help="Build only the kernel installer (boot-patcher)"
     )
     parser.add_argument(
         "--no-installer",
         action="store_true",
-        help="Build without the kernel installer",
+        help="Build without the kernel installer (boot-patcher)",
     )
     parser.add_argument(
         "--no-branding",

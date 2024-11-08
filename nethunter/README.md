@@ -1,6 +1,4 @@
-# Update
-
-aka **NetHunter**
+# NetHunter
 
 ```console
 $ ./build.py --no-installer [...]
