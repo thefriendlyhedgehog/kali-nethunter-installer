@@ -5,7 +5,7 @@ data/
 tmp_out/
 
 ## ./build.py - output
-./nethunter-*.zip
+nethunter-*.zip
 
 ## ./bootstrap.sh - https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels
 kernels/

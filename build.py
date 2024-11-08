@@ -992,13 +992,15 @@ def main():
     # Filename output
     #
 
+    file_tag = "nethunter"
+
     # Set file name tag depending on the options chosen
     if args.release:
-        file_tag = args.release
+        file_tag += "-" + args.release
     else:
-        file_tag = TimeStamp
+        file_tag += "-" + TimeStamp
 
-    file_tag += "-" + kernel
+    file_tag += "-" + kernel.replace("-", "_")
 
     if args.kernel:
         file_tag += "-" + android
@@ -1006,13 +1008,24 @@ def main():
         file_tag += "-" + arch
 
     if args.no_branding and not args.installer:
-        file_tag += "-nobranding"
+        file_tag += "-no_branding"
+
+    if args.installer:
+        file_tag += "-installer"
+
+    if args.no_installer:
+        file_tag += "-no_installer"
+
+    if args.uninstaller:
+        file_tag += "-uninstaller"
 
     if args.supersu:
         file_tag += "-rooted"
 
     if args.rootfs:
-        file_tag += "-kalifs-" + args.rootfs
+        file_tag += "-kalifs_" + args.rootfs
+
+    file_tag += ".zip"
 
     #
     # Add any other files to ignore
@@ -1067,33 +1080,25 @@ def main():
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
-        x = args.release if args.release else TimeStamp
-        file_name = "nethunter-uninstaller-%s.zip" % x
+        zip("uninstaller", file_tag)
 
-        zip("uninstaller", file_name)
-
-        print("[+] Created uninstaller: " + file_name)
+        print("[+] Created uninstaller: " + file_tag)
     # Only build a kernel installer zip and exit if --installer is specified
     if args.installer:
         setup_installer()
 
-        file_name = "nethunter-installer-%s.zip" % file_tag
+        zip(os.path.join(tmp_path, "boot-patcher"), file_tag)
 
-        zip(os.path.join(tmp_path, "boot-patcher"), file_name)
-
-        print("[+] Created kernel installer: " + file_name)
+        print("[+] Created kernel installer: " + file_tag)
     else:
         # Don't set up the kernel installer if --no-installer is specified
-        if args.no_installer:
-            file_name = "nethunter-noinstaller-%s.zip" % file_tag
-        else:
-            file_name = "nethunter-%s.zip" % file_tag
+        if not args.no_installer:
             setup_installer()
             zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "nethunter-installer.zip"))
 
         setup_nethunter()
 
-        zip(tmp_path, file_name)
+        zip(tmp_path, file_tag)
 
         #
         # Post zip creation
@@ -1101,18 +1106,18 @@ def main():
 
         # Add the Kali rootfs archive if --rootfs is specified
         if args.rootfs:
-            zip_rootfs(args.rootfs, file_name)
+            zip_rootfs(args.rootfs, file_tag)
 
         # Device model specific (post zip)
         # Rename bootanimation archive if --wearos is specified
         if args.wearos:
             bootanimation_rename = (
                 'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w '
-                + file_name
+                + file_tag
             )
             os.system(bootanimation_rename)
 
-        print("[+] Created Kali NetHunter installer: " + file_name)
+        print("[+] Created Kali NetHunter installer: " + file_tag)
     done()
 
 
