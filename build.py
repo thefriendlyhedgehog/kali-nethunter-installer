@@ -612,6 +612,16 @@ def setup_nethunter():
         file_handle.write(resolution)
         file_handle.close()
 
+    # Device model specific (pre zip)
+    # Change bootanimation folder for product partition devices
+    if kernel.find("oneplus8") == 0:
+        shutil.copytree(
+            os.path.join(tmp_path, "system", "media"),
+            os.path.join(tmp_path, "product", "media"),
+            dirs_exist_ok=True,
+        )
+        shutil.rmtree(os.path.join(tmp_path, "system", "media"))
+
     print("[+] Finished setting up NetHunter")
 
 
@@ -1063,13 +1073,6 @@ def main():
         zip("uninstaller", file_name)
 
         print("[+] Created uninstaller: " + file_name)
-
-    # If no --kernel or --generic arch is specified, we are done
-    # ...this is more if you use caching ($0 --force-download)
-    if not (args.kernel or args.generic):
-        print('[i] Not creating device model or generic image')
-        done()
-
     # Only build a kernel installer zip and exit if --installer is specified
     if args.installer:
         setup_installer()
@@ -1079,50 +1082,37 @@ def main():
         zip(os.path.join(tmp_path, "boot-patcher"), file_name)
 
         print("[+] Created kernel installer: " + file_name)
-        done()
-    # Don't set up the kernel installer if --no-installer is specified
-    elif not args.no_installer:
-        setup_installer()
-        zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
+    else
+        # Don't set up the kernel installer if --no-installer is specified
+        if args.no_installer:
+            file_name = "update-noinstaller-nethunter-%s.zip" % file_tag
+        else:
+            file_name = "update-nethunter-%s.zip" % file_tag
+            setup_installer()
+            zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
 
-    setup_nethunter()
+        setup_nethunter()
 
-    #
-    # Device model specific
-    #
+        zip(tmp_path, file_name)
 
-    # Change bootanimation folder for product partition devices
-    if kernel.find("oneplus8") == 0:
-        shutil.copytree(
-            os.path.join(tmp_path, "system", "media"),
-            os.path.join(tmp_path, "product", "media"),
-            dirs_exist_ok=True,
-        )
-        shutil.rmtree(os.path.join(tmp_path, "system", "media"))
+        #
+        # Post zip creation
+        #
 
-    #
-    # Output
-    #
+        # Add the Kali rootfs archive if --rootfs is specified
+        if args.rootfs:
+            zip_rootfs(args.rootfs, file_name)
 
-    file_prefix = "update-" if not args.rootfs else ""
-    file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
+        # Device model specific (post zip)
+        # Rename bootanimation archive if --wearos is specified
+        if args.wearos:
+            bootanimation_rename = (
+                'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w '
+                + file_name
+            )
+            os.system(bootanimation_rename)
 
-    zip(tmp_path, file_name)
-
-    # Add the Kali rootfs archive if --rootfs is specified
-    if args.rootfs:
-        zip_rootfs(args.rootfs, file_name)
-
-    # Device model specific
-    # Rename bootanimation archive if --wearos is specified
-    if args.wearos:
-        bootanimation_rename = (
-            'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w '
-            + file_name
-        )
-        os.system(bootanimation_rename)
-
-    print("[+] Created Kali NetHunter installer: " + file_name)
+        print("[+] Created Kali NetHunter installer: " + file_name)
     done()
 
 
