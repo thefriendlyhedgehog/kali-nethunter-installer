@@ -155,19 +155,19 @@ def download(url, file_name, verify_sha):
 
     if download_ok:
         sha = sha.hexdigest()
-        print("[i] SHA512: " + sha)
+        print("[i]   SHA512: " + sha)
         if verify_sha:
-            print("[i] Expect: " + verify_sha)
+            print("[i]   Expect: " + verify_sha)
             if sha == verify_sha:
-                print("[+] Hash matches: OK")
+                print("[+]   Hash matches: OK")
             else:
                 download_ok = False
-                print("[-] Hash mismatch! " + file_name, file=sys.stderr)
+                print("[-]   Hash mismatch! " + file_name, file=sys.stderr)
         else:
-            print("[-] Warning: No SHA512 hash specified for verification!", file=sys.stderr)
+            print("[-]   Warning: No SHA512 hash specified for verification!", file=sys.stderr)
 
     if download_ok:
-        print("[+] Download OK: {}\n".format(file_name))
+        print("[+]   Download OK: {}".format(file_name))
     else:
         # We should delete partially downloaded file so the next try doesn't skip it!
         if os.path.isfile(file_name):
@@ -176,8 +176,9 @@ def download(url, file_name, verify_sha):
         abort('There was a problem downloading the file: ' + file_name)
 
 
-def supersu(forcedown, beta):
+def download_supersu(beta):
     global dl_supersu
+    global args
 
     def getdlpage(url):
         try:
@@ -188,17 +189,20 @@ def supersu(forcedown, beta):
         except requests.exceptions.RequestException as e:
             print("[-] Error: " + str(e), file=sys.stderr)
 
-    suzip = os.path.join("update", "supersu.zip")
+    suzip_path = os.path.join("data", "supersu")
+    if not os.path.exists(suzip_path):
+        os.makedirs(suzip_path)
+    suzip_file = os.path.join(suzip_path, "supersu.zip")
 
     # Remove previous supersu.zip if force re-downloading
-    if forcedown:
+    if args.force_download:
         print("[i] Force re-downloading SuperSU")
-        if os.path.isfile(suzip):
-            print("[i] Deleting: " + suzip)
-            os.remove(suzip)
+        if os.path.isfile(suzip_file):
+            print("[i] Deleting: " + suzip_file)
+            os.remove(suzip_file)
 
-    if os.path.isfile(suzip):
-        print("[i] Found SuperSU: " + suzip)
+    if os.path.isfile(suzip_file):
+        print("[i] Found SuperSU: " + suzip_file)
     else:
         if beta:
             surl = getdlpage(dl_supersu["beta"][0])
@@ -207,21 +211,24 @@ def supersu(forcedown, beta):
 
         if surl:
             if beta:
-                download(surl + "?retrieve_file=1", suzip, dl_supersu["beta"][1])
+                download(surl + "?retrieve_file=1", suzip_file, dl_supersu["beta"][1])
             else:
-                download(surl + "?retrieve_file=1", suzip, dl_supersu["stable"][1])
+                download(surl + "?retrieve_file=1", suzip_file, dl_supersu["stable"][1])
         else:
             abort('Could not retrieve download URL for SuperSU')
 
     print("[+] Finished setting up SuperSU")
 
 
-def allapps(forcedown):
+def download_nethunter_apps():
     global dl_apps
+    global args
 
-    app_path = os.path.join("update", "data", "app")
+    app_path = os.path.join("data", "apps")
+    if not os.path.exists(app_path):
+        os.makedirs(app_path)
 
-    if forcedown:
+    if args.force_download:
         print("[i] Force re-downloading all NetHunter apps")
     else:
         print("[i] Downloading all NetHunter apps")
@@ -234,7 +241,7 @@ def allapps(forcedown):
 
         # For force re-download, remove previous APK
         if os.path.isfile(apk_path):
-            if forcedown:
+            if args.force_download:
                 print("[i] Deleting: " + apk_path)
                 os.remove(apk_path)
 
@@ -247,16 +254,21 @@ def allapps(forcedown):
     print("[+] Finished downloading NetHunter all apps")
 
 
-def rootfs(forcedown, fs_size):
+def download_rootfs(fs_size):
     global arch
+    global args
+
     fs_arch = arch
     fs_host = "https://kali.download/nethunter-images/current/rootfs/"
     fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
     fs_url = fs_host + fs_file
 
-    fs_localpath = os.path.join("rootfs", fs_file)
+    fs_path = os.path.join("data", "rootfs")
+    if not os.path.exists(fs_path):
+        os.makedirs(fs_path)
+    fs_localpath = os.path.join(fs_path, "kalifs-{}-{}.tar.xz".format(fs_size, fs_arch))
 
-    if forcedown:
+    if args.force_download:
         # For force re-download, remove previous rootfs
         print("[i] Force re-downloading Kali %s %s rootfs" % (fs_arch, fs_size))
         if os.path.isfile(fs_localpath):
@@ -270,20 +282,20 @@ def rootfs(forcedown, fs_size):
         print("[+] Found local Kali %s %s rootfs: %s" % (fs_arch, fs_size, fs_localpath))
     else:
         print("[i] Downloading Kali %s %s rootfs (last-snapshot)" % (fs_arch, fs_size))
-        download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
+        download(fs_url, fs_localpath, False)  # TODO: We should add SHA512 retrieval function
 
     print("[+] Finished downloading Kali rootfs")
 
 
-def addrootfs(fs_size, dst):
+def zip_rootfs(fs_size, dst):
     global arch
 
     print("[i] Adding Kali rootfs archive to the installer zip")
 
     try:
         fs_arch = arch
-        fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
-        fs_localpath = os.path.join("rootfs", fs_file)
+        fs_file = "kalifs-{}-{}.tar.xz".format(fs_size, fs_arch)
+        fs_localpath = os.path.join("data", "rootfs", fs_file)
 
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)
         zf.write(os.path.abspath(fs_localpath), fs_file)
@@ -316,7 +328,7 @@ def zip(src, dst):
     print("[+] Finished creating zip")
 
 
-def readkey(key, default=""):
+def read_key(key, default=""):
     global YAML
     global kernel
 
@@ -331,7 +343,7 @@ def readkey(key, default=""):
         return default
 
 
-def configfile(file_name, values, pure=False):
+def update_config(file_name, values, pure=False):
     print("[+] Updating: " + file_name)
 
     # Open file as read only and copy to string
@@ -360,7 +372,25 @@ def configfile(file_name, values, pure=False):
     file_handle.close()
 
 
-def setupkernel():
+def setup_common(out_path=""):
+    global tmp_path
+
+    print("[i] Setting up common files")
+
+    if not out_path:
+        out_path = os.path.join(tmp_path, "boot-patcher")
+
+    # Blindly copy directories (thats not in IgnoredFiles)
+    print("[i] Common: Copying common files")
+    copytree("common", out_path)
+
+    print("[i] Common: Copying %s arch specific common files" % arch)
+    copytree(os.path.join("common", "arch", arch), out_path)
+
+    print("[+] Finished setting up common files")
+
+
+def setup_installer():
     global YAML
     global kernel
     global android
@@ -368,36 +398,32 @@ def setupkernel():
     global args
     global tmp_path
 
-    print("[i] Setting up kernel")
+    setup_common()
+
+    print("[i] Setting up kernel installer (boot-patcher)")
 
     out_path = os.path.join(tmp_path, "boot-patcher")
 
-    # Blindly copy directories
-    print("[i] Kernel: Copying common files")
-    copytree("common", out_path)
-
-    print("[i] Kernel: Copying %s arch specific common files" % arch)
-    copytree(os.path.join("common", "arch", arch), out_path)
-
-    print("[i] Kernel: Copying boot-patcher files")
+    print("[i] Installer: Copying boot-patcher files")
     copytree("boot-patcher", out_path)
 
-    print("[i] Kernel: Copying %s arch specific boot-patcher files" % arch)
+    print("[i] Installer: Copying %s arch specific boot-patcher files" % arch)
     copytree(os.path.join("boot-patcher", "arch", arch), out_path)
 
     if kernel == "generic":
         # Set up variables in the kernel installer script
-        print("[i] Kernel: Configuring installer script for generic %s kernel" % arch)
-        configfile(
+        print("[i] Installer: Configuring installer script for generic %s kernel" % arch)
+        update_config(
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
             {"generic": arch},
         )
         # There's nothing left to configure
-        print("[+] Finished setting up (generic) kernel")
+        print("[+] Finished setting up 'generic' kernel installer (boot-patcher)")
         return
-    print("[i] Kernel: Configuring installer script for " + kernel)
+
+    print("[i] Installer: Configuring installer script for " + kernel)
 
     if flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
@@ -416,8 +442,9 @@ def setupkernel():
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
         )
-        # Set up variables in the anykernel script
-        configfile(
+
+        # Set up variables in the AnyKernel3 script
+        update_config(
             os.path.join(out_path, "anykernel.sh"),
             {
                 "kernel.string": kernelstring,
@@ -428,14 +455,15 @@ def setupkernel():
             },
             True,
         )
+
         i = 1
         for devicename in devicenames.split(","):
             print('[i] AnyKernel3 devicename: ' + devicename)
             key = "device.name" + str(i)
-            configfile(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
+            update_config(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
             i += 1
 
-        configfile(
+        update_config(
             os.path.join(out_path, "banner"),
             {
                 "   Kernel": kernelstring,
@@ -444,10 +472,9 @@ def setupkernel():
             },
             True,
         )
-
     else:
         # Set up variables in the kernel installer script
-        configfile(
+        update_config(
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
             ),
@@ -460,8 +487,8 @@ def setupkernel():
         )
 
         # Set up variables in boot-patcher.sh
-        print("[i] Kernel: Configuring LazyFlasher's boot-patcher.sh script for " + kernel)
-        configfile(
+        print("[i] Installer: Configuring LazyFlasher's boot-patcher.sh script for " + kernel)
+        update_config(
             os.path.join(out_path, "boot-patcher.sh"),
             {
                 "boot_block": block,
@@ -551,53 +578,59 @@ def setupkernel():
         print("[+] Found additional AnyKernel3 patches: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
 
-    print("[+] Finished setting up kernel")
+    print("[+] Finished setting up kernel installer (boot-patcher)")
 
 
-def setupnethunter():
+def setup_nethunter():
     global arch
     global resolution
 
+    setup_common(tmp_path)
+
     print("[+] Setting up NetHunter")
 
-    # Blindly copy directories
-    print("[i] NetHunter: Copying common files")
-    copytree("common", tmp_path)
+    print("[i] NetHunter: Copying files")
+    copytree("nethunter", tmp_path)
 
-    print("[i] NetHunter: Copying %s arch specific common files" % arch)
-    copytree(os.path.join("common", "arch", arch), tmp_path)
-
-    print("[i] NetHunter: Copying update files")
-    copytree("update", tmp_path)
-
-    print("[i] NetHunter: Copying %s arch specific update files" % arch)
-    copytree(os.path.join("update", "arch", arch), tmp_path)
+    print("[i] NetHunter: Copying %s arch specific files" % arch)
+    copytree(os.path.join("nethunter", "arch", arch), tmp_path)
 
     print("[i] NetHunter: Copying kernel zip")
     copytree("kernel", tmp_path)
 
     # Set up variables in update-binary script
     print("[i] NetHunter: Configuring installer script for " + kernel)
-    configfile(
+    update_config(
         os.path.join(tmp_path, "META-INF", "com", "google", "android", "update-binary"),
         {"supersu": supersu},
     )
 
-    # Overwrite screen resolution if defined in devices.yml
+    # Overwrite screen resolution if defined in ./kernels/devices.yml
     if resolution:
         file_name = os.path.join(tmp_path, "wallpaper", "resolution.txt")
         file_handle = open(file_name, "w")
         file_handle.write(resolution)
         file_handle.close()
 
-    setupkernel()
-    zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
+    # Device model specific (pre zip)
+    # Change bootanimation folder for product partition devices
+    if kernel.find("oneplus8") == 0:
+        shutil.copytree(
+            os.path.join(tmp_path, "system", "media"),
+            os.path.join(tmp_path, "product", "media"),
+            dirs_exist_ok=True,
+        )
+        shutil.rmtree(os.path.join(tmp_path, "system", "media"))
+
+    print("[+] Finished setting up NetHunter")
+
 
 def cleanup(domsg=False):
     if os.path.exists(tmp_path):
         if domsg:
             print("[i] Removing temporary build directory: " + tmp_path)
         shutil.rmtree(tmp_path)
+
 
 def done():
     cleanup()
@@ -651,7 +684,7 @@ def yaml_parse(data):
     lines = data.split('\n')
     for line in lines:
         if not line.startswith('#'):
-            ## yaml doesn't like tabs so let's replace them with four spaces
+            # yaml doesn't like tabs so let's replace them with four spaces
             result += "{}\n".format(line.replace('\t', '    '))
     return yaml.safe_load(result)
 
@@ -677,7 +710,7 @@ def main():
     global supersu
 
     supersu_beta = False
-    IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea"]
+    IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea", "README.md"]
     devices_yml = os.path.join("kernels", "devices.yml")
     t = datetime.datetime.now()
     TimeStamp = "%04d%02d%02d_%02d%02d%02d" % (
@@ -748,12 +781,12 @@ def main():
         "--uninstaller", "-u", action="store_true", help="Create an uninstaller"
     )
     parser.add_argument(
-        "--installer", "-i", action="store_true", help="Build kernel installer only"
+        "--installer", "-i", action="store_true", help="Build only the kernel installer (boot-patcher)"
     )
     parser.add_argument(
         "--no-installer",
         action="store_true",
-        help="Build without the kernel installer",
+        help="Build without the kernel installer (boot-patcher)",
     )
     parser.add_argument(
         "--no-branding",
@@ -802,12 +835,13 @@ def main():
         arch = args.generic
         kernel = "generic"
     elif args.force_download:
-        print('[i] Only downloading external resources')
-        allapps(True)
+        # Not sure how many people would use this ($0 --force-download)
+        print('[i] Only downloading external resources (Caching, not building)')
+        download_nethunter_apps()
         if args.supersu:
-            supersu(True, supersu_beta)
+            download_supersu(supersu_beta)
         if args.rootfs:
-            rootfs(args.force_download, args.rootfs)
+            download_rootfs(args.rootfs)
         done()
     elif not args.uninstaller:
         abort('No valid arguments supplied. Try -h or --help')
@@ -876,24 +910,23 @@ def main():
                 "Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal, --rootfs nano"
             )
 
-
     #
     # Read arguments
     #
 
-    kernelstring = readkey("kernelstring", "NetHunter kernel")
-    devicenames = readkey("devicenames")
-    arch = readkey("arch", "armhf")
-    flasher = readkey("flasher", "LazyFlasher")
+    kernelstring = read_key("kernelstring", "NetHunter kernel")
+    devicenames = read_key("devicenames")
+    arch = read_key("arch", "armhf")
+    flasher = read_key("flasher", "LazyFlasher")
     x = 'auto' if flasher == "anykernel" else 'gzip'
-    ramdisk = readkey("ramdisk", x)
-    resolution = readkey("resolution")
-    block = readkey("block")
-    version = readkey("version", "1.0")
-    supersu = readkey("supersu", "auto") # REF: See commit 922bea58931a50299e159d222285792303e69005
-    modules = str(readkey("modules", "0"))
-    slot_device = str(readkey("slot_device", "1"))
-    author = readkey("author", "Unknown")
+    ramdisk = read_key("ramdisk", x)
+    resolution = read_key("resolution")
+    block = read_key("block")
+    version = read_key("version", "1.0")
+    supersu = read_key("supersu", "auto") # REF: See commit 922bea58931a50299e159d222285792303e69005
+    modules = str(read_key("modules", "0"))
+    slot_device = str(read_key("slot_device", "1"))
+    author = read_key("author", "Unknown")
 
     #
     # Feedback
@@ -926,7 +959,7 @@ def main():
 
     if args.supersu:
         print("[i] Include SuperSU: true")
-        print("[i] SuperSU beta: " + supersu_beta)
+        print("[i] SuperSU beta: " , supersu_beta)
 
     x = args.release if args.release else TimeStamp
     print("[i] NetHunter release version: " + x)
@@ -956,52 +989,36 @@ def main():
     print("[i]   author      : " + author)
 
     #
-    # Do actions
+    # Filename output
     #
-
-    # Build an uninstaller zip if --uninstaller is specified
-    if args.uninstaller:
-        x = args.release if args.release else TimeStamp
-        file_name = "uninstaller-nethunter-%s.zip" % x
-
-        zip("uninstaller", file_name)
-
-        print("[+] Created uninstaller: " + file_name)
-
-    # If no device or generic arch is specified, we are done
-    if not (args.kernel or args.generic):
-        print('[i] Not creating device model or generic image')
-        done()
-
-    # We don't need the apps or SuperSU if we are only building the kernel installer
-    if not args.installer:
-        allapps(args.force_download)
-        # Download SuperSU if we want it
-        if args.supersu:
-            supersu(args.force_download, supersu_beta)
-
-    # Download Kali rootfs if we are building a zip with the chroot environment included
-    if args.rootfs:
-        rootfs(args.force_download, args.rootfs)
 
     # Set file name tag depending on the options chosen
     if args.release:
         file_tag = args.release
     else:
         file_tag = TimeStamp
+
     file_tag += "-" + kernel
+
     if args.kernel:
         file_tag += "-" + android
     else:
         file_tag += "-" + arch
+
     if args.no_branding and not args.installer:
         file_tag += "-nobranding"
+
     if args.supersu:
         file_tag += "-rooted"
+
     if args.rootfs:
         file_tag += "-kalifs-" + args.rootfs
 
-    # Don't include wallpaper or boot animation if --nobrand is specified
+    #
+    # Add any other files to ignore
+    #
+
+    # Don't include wallpaper or boot animation if --no-branding is specified
     if args.no_branding:
         IgnoredFiles.append("wallpaper")
         IgnoredFiles.append("bootanimation.zip")
@@ -1018,59 +1035,84 @@ def main():
     else:
         IgnoredFiles.append("bootanimation_wearos.zip")
 
-    # Don't include free space script if --nofreespace is specified
+    # Don't include free space script if --no-freespace-check is specified
     if args.no_freespace_check:
         IgnoredFiles.append("freespace.sh")
-
-    # Don't set up the kernel installer if --nokernel is specified
-    if not args.no_installer:
-        setupkernel()
-
-        # Build a kernel installer zip and exit if --kernel is specified
-        if args.installer:
-            file_name = "kernel-nethunter-%s.zip" % file_tag
-
-            zip(os.path.join(tmp_path, "boot-patcher"), file_name)
-
-            print("[+] Created kernel installer: " + file_name)
-            done()
 
     # Don't include SuperSU unless --supersu is specified
     if not args.supersu:
         IgnoredFiles.append("supersu.zip")
 
-    # Set up the update zip
-    setupnethunter()
+    #
+    # Download external resources
+    #
 
-    # Change bootanimation folder for product partition devices
-    if kernel.find("oneplus8") == 0:
-        shutil.copytree(
-            os.path.join(tmp_path, "system", "media"),
-            os.path.join(tmp_path, "product", "media"),
-            dirs_exist_ok=True,
-        )
-        shutil.rmtree(os.path.join(tmp_path, "system", "media"))
-
-    file_prefix = ""
-    if not args.rootfs:
-        file_prefix += "update-"
-
-    file_name = "{}nethunter-{}.zip".format(file_prefix, file_tag)
-
-    zip(tmp_path, file_name)
-
-    # Add the Kali rootfs archive if --rootfs is specified
+    # Download Kali rootfs if we are building a zip with the chroot environment included
     if args.rootfs:
-        addrootfs(args.rootfs, file_name)
-    # Rename bootanimation archive if --wearos is specified
-    if args.wearos:
-        bootanimation_rename = (
-            'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w '
-            + file_name
-        )
-        os.system(bootanimation_rename)
+        download_rootfs(args.rootfs)
 
-    print("[+] Created Kali NetHunter installer: " + file_name)
+    # We don't need the apps or SuperSU if we are only building the kernel installer
+    if not args.installer:
+        download_nethunter_apps()
+        copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
+
+        # Download SuperSU if we want it
+        if args.supersu:
+            download_supersu(supersu_beta)
+            shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
+
+    #
+    # Do actions
+    #
+
+    # Build an uninstaller zip if --uninstaller is specified
+    if args.uninstaller:
+        x = args.release if args.release else TimeStamp
+        file_name = "nethunter-uninstaller-%s.zip" % x
+
+        zip("uninstaller", file_name)
+
+        print("[+] Created uninstaller: " + file_name)
+    # Only build a kernel installer zip and exit if --installer is specified
+    if args.installer:
+        setup_installer()
+
+        file_name = "nethunter-installer-%s.zip" % file_tag
+
+        zip(os.path.join(tmp_path, "boot-patcher"), file_name)
+
+        print("[+] Created kernel installer: " + file_name)
+    else
+        # Don't set up the kernel installer if --no-installer is specified
+        if args.no_installer:
+            file_name = "nethunter-noinstaller-%s.zip" % file_tag
+        else:
+            file_name = "nethunter-%s.zip" % file_tag
+            setup_installer()
+            zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "nethunter-installer.zip"))
+
+        setup_nethunter()
+
+        zip(tmp_path, file_name)
+
+        #
+        # Post zip creation
+        #
+
+        # Add the Kali rootfs archive if --rootfs is specified
+        if args.rootfs:
+            zip_rootfs(args.rootfs, file_name)
+
+        # Device model specific (post zip)
+        # Rename bootanimation archive if --wearos is specified
+        if args.wearos:
+            bootanimation_rename = (
+                'printf "@ system/media/bootanimation_wearos.zip\n@=system/media/bootanimation.zip\n" | zipnote -w '
+                + file_name
+            )
+            os.system(bootanimation_rename)
+
+        print("[+] Created Kali NetHunter installer: " + file_name)
     done()
 
 

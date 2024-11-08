@@ -1,5 +1,10 @@
 #!/sbin/sh
-# Install NetHunter's busybox
+# Install NetHunter's BusyBox
+
+print() {
+  echo "ui_print - $1" > $console
+  echo
+}
 
 tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
@@ -8,30 +13,25 @@ tmp=${tmp%/*/*}
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
-print() {
-	echo "ui_print - $1" > $console
-	echo
-}
-
 xbin=/system/xbin
 [ -d $xbin ] || mkdir -p $xbin
 
 cd "$tmp/tools"
 for bb in busybox_nh-*; do 
-    print "Installing $bb..."
-    rm -f $xbin/$bb
-    cp $bb $xbin/$bb
-    chmod 0755 $xbin/$bb
+  print "Installing $bb..."
+  rm -f $xbin/$bb
+  cp $bb $xbin/$bb
+  chmod 0755 $xbin/$bb
 done
 
 cd $xbin
 rm -f busybox_nh
-busybox_nh=`(/sbin/busybox_nh ls -v busybox_nh-* || ls busybox_nh-*) | tail -n 1`
+busybox_nh=$( (/sbin/busybox_nh ls -v busybox_nh-* || ls busybox_nh-*) | tail -n 1 )
 print "Setting $busybox_nh as default"
 ln -s $xbin/$busybox_nh busybox_nh
 $xbin/busybox_nh --install -s $xbin
 
 [ -e $xbin/busybox ] || {
-	print "$xbin/busybox not found! Symlinking..."
-	ln -s $xbin/busybox_nh $xbin/busybox
+  print "$xbin/busybox not found! Symlinking..."
+  ln -s $xbin/busybox_nh $xbin/busybox
 }

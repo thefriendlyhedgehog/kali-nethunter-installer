@@ -1,12 +1,11 @@
-## ./build.py - External Android apps
-update/data/app/*.apk
-update/supersu.zip
+## ./build.py - External resources
+data/
 
 ## ./build.py - Working path
 tmp_out/
 
 ## ./build.py - output
-*.zip
+./nethunter-*.zip
 
 ## ./bootstrap.sh - https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels
 kernels/

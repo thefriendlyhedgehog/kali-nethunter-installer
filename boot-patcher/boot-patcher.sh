@@ -1,6 +1,7 @@
 #!/sbin/sh
 # Kali NetHunter boot image patcher script
 # Based on LazyFlasher kernel-flasher by jcadduono
+# REF: https://github.com/jcadduono/lazyflasher/blob/kernel-flasher/boot-patcher.sh
 
 ## start build generated variables
 boot_block=
