@@ -1082,7 +1082,7 @@ def main():
         zip(os.path.join(tmp_path, "boot-patcher"), file_name)
 
         print("[+] Created kernel installer: " + file_name)
-    else
+    else:
         # Don't set up the kernel installer if --no-installer is specified
         if args.no_installer:
             file_name = "nethunter-noinstaller-%s.zip" % file_tag
