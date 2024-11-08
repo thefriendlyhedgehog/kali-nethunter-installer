@@ -266,7 +266,7 @@ def download_rootfs(fs_size):
     fs_path = os.path.join("data", "rootfs")
     if not os.path.exists(fs_path):
         os.makedirs(fs_path)
-    fs_localpath = os.path.join(fs_path, fs_file)
+    fs_localpath = os.path.join(fs_path, "kalifs-{}-{}.tar.xz".format(fs_size, fs_arch))
 
     if args.force_download:
         # For force re-download, remove previous rootfs
@@ -282,7 +282,7 @@ def download_rootfs(fs_size):
         print("[+] Found local Kali %s %s rootfs: %s" % (fs_arch, fs_size, fs_localpath))
     else:
         print("[i] Downloading Kali %s %s rootfs (last-snapshot)" % (fs_arch, fs_size))
-        download(fs_url, fs_localpath, False)  # We should add SHA512 retrieval function
+        download(fs_url, fs_localpath, False)  # TODO: We should add SHA512 retrieval function
 
     print("[+] Finished downloading Kali rootfs")
 
@@ -294,7 +294,7 @@ def zip_rootfs(fs_size, dst):
 
     try:
         fs_arch = arch
-        fs_file = "kali-nethunter-rootfs-{}-{}.tar.xz".format(fs_size, fs_arch)
+        fs_file = "kalifs-{}-{}.tar.xz".format(fs_size, fs_arch)
         fs_localpath = os.path.join("data", "rootfs", fs_file)
 
         zf = zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED)

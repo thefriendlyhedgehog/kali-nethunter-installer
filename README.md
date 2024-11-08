@@ -55,7 +55,7 @@ Building **without the kernel** _(useful for just updating apps)_:
 
 - - -
 
-Building with **adding a full chroot** _(add `kalifs-full.tar.xz` to `rootfs/[arch]/kalifs-full.tar.xz`):_
+Building with **adding a full chroot** _(use either [pre-created](https://kali.download/nethunter-images/current/rootfs/) (default) or [generate own](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-rootfs) then add to `./rootfs/kalifs-full-[arch].tar.xz`):_
 
 ```bash
 ./build.py -d hammerhead --marshmallow --rootfs full

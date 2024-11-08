@@ -283,7 +283,7 @@ do_chroot() {
   # Chroot common path
   NHSYS=/data/local/nhsystem
 
-  # do_install [optional zip containing kalifs]
+  # do_install [optional zip containing kalifs chroot/rootfs]
   # Check zip for kalifs-* first
   [ -e "$ZIPFILE" ] && {
     KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')

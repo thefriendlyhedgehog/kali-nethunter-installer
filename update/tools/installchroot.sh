@@ -30,7 +30,7 @@ verify_fs() {
   return 0
 }
 
-# do_install [optional zip containing kalifs]
+# do_install [optional zip containing kalifs chroot/rootfs]
 do_install() {
   print "Found Kali chroot to be installed: $KALIFS"
 
@@ -102,10 +102,10 @@ case $ARCH in
   *) print "Unknown architecture detected. Aborting chroot Installation..." && exit 1 ;;
 esac
 
-# Check zip for kalifs-* first
+# Check zip for kalifs-*.tar.xz first
 [ -f "$zip" ] && {
   KALIFS=$(unzip -lqq "$zip" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
-  # Check other locations if zip didn't contain a kalifs-*
+  # Check other locations if zip didn't contain a kalifs-*.tar.xz
   [ "$KALIFS" ] || return
 
   FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
@@ -115,16 +115,15 @@ esac
 
 # Check these locations in priority order
 for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
-
-  # Check location for kalifs-[arch]-[size].tar.xz name format
+  # Check location for kalifs-[size]-[arch].tar.xz first name format
   for KALIFS in "$fsdir"/kalifs-*-*.tar.xz; do
     [ -s "$KALIFS" ] || continue
-    FS_ARCH=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
-    FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $3}')
+    FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
+    FS_ARCH=$(basename "$KALIFS" | awk -F[-.] '{print $3}')
     verify_fs && do_install
   done
 
-  # Check location for kalifs-[size].tar.xz name format
+  # Check location for kalifs-[size].tar.xz name format (Legacy)
   for KALIFS in "$fsdir"/kalifs-*.tar.xz; do
     [ -f "$KALIFS" ] || continue
     FS_ARCH=armhf
