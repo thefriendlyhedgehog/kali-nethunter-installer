@@ -1011,10 +1011,10 @@ def main():
         file_tag += "-no_branding"
 
     if args.installer:
-        file_tag += "-installer"
+        file_tag = "kernel-" + file_tag
 
     if args.no_installer:
-        file_tag += "-no_installer"
+        file_tag += "-no_kernel"
 
     if args.uninstaller:
         file_tag += "-uninstaller"
@@ -1093,8 +1093,9 @@ def main():
     else:
         # Don't set up the kernel installer if --no-installer is specified
         if not args.no_installer:
-            setup_installer()
-            zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "nethunter-installer.zip"))
+            if not args.generic:
+                setup_installer()
+                zip(os.path.join(tmp_path, "boot-patcher"), os.path.join(tmp_path, "kernel-nethunter.zip"))
 
         setup_nethunter()
 

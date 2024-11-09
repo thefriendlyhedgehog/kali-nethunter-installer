@@ -269,7 +269,7 @@ do_flash() {
 flash_kernel() {
   # Check zip for nethunter-installer.zip first
   [ -e "$ZIPFILE" ] && {
-    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^nethunter-installer/ { print $4; exit }')
+    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
     # Check other locations if zip didn't contain a nethunter-installer.zip
     [ "$KERNEL" ] || {
       ui_print "No kernel found. Skipping...."
@@ -293,8 +293,8 @@ do_chroot() {
       return
     }
 
-    FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
-    FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
+    FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
+    FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
     verify_fs && do_install
   }
 }
@@ -323,7 +323,7 @@ ui_print "##  88       Y8b d8'          '8b 888888888 88  ##"
 ui_print "##                                              ##"
 ui_print "####  ############# NetHunter ####################"
 ui_print ""
-ui_print "NetHunter (Magisk)"
+ui_print "Kali NetHunter Magisk module"
 ui_print ""
 
 # Extract the installer

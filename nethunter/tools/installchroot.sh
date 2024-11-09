@@ -108,8 +108,8 @@ esac
   # Check other locations if zip didn't contain a kalifs-*.tar.xz
   [ "$KALIFS" ] || return
 
-  FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
-  FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
+  FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
+  FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
   verify_fs && do_install "$zip"
 }
 
