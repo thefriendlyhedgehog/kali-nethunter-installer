@@ -2,8 +2,11 @@
 # Install SuperSU in the specified mode
 
 print() {
-  echo -e "ui_print ${1:- }" > "$console"
-  echo -e "ui_print \n" > "$console"
+  echo "${1:- }" \
+    | while read -r line; do
+       echo -e "ui_print $line" > "$console"
+       echo -e "ui_print \n" > "$console"
+    done
 }
 
 tmp=$(readlink -f "$0")
