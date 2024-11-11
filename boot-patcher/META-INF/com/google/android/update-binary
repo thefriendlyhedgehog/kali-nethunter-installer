@@ -115,9 +115,9 @@ print ""
 else 
 
 print "##################################################"
-print "          A/B and A Devices Boot-patcher"
+print "          A/B and A Devices Boot-patcher          "
 if [ "$generic" ]; then
-	print "  for $generic devices - ramdisk modifications only"
+    print " for $generic devices - ramdisk modifications only" # Skipping indent formatting
 fi
 print "##################################################"
 fi

@@ -488,7 +488,7 @@ progress 0.1
 }
 
 
-print "* Checking for previous versions of NetHunter"
+print "* Checking for previous versions of Kali NetHunter"
 sh tools/previnstall.sh
 #print "* Done checking for previous versions"
 
@@ -585,13 +585,13 @@ sh tools/installbusybox.sh
 progress 0.6
 
 [ -d wallpaper ] && {
-  print "* Installing NetHunter wallpaper"
+  print "* Installing Kali NetHunter wallpaper"
   sh wallpaper/setwallpaper.sh
   #print "* Done installing wallpaper"
 }
 
 [ -f system/media/bootanimation.zip ] && {
-  print "* Installing NetHunter boot animation"
+  print "* Installing Kali NetHunter boot animation"
   install "/system/media/bootanimation.zip" 0755 0644 "${SYSTEM}/media/bootanimation.zip"
 }
 

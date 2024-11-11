@@ -64,10 +64,7 @@ SA=$MNT/app
 DA=/data/app
 AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
 
-# twrp df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
-BB=$(get_bb)
-FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
-case $AndroidV in 
+case $AndroidV in
    4) android_ver="Kitkat";;
    5) android_ver="Lolipop";;
    6) android_ver="Marshmallow";;
@@ -78,22 +75,27 @@ case $AndroidV in
   11) android_ver="R";;
 esac
 
+# TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
+BB=$(get_bb)
+FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
+
 if [ -z $FreeSpace ]; then
   print "! Warning: Could not get free space status, continuing anyway!"
   exit 0
 fi
 
+print "- $MNT free space: $FreeSpace MB"
+
 if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
   exit 0
 else
-  print "- Free space (before): $FreeSpace MB"
   print "- You don't have enough free space in your ${SYSTEM}"
   print "- Freeing up some space on ${SYSTEM}"
 
   if [ "$AndroidV" -gt "7" ]; then
-    print "- Android Version: $android_ver"
-    print "- Starting from Oreo,we can't move apps from /system to /data."
-    print "! Aborting Installation"
+    print "- Android Version: $android_ver (Android $AndroidV)"
+    print "- Starting from Oreo (Android 8), we can't move apps from /system to /data"
+    print "! Aborting installation"
     exit 1
   else
     for app in $MoveableApps; do

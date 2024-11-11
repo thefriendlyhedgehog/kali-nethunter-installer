@@ -444,7 +444,7 @@ set_wallpaper;
 }
 
 [ -d $TMP/boot-patcher/system/etc/firmware ] && {
-  ui_print "- Copying Wifi firmwares to /system/etc/firmware"
+  ui_print "- Copying Wi-Fi firmwares to /system/etc/firmware"
   mkdir -p $ETC;
   cp -r "$TMP/boot-patcher/system/etc/firmware" "$ETC/"
   set_perm_recursive "$ETC/firmware" 0 0 0755 0644
