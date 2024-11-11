@@ -1,5 +1,8 @@
 #!/sbin/sh
-# Kali NetHunter uninstaller (does not currently do anything useful, anyone wanna take it on?)
+## Kali NetHunter uninstaller
+## TODO:
+## - Bootanimation
+## - Wallpaper
 
 print() {
   echo "${1:- }" \
@@ -25,7 +28,9 @@ cleanup() {
 
   umount /system
 
-  [ "$zip" ] && rm /tmp/console
+  [ "$ZIPFILE" ] && {
+   rm /tmp/console
+  }
 }
 
 mount() {
@@ -34,15 +39,15 @@ mount() {
   >> "$1/.rw" && return || abort "Unable to write to $1!"
 }
 
-[ "$3" ] && {
-  zip=$3
+if [ "$3" ]; then
+  ZIPFILE=$3
   console=/proc/$$/fd/$2
-  # write the location of the console buffer to /tmp/console for other scripts to use
+  # Write the location of the console buffer to /tmp/console for other scripts to use
   echo "$console" > /tmp/console
-} || {
+else
   console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
-}
+fi
 
 print "##################################################"
 print "##                                              ##"
@@ -64,35 +69,45 @@ print "- Mounting /system & /data";
 mount /system
 mount /data
 
-# Remove added firmware (folder would only exist if you installed NetHunter)
+# Remove added firmware (folder would only exist if you installed Kali NetHunter)
 [ -d "/system/etc/firmware/rtlwifi" ] && {
-  print "- Removing Firmware";
+  print "- Removing firmware";
   rm -rf /system/etc/firmware/rtlwifi
   rm -rf /system/etc/firmware/zd1211
-  rm -f /system/etc/firmware/ar9170-1.fw
-  rm -f /system/etc/firmware/ar9170-2.fw
-  rm -f /system/etc/firmware/carl9170.fw
-  rm -f /system/etc/firmware/htc_7010.fw
-  rm -f /system/etc/firmware/rt73.bin
-  rm -f /system/etc/firmware/rt2561.bin
-  rm -f /system/etc/firmware/rt2860.bin
-  rm -f /system/etc/firmware/rt2870.bin
-  rm -f /system/etc/firmware/rt3070.bin
+  rm -f  /system/etc/firmware/ar9170-1.fw
+  rm -f  /system/etc/firmware/ar9170-2.fw
+  rm -f  /system/etc/firmware/carl9170.fw
+  rm -f  /system/etc/firmware/htc_7010.fw
+  rm -f  /system/etc/firmware/rt73.bin
+  rm -f  /system/etc/firmware/rt2561.bin
+  rm -f  /system/etc/firmware/rt2860.bin
+  rm -f  /system/etc/firmware/rt2870.bin
+  rm -f  /system/etc/firmware/rt3070.bin
 }
 
-[ -d "/system/priv-app/NetHunter" ] && {
+[ -d "/system/app/NetHunter" ] && {
   print "- Removing NetHunter.apk"
-  rm -rf /system/priv-app/NetHunter
+  rm -rf /system/app/NetHunter
 }
 
-[ -d "/system/priv-app/NetHunter-Terminal" ] && {
-  print "- Removing Term-nh.apk"
-  rm -rf /system/priv-app/NetHunter-Terminal
+[ -d "/system/app/NetHunter-Terminal" ] && {
+  print "- Removing NetHunterTerminal.apk"
+  rm -rf /system/app/NetHunter-Terminal
 }
 
-[ -d "/system/priv-app/NetHunter-VNC" ] && {
-  print "- Removing VNC-nh.apk"
-  rm -rf /system/priv-app/NetHunter-VCN
+[ -d "/system/app/NetHunter-KeX" ] && {
+  print "- Removing NetHunterKeX.apk"
+  rm -rf /system/app/NetHunter-KeX
+}
+
+[ -d "/system/app/NetHunter-Store" ] && {
+  print "- Removing NetHunterStore.apk"
+  rm -rf /system/app/NetHunter-Store
+}
+
+[ -d "/system/priv-app/NetHunterStorePrivilegedExtension" ] && {
+  print "- Removing NetHunterStorePrivilegedExtension.apk"
+  rm -rf /system/priv-app/NetHunterStorePrivilegedExtension
 }
 
 [ -d "/data/data/com.offsec.nethunter" ] && {
