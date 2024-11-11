@@ -128,7 +128,5 @@ else
       print "Unable to free up $SpaceRequired MB of space on '$MNT'!"
       exit 1
     fi
-
-    exit 0
   fi
 fi

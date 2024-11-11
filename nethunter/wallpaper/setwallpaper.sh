@@ -67,5 +67,3 @@ if [ "$setup_wp" ]; then
 fi
 
 print "- NetHunter wallpaper applied successfully"
-
-exit 0

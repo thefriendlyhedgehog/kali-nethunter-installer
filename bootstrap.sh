@@ -55,5 +55,3 @@ clonecmd="${clonecmd} $cloneurl kernels"
 echo "[i] Running command: ${clonecmd}"
 
 ${clonecmd} || ABORT "Failed to git clone kernels!"
-
-exit 0

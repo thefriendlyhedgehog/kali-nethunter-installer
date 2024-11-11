@@ -136,4 +136,3 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
 done
 
 print "- No Kali rootfs archive found. Skipping..."
-exit 0
