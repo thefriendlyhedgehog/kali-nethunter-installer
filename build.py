@@ -916,7 +916,7 @@ def main():
 
     kernelstring = read_key("kernelstring", "NetHunter kernel")
     devicenames = read_key("devicenames")
-    arch = read_key("arch", "armhf")
+    arch = args.generic if args.generic else read_key("arch", "armhf")
     flasher = read_key("flasher", "LazyFlasher")
     x = 'auto' if flasher == "anykernel" else 'gzip'
     ramdisk = read_key("ramdisk", x)
