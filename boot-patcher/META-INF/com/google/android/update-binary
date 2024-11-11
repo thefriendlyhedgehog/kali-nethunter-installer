@@ -1,5 +1,5 @@
 #!/sbin/sh
-# NetHunter kernel installer backend
+## Kali NetHunter kernel installer backend
 
 print() {
   echo "${1:- }" \
@@ -20,11 +20,11 @@ abort() {
 }
 
 cleanup() {
-  if [ "$ZIPFILE" ]; then
-    rm /tmp/console
-    cd $(dirname $tmp)
-    rm -rf $tmp
-  fi
+  [ "$ZIPFILE" ] && {
+   rm /tmp/console
+  }
+  cd $(dirname $tmp)
+  rm -rf $tmp
 }
 
 install() {
@@ -63,7 +63,7 @@ install_recovery_bb() {
   cd $tmp/tools
 
   # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
-  recovery_bb=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
+  recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
   cp $recovery_bb busybox_tmp
   setperm 0755 0755 busybox_tmp
 

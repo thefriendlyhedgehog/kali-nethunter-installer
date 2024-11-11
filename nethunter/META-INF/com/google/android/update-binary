@@ -1,5 +1,5 @@
 #!/sbin/sh
-# Kali NetHunter installer
+## Kali NetHunter installer
 
 ## Detect bootmode
 ## "BOOTMODE=true"  = Device has booted into system (NetHunter installed as Magisk module)
@@ -494,6 +494,7 @@ print ""
 cd "$tmp"
 
 print "* Loading environment"
+#chmod +x env
 . ./env.sh
 
 [ -e /dev/block/mapper ] && {
