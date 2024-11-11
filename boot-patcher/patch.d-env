@@ -43,7 +43,7 @@ print() {
 	else
 		echo "ui_print  " > "$console"
 	fi
-	echo
+	echo -e "ui_print \n" > "$console"
 }
 
 abort() {
