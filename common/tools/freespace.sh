@@ -15,11 +15,9 @@ get_bb() {
   cd - >/dev/null
 }
 
-
 tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 . "$tmp/env.sh"
-
 
 console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
