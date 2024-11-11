@@ -146,9 +146,9 @@ install() {
   cp -r "$tmp$1" "$(dirname "$1")/"
 }
 
-# installapp "App Name" "appfile.apk" "play.store.package.name"
+# installapp_user "App Name" "appfile.apk" "play.store.package.name"
 #   if the app package is found in the play store app database, then don't install it
-installapp() {
+installapp_user() {
   installto=/data/app/
   if [ "$3" ]; then
     for appdir in "/data/app/$3-"*; do
@@ -171,6 +171,14 @@ installapp() {
   #print "* Installing $1 to $installto"
   print "*** Installing $1"
   cp -f "$tmp/data/app/$2" "$installto" && return 0
+  print "* Failed to install $1!" && return 1
+}
+
+installapp_system() {
+  check_freespace $tmp/data/app/
+  print "*** Installing $1"
+  mkdir -p ${SYSTEM}/app/$2
+  cp -f $tmp/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
   print "* Failed to install $1!" && return 1
 }
 
@@ -439,6 +447,26 @@ install_recovery_bb() {
   cd - >/dev/null
 }
 
+## Apps can be copy, but also unzip/extracted
+check_freespace() {
+  ## If there is a not second argument, show banner
+  [ -n "$2" ] && \
+    print "* Checking free space on $ANDROID_ROOT"
+
+  mntspace=$($BB df -m $ANDROID_ROOT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
+  checkspace=$($BB du -c -m $1 | tail -n 1 | awk '{print $1}')
+
+  if [ -z $mntspace ]; then
+    print "Warning: Could not get free space status for $ANDROID_ROOT, continuing anyway!"
+  elif [ -z $checkspace ]; then
+    print "Warning: Could not get free space status for $1, continuing anyway!"
+  elif [ "$mntspace" -lt "$checkspace" ]; then
+    abort "Warning: Didn't have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
+  elif [ "$mntspace" -eq "0" ]; then
+    abort "Warning: Out of space on $ANDROID_ROOT ($mntspace MB free)"
+  fi
+}
+
 print ""
 print "##################################################"
 print "##                                              ##"
@@ -529,61 +557,73 @@ progress 0.2
 
 progress 0.4
 
+#------------------------------------------------------------------------------
+
+print "* Finding SDK version"
 SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
-print "SDK Version: $SDK"
+[ -z $SDK ] && {
+  abort "Could not find SDK version"
+}
+print "*** SDK Version: $SDK"
 
-print "Installing apps:"
-
+## Starting with Oreo (Android 8) we can no longer install user apps (/data/app/)
+## So we install as system apps (/system)
 if [ $SDK -ge 26 ]; then
-  # Starting with Oreo we can no longer install user apps so we install NetHunter.apk as system app
-  print "- Installing NetHunter.apk"
-  mkdir -p ${SYSTEM}/app/NetHunter
-  cp $tmp/data/app/NetHunter.apk ${SYSTEM}/app/NetHunter/
-  # and NetHunterTerminal.apk because nethunter.apk depends on it
-  print "- Installing NetHunterTerminal.apk"
-  mkdir -p ${SYSTEM}/app/NetHunter-Terminal
-  cp $tmp/data/app/NetHunterTerminal.apk ${SYSTEM}/app/NetHunter-Terminal/
-  unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
-  ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
-  [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
-    mkdir -p /tmp/NetHunter-Terminal/
-    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
-    mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
-  }
-  mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
-  mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
-
-  # and NetHunterKeX.apk because nethunter.apk depends on it
-  print "- Installing NetHunter-KeX.apk"
-  mkdir -p ${SYSTEM}/app/NetHunter-KeX
-  cp $tmp/data/app/NetHunterKeX.apk ${SYSTEM}/app/NetHunter-KeX/
-  unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
-  ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
-  [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
-    mkdir -p /tmp/NetHunter-KeX/
-    unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
-    mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
-  }
-  mv ${SYSTEM}/app/NetHunter-KeX/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-KeX/lib/arm
-  mv ${SYSTEM}/app/NetHunter-KeX/lib/arm64-v8a ${SYSTEM}/app/NetHunter-KeX/lib/arm64
-
-
-  # and NetHunterStore.apk because we need it
-  print "- Installing NetHunter-Store.apk"
-  mkdir -p ${SYSTEM}/app/NetHunter-Store
-  cp $tmp/data/app/NetHunterStore.apk ${SYSTEM}/app/NetHunter-Store/
+  ## Apps in /system
+  check_freespace $tmp/data/app/ "True"
+  print "* Installing apps (via system):"
+  installapp_system "NetHunter.apk" "NetHunter"
+  installapp_system "NetHunterTerminal.apk" "NetHunter-Terminal" # and NetHunterTerminal.apk because NetHunter.apk depends on it
+  installapp_system "NetHunterKeX.apk" "NetHunter-KeX" # and NetHunterKeX.apk because NetHunter.apk depends on it
+  installapp_system "NetHunterStore.apk" "NetHunter-Store" # and NetHunterStore.apk because we need it
 else
-  installapp "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
-  installapp "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
-  installapp "NetHunter KeX" "NetHunterKeX.apk" "com.offsec.nethunter.kex"
-  installapp "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
+  ## Apps in /data/app/
+  check_freespace /data/app/ "True"
+  print "Installing apps (via user):"
+  installapp_user "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
+  installapp_user "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
+  installapp_user "NetHunter KeX" "NetHunterKeX.apk" "com.offsec.nethunter.kex"
+  installapp_user "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
 fi
 
 ## Installing privileged extension
-print "- Installing NetHunterStorePrivilegedExtension.apk"
-mkdir -p ${SYSTEM}/priv-app/NetHunterStorePrivilegedExtension
-cp $tmp/data/app/NetHunterStorePrivilegedExtension.apk ${SYSTEM}/priv-app/NetHunterStorePrivilegedExtension/
+installapp_system "NetHunterStorePrivilegedExtension.apk" "NetHunterStorePrivilegedExtension" "priv-app"
+
 if [ $SDK -ge 26 ]; then
+  print "* Extracting apps (via system):"
+
+  [ -f ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk ] && {
+    check_freespace ${SYSTEM}/app/NetHunter-Terminal/
+    print "*** Extracting NetHunterTerminal"
+    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
+    ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
+    [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
+      print "*** Extracting NetHunterTerminal #2"
+      mkdir -p /tmp/NetHunter-Terminal/
+      unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
+      mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
+    }
+    mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
+    mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
+  }
+
+  [ -f ${SYSTEM}/app/NetHunter-Terminal/NetHunterKeX.apk ] && {
+    check_freespace ${SYSTEM}/app/NetHunter-KeX/
+    print "*** Extracting NetHunterKeX"
+    unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
+    ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
+    [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
+      print "*** Extracting NetHunterKeX #2"
+      mkdir -p /tmp/NetHunter-KeX/
+      unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
+      mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
+    }
+    mv ${SYSTEM}/app/NetHunter-KeX/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-KeX/lib/arm
+    mv ${SYSTEM}/app/NetHunter-KeX/lib/arm64-v8a ${SYSTEM}/app/NetHunter-KeX/lib/arm64
+  }
+
+  check_freespace ${SYSTEM}/etc/permissions
+  print "*** Extracting NetHunterStorePrivilegedExtension"
   mkdir ${SYSTEM}/etc/permissions
   chmod 0755 ${SYSTEM}/etc/permissions
   [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
