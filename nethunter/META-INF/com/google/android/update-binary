@@ -15,17 +15,17 @@ $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMO
 ###################################
 
 if $BOOTMODE; then
-  #################
-  # Initialization
-  #################
-  umask 022
-
   require_new_magisk() {
     echo "*******************************"
     echo " Please install Magisk v20.4+! "
     echo "*******************************"
     exit 1
   }
+
+  #################
+  # Initialization
+  #################
+  umask 022
 
   #########################
   # Load util_functions.sh
@@ -86,26 +86,6 @@ fi
 ##  Install in TWRP              ##
 ##                               ##
 ###################################
-
-## Start build generated variables
-supersu="auto"
-## End build generated variables
-
-if [ "$3" ]; then
-  ZIPFILE=$3
-  console=/proc/$$/fd/$2
-  # Write the location of the console buffer to /tmp/console for other scripts to use
-  echo "$console" > /tmp/console
-else
-  console=$(cat /tmp/console)
-  [ "$console" ] || console=/proc/$$/fd/1
-fi
-
-test "$ANDROID_ROOT" || ANDROID_ROOT=/system
-tmp=/tmp/nethunter
-patchtmp=$tmp/boot-patcher
-export home=$patchtmp
-sutmp=/tmp/supersu
 
 progress() {
   echo "set_progress $1" > "$console"
@@ -466,6 +446,26 @@ check_freespace() {
     abort "Warning: Out of space on $ANDROID_ROOT ($mntspace MB free)"
   fi
 }
+
+## Start build generated variables
+supersu="auto"
+## End build generated variables
+
+if [ "$3" ]; then
+  ZIPFILE=$3
+  console=/proc/$$/fd/$2
+  # Write the location of the console buffer to /tmp/console for other scripts to use
+  echo "$console" > /tmp/console
+else
+  console=$(cat /tmp/console)
+  [ "$console" ] || console=/proc/$$/fd/1
+fi
+
+test "$ANDROID_ROOT" || ANDROID_ROOT=/system
+tmp=/tmp/nethunter
+patchtmp=$tmp/boot-patcher
+export home=$patchtmp
+sutmp=/tmp/supersu
 
 print ""
 print "##################################################"

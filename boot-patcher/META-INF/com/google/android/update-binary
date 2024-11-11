@@ -1,24 +1,6 @@
 #!/sbin/sh
 # NetHunter kernel installer backend
 
-## start build generated variables
-generic="arm64"
-## end build generated variables
-
-if [ "$3" ]; then
-  ZIPFILE=$3
-  console=/proc/$$/fd/$2
-  # write the location of the console buffer to /tmp/console for other scripts to use
-  echo "$console" > /tmp/console
-else
-  console=$(cat /tmp/console)
-  [ "$console" ] || console=/proc/$$/fd/1
-fi
-
-test "$ANDROID_ROOT" || ANDROID_ROOT=/system
-SYSTEM="/system"
-tmp=/tmp/nethunter/boot-patcher
-
 print() {
   echo "${1:- }" \
     | while read -r line; do
@@ -93,32 +75,48 @@ install_recovery_bb() {
   cd - >/dev/null
 }
 
-if [ "$ZIPFILE" ]; then
-print ""
-print "##################################################"
-print "##                                              ##"
-print "##  88      a8P         db        88        88  ##"
-print "##  88    .88'         d88b       88        88  ##"
-print "##  88   88'          d8''8b      88        88  ##"
-print "##  88 d88           d8'  '8b     88        88  ##"
-print "##  8888'88.        d8YaaaaY8b    88        88  ##"
-print "##  88P   Y8b      d8''''''''8b   88        88  ##"
-print "##  88     '88.   d8'        '8b  88        88  ##"
-print "##  88       Y8b d8'          '8b 888888888 88  ##"
-print "##                                              ##"
-print "####  ############# NetHunter ####################"
-print ""
-print "* Boot-Patcher" # Isn't just LazyFlasher
-print ""
+## start build generated variables
+generic="arm64"
+## end build generated variables
 
+if [ "$3" ]; then
+  ZIPFILE=$3
+  console=/proc/$$/fd/$2
+  # Write the location of the console buffer to /tmp/console for other scripts to use
+  echo "$console" > /tmp/console
 else
-
-print "##################################################"
-print "          A/B and A Devices Boot-patcher          "
-if [ "$generic" ]; then
-    print " for $generic devices - ramdisk modifications only" # Skipping indent formatting
+  console=$(cat /tmp/console)
+  [ "$console" ] || console=/proc/$$/fd/1
 fi
-print "##################################################"
+
+test "$ANDROID_ROOT" || ANDROID_ROOT=/system
+SYSTEM="/system"
+tmp=/tmp/nethunter/boot-patcher
+
+if [ "$ZIPFILE" ]; then
+  print ""
+  print "##################################################"
+  print "##                                              ##"
+  print "##  88      a8P         db        88        88  ##"
+  print "##  88    .88'         d88b       88        88  ##"
+  print "##  88   88'          d8''8b      88        88  ##"
+  print "##  88 d88           d8'  '8b     88        88  ##"
+  print "##  8888'88.        d8YaaaaY8b    88        88  ##"
+  print "##  88P   Y8b      d8''''''''8b   88        88  ##"
+  print "##  88     '88.   d8'        '8b  88        88  ##"
+  print "##  88       Y8b d8'          '8b 888888888 88  ##"
+  print "##                                              ##"
+  print "####  ############# NetHunter ####################"
+  print ""
+  print "* Boot-Patcher" # Isn't just LazyFlasher
+  print ""
+else
+  print "##################################################"
+  print "          A/B and A Devices Boot-patcher          "
+  if [ "$generic" ]; then
+  print " for $generic devices - ramdisk modifications only" # Skipping indent formatting
+  fi
+  print "##################################################"
 fi
 
 # Unpack the installer
@@ -127,19 +125,20 @@ fi
   extract "$ZIPFILE" "$tmp"
   #print "* Installer unpacked"
 }
-cd "$tmp"
 
-print "* Setting up BusyBox"
-BB=$(get_bb)
+cd "$tmp"
 
 print "* Loading environment"
 chmod +x env
 . ./env.sh
-# Install BusyBox applets if they haven't been installed by the NetHunter installer already
-[ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
 print "* Setting permissions"
 setperm 0755 0755 tools
+
+print "* Setting up BusyBox"
+BB=$(get_bb)
+# Install BusyBox applets if they haven't been installed by the NetHunter installer already
+[ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
 if [ "$ZIPFILE" ]; then
   print "* Running BusyBox installer"
