@@ -14,11 +14,11 @@ print() {
 
 abort() {
   [ "$1" ] && {
-    print "Error: $1"
-    print "Aborting..."
+    print "! Error: $1"
+    print "* Aborting"
   }
   cleanup
-  print "Failed to uninstall!"
+  print "* Failed to uninstall Kali NetHunter!"
   exit 1
 }
 
@@ -49,6 +49,7 @@ else
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
+print ""
 print "##################################################"
 print "##                                              ##"
 print "##  88      a8P         db        88        88  ##"
@@ -61,17 +62,17 @@ print "##  88     '88.   d8'        '8b  88        88  ##"
 print "##  88       Y8b d8'          '8b 888888888 88  ##"
 print "##                                              ##"
 print "####  ############# NetHunter ####################"
-print""
-print "Uninstaller"
-print""
+print ""
+print "* Uninstaller"
+print ""
 
-print "- Mounting /system & /data";
+print "* Mounting /system & /data";
 mount /system
 mount /data
 
 # Remove added firmware (folder would only exist if you installed Kali NetHunter)
 [ -d "/system/etc/firmware/rtlwifi" ] && {
-  print "- Removing firmware";
+  print "* Removing firmware";
   rm -rf /system/etc/firmware/rtlwifi
   rm -rf /system/etc/firmware/zd1211
   rm -f  /system/etc/firmware/ar9170-1.fw
@@ -86,36 +87,36 @@ mount /data
 }
 
 [ -d "/system/app/NetHunter" ] && {
-  print "- Removing NetHunter.apk"
+  print "* Removing NetHunter.apk"
   rm -rf /system/app/NetHunter
 }
 
 [ -d "/system/app/NetHunter-Terminal" ] && {
-  print "- Removing NetHunterTerminal.apk"
+  print "* Removing NetHunterTerminal.apk"
   rm -rf /system/app/NetHunter-Terminal
 }
 
 [ -d "/system/app/NetHunter-KeX" ] && {
-  print "- Removing NetHunterKeX.apk"
+  print "* Removing NetHunterKeX.apk"
   rm -rf /system/app/NetHunter-KeX
 }
 
 [ -d "/system/app/NetHunter-Store" ] && {
-  print "- Removing NetHunterStore.apk"
+  print "* Removing NetHunterStore.apk"
   rm -rf /system/app/NetHunter-Store
 }
 
 [ -d "/system/priv-app/NetHunterStorePrivilegedExtension" ] && {
-  print "- Removing NetHunterStorePrivilegedExtension.apk"
+  print "* Removing NetHunterStorePrivilegedExtension.apk"
   rm -rf /system/priv-app/NetHunterStorePrivilegedExtension
 }
 
 [ -d "/data/data/com.offsec.nethunter" ] && {
-  print "- Removing NetHunter chroot/data"
+  print "* Removing NetHunter chroot/data"
   rm -rf /data/data/com.offsec.nethunter
 }
 
-print "- Cleaning up"
+print "* Cleaning up"
 cleanup
 
-print "- Uninstall complete"
+print "* Uninstall complete"

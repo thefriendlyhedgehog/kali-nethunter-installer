@@ -28,13 +28,13 @@ print() {
 }
 
 abort() {
-	[ "$1" ] && {
-		print "Error: $1"
-		print "Aborting..."
-	}
-	cleanup
-	print "Failed to patch boot image!"
-	exit 1
+  [ "$1" ] && {
+    print "! Error: $1"
+    print "* Aborting"
+  }
+  cleanup
+  print "* Failed to patch boot image!"
+  exit 1
 }
 
 cleanup() {
@@ -95,6 +95,7 @@ install_recovery_bb() {
 }
 
 if [ "$ZIPFILE" ]; then
+print ""
 print "##################################################"
 print "##                                              ##"
 print "##  88      a8P         db        88        88  ##"
@@ -108,7 +109,7 @@ print "##  88       Y8b d8'          '8b 888888888 88  ##"
 print "##                                              ##"
 print "####  ############# NetHunter ####################"
 print ""
-print "Boot-Patcher" # Isn't just LazyFlasher
+print "* Boot-Patcher" # Isn't just LazyFlasher
 print ""
 
 else 
@@ -123,29 +124,35 @@ fi
 
 # Unpack the installer
 [ "$ZIPFILE" ] && {
-	print "- Unpacking the installer, this may take a while"
-	extract "$ZIPFILE" "$tmp"
-	print "- Installer unpacked"
+  print "* Unpacking the installer, this may take a while"
+  extract "$ZIPFILE" "$tmp"
+  #print "* Installer unpacked"
 }
 cd "$tmp"
 
+print "* Setting up BusyBox"
 BB=$(get_bb)
 
+print "* Loading environment"
 chmod +x env
 . ./env.sh
 # Install busybox applets if they haven't been installed by the NetHunter installer already
 [ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
+print "* Setting permissions"
 setperm 0755 0755 tools
 
 if [ "$ZIPFILE" ]; then
-print "Running busybox installer"
-sh tools/installbusybox.sh #run only 
-print "- Running kernel installer"
+print "* Running BusyBox installer"
+sh tools/installbusybox.sh #run only
+#print "* Done running BusyBox installer"
+
+print "* Running kernel installer"
 else                  
-print "- Running boot image patcher"
+print "* Running boot image patcher"
 fi
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
+#print "* Done"
 
-print "- Boot image patching complete"
+print "* Boot image patching complete"
 # cleanup #dont clean up if not specified in anykernel.sh

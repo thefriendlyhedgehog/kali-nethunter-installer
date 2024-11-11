@@ -64,7 +64,7 @@ symlink() {
 
 set_wallpaper() {
   [ -d $TMP/wallpaper ] || return 1
-  ui_print "Installing NetHunter wallpaper";
+  ui_print "- Installing NetHunter wallpaper";
 
   # Define wallpaper variables
   wp=/data/system/users/0/wallpaper
@@ -87,14 +87,14 @@ set_wallpaper() {
   }
 
   [ ! "$res" ] && {
-    ui_print "Can't get screen resolution of Device! Skipping."
+    ui_print "! Can't get screen resolution of Device! Skipping."
     return 1
   }
 
-  ui_print "Found screen resolution: $res"
+  ui_print "- Found screen resolution: $res"
 
   [ ! -f "$TMP/wallpaper/$res.png" ] && {
-    ui_print "No wallpaper found for your screen resolution. Skipping."
+    ui_print "! No wallpaper found for your screen resolution. Skipping."
     return 1;
   }
 
@@ -111,7 +111,7 @@ set_wallpaper() {
     chcon "u:object_r:system_data_file:s0" "$wpinfo"
   fi
 
-  ui_print "NetHunter wallpaper applied successfully"
+  ui_print "- NetHunter wallpaper applied successfully"
 }
 
 f_kill_pids() {
@@ -159,10 +159,10 @@ f_umount_fs() {
 
 f_dir_umount() {
   sync
-  ui_print "Killing all running pids."
+  ui_print "- Killing all running pids."
   f_kill_pids
   f_restore_setup
-  ui_print "Removing all fs mounts."
+  ui_print "- Removing all fs mounts."
   for i in "dev/pts" "dev/shm" dev proc sys system; do
     f_umount_fs "$i"
   done
@@ -191,10 +191,10 @@ do_umount() {
   esac
 
   if [ -z "$(cat /proc/mounts | grep $PRECHROOT)" ]; then
-    ui_print "All done."
+    ui_print "- All done."
     isAllunmounted=0
   else
-    ui_print "there are still mounted points not unmounted yet."
+    ui_print "- there are still mounted points not unmounted yet."
     isAllunmounted=1
   fi
 
@@ -216,7 +216,7 @@ verify_fs() {
 }
 
 do_install() {
-  ui_print "Found Kali chroot to be installed: $KALIFS"
+  ui_print "- Found Kali chroot to be installed: $KALIFS"
   mkdir -p "$NHSYS"
 
   # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
@@ -226,33 +226,33 @@ do_install() {
 
   # Remove previous chroot
   [ -d "$PRECHROOT" ] && {
-    ui_print "Previous chroot Detected!"
+    ui_print "- Previous chroot detected!"
     do_umount;
     [ $? == 1 ] && {
-      ui_print "Aborting chroot Installations."
-      ui_print "Remove the Previous chroot and install the new chroot via NetHunter App"
+      ui_print "! Aborting chroot Installations."
+      ui_print "- Remove the Previous chroot and install the new chroot via NetHunter App"
       return 1
     }
 
-    ui_print "Removing Previous chroot."
+    ui_print "- Removing Previous chroot."
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
 
   # Extract new chroot
-  ui_print "Extracting Kali rootfs, this may take up to 25 minutes."
+  ui_print "- Extracting Kali rootfs, this may take up to 25 minutes."
   unzip -p "$ZIPFILE" "$KALIFS" | tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 
   [ $? = 0 ] || {
-    ui_print "Error: Kali $FS_ARCH $FS_SIZE chroot failed to install!"
-    ui_print "Maybe you ran out of space on your data partition?"
+    ui_print "! Error: Kali $FS_ARCH $FS_SIZE chroot failed to install!"
+    ui_print "- Maybe you ran out of space on your data partition?"
     return 1
   }
 
   # HACK 2/2: Create a link to be used by apps effective 2020.1
   ln -sf "$CHROOT" "$ROOTFS"
   mkdir -m 0755 "$CHROOT/dev"
-  ui_print "Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
+  ui_print "- Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
   # We should remove the rootfs archive to free up device memory or storage space (if not zip install)
   [ "$1" ] || rm -f "$KALIFS"
@@ -261,7 +261,7 @@ do_install() {
 }
 
 do_flash() {
-  ui_print "Found Kali kernel to be installed: $KERNEL"
+  ui_print "- Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" >"$KERNEL"
   $MAGISKBB sh $TMP/tools/magic-flash $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
 }
@@ -272,7 +272,7 @@ flash_kernel() {
     KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
     # Check other locations if zip didn't contain a nethunter-installer.zip
     [ "$KERNEL" ] || {
-      ui_print "No kernel found. Skipping."
+      ui_print "- No kernel found. Skipping."
       return
     }
     do_flash
@@ -289,7 +289,7 @@ do_chroot() {
     KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
     # Check other locations if zip didn't contain a kalifs-*
     [ "$KALIFS" ] || {
-      ui_print "No Kali rootfs found. Skipping."
+      ui_print "- No Kali rootfs found. Skipping."
       return
     }
 
@@ -310,6 +310,7 @@ unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2;
 MODID=$(file_getprop module.prop id);
 
 # Print Kali NetHunter banner In Magisk installation terminal
+ui_print ""
 ui_print "##################################################"
 ui_print "##                                              ##"
 ui_print "##  88      a8P         db        88        88  ##"
@@ -323,11 +324,11 @@ ui_print "##  88       Y8b d8'          '8b 888888888 88  ##"
 ui_print "##                                              ##"
 ui_print "####  ############# NetHunter ####################"
 ui_print ""
-ui_print "Kali NetHunter Magisk module"
+ui_print "* NetHunter (Magisk module)"
 ui_print ""
 
 # Extract the installer
-ui_print "Unpacking the installer.";
+ui_print "- Unpacking the installer.";
 mkdir -p $TMPDIR/$MODID;
 cd $TMPDIR/$MODID;
 unzip -qq "$ZIPFILE" -x "kalifs-*";
@@ -354,7 +355,7 @@ VERIFY=$(settings get global verifier_verify_adb_installs)
 settings put global verifier_verify_adb_installs 0
  
 # Uninstall previous apps and binaries module if they are installed
-ui_print "Checking for previous version of NetHunter apps and files";
+ui_print "- Checking for previous version of NetHunter apps and files";
 pm uninstall  com.offsec.nethunter &> /dev/null
 pm uninstall  com.offsec.nethunter.kex &> /dev/null
 pm uninstall  com.offsec.nhterm &> /dev/null
@@ -384,28 +385,28 @@ pm uninstall  com.offsec.nethunter.store &> /dev/null
 
 # Install all NetHunter apps as user apps
 # System apps might not work
-ui_print "Installing apps.";
+ui_print "- Installing apps.";
 
 # Install the core NetHunter app
-ui_print "- Installing NetHunter.apk"
+ui_print "--- Installing NetHunter.apk"
 pm install $TMP/data/app/NetHunter.apk &>/dev/null
 
 # and NetHunterTerminal.apk because NetHunter.apk depends on it
-ui_print "- Installing NetHunterTerminal.apk"
+ui_print "--- Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
 # and NetHunterKeX.apk because NetHunter.apk depends on it
-ui_print "- Installing NetHunter-KeX.apk"
+ui_print "--- Installing NetHunter-KeX.apk"
 pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
 # and NetHunterStore.apk because we need it 
-ui_print "- Installing NetHunter-Store.apk"
+ui_print "--- Installing NetHunter-Store.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 # Installing privileged extension as system app
 # Not yet working - Tip: look into /system_ext
 
-ui_print "Done installing apps";
+ui_print "- Done installing apps";
 
 # Install BusyBox
 [ -f $TMP/tools/installbusybox_magisk.sh ] && . $TMP/tools/installbusybox_magisk.sh
@@ -415,73 +416,73 @@ set_wallpaper;
 
 # Install NetHunter boot animation
 [ -f $TMP/system/media/bootanimation.zip ] && {
-  ui_print "Installing NetHunter boot animation"
+  ui_print "- Installing NetHunter boot animation"
   mkdir -p $TARGET/media;
   cp $TMP/system/media/bootanimation.zip $TARGET/media/
 }
 
 # Install NetHunter boot animation into product partition
 [ -f $TMP/product/media/bootanimation.zip ] && {
-  ui_print "Installing NetHunter boot animation in product partition"
+  ui_print "- Installing NetHunter boot animation in product partition"
   mkdir -p $TARGET/product/media;
   cp $TMP/product/media/bootanimation.zip $TARGET/product/media/
 }
 
 # Install required firmwares, binaries, lib files for Kali NetHunter
 [ -d $TMP/system/etc/nano ] && {
-  ui_print "Copying nano highlights to /system/etc/nano"
+  ui_print "- Copying nano highlights to /system/etc/nano"
   mkdir -p $ETC;
   cp -r "$TMP/system/etc/nano" "$ETC/"
   set_perm_recursive "$ETC/nano" 0 0 0755 0644
 }
 
 [ -d $TMP/system/etc/terminfo ] && {
-  ui_print "Copying terminfo files to /system/etc/terminfo"
+  ui_print "- Copying terminfo files to /system/etc/terminfo"
   mkdir -p $ETC;
   cp -r "$TMP/system/etc/terminfo" "$ETC/"
   set_perm_recursive "$ETC/terminfo" 0 0 0755 0644
 }
 
 [ -d $TMP/boot-patcher/system/etc/firmware ] && {
-  ui_print "Copying Wifi firmwares to /system/etc/firmware"
+  ui_print "- Copying Wifi firmwares to /system/etc/firmware"
   mkdir -p $ETC;
   cp -r "$TMP/boot-patcher/system/etc/firmware" "$ETC/"
   set_perm_recursive "$ETC/firmware" 0 0 0755 0644
 }
 
 [ -d $TMP/system/lib ] && {
-  ui_print "Copying 32-bit shared libraries to /system/lib"
+  ui_print "- Copying 32-bit shared libraries to /system/lib"
   cp -r "$TMP/system/lib" "$TARGET/"
   set_perm_recursive "$TARGET/lib" 0 0 0755 0644
 }
 
 [ -d $TMP/system/lib64 ] && {
-  ui_print "Copying 64-bit shared libraries to /system/lib64"
+  ui_print "- Copying 64-bit shared libraries to /system/lib64"
   cp -r "$TMP/system/lib64" "$TARGET/"
   set_perm_recursive "$TARGET/lib64" 0 0 0755 0644
 }
 
 [ -d $TMP/system/bin ] && {
-  ui_print "Installing /system/bin binaries"
+  ui_print "- Installing /system/bin binaries"
   cp -r "$TMP/system/bin" "$TARGET/"
   set_perm_recursive "$BIN" 0 0 0755 0755
 }
 
 [ -d $TMP/boot-patcher/system/xbin ] && {
-  ui_print "Installing hid-keyboard to /system/xbin"
+  ui_print "- Installing hid-keyboard to /system/xbin"
   cp -r "$TMP/boot-patcher/system/xbin/*" "$XBIN/"
   set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
 [ -d $TMP/data/local ] && {
-  ui_print "Copying additional files to /data/local"
+  ui_print "- Copying additional files to /data/local"
   mkdir -p /data/local
   cp -r "$TMP/data/local/*" "/data/local/"
   set_perm_recursive "/data/local" 0 0 0755 0644
 }
 
 [ -d $TMP/system/etc/init.d ] && {
-  ui_print "Installing init.d scripts"
+  ui_print "- Installing init.d scripts"
   cp -r "$TMP/system/etc/init.d" "$ETC/"
   # Create userinit.d and userinit.sh if they don't already exist
   rm -rf /data/local/userinit.d # Remove previous one
@@ -492,7 +493,7 @@ set_wallpaper;
 }
  
 [ -e $TMP/system/addon.d/80-nethunter.sh ] && {
-  ui_print "Installing /system/addon.d backup scripts"
+  ui_print "- Installing /system/addon.d backup scripts"
   mkdir -p "$TARGET/addon.d"
   cp "$TMP/system/addon.d/80-nethunter.sh" "$TARGET/"
   cp "$TMP/system/addon.d/80-nethunter.sh" "$TARGET/addon.d/"
@@ -501,7 +502,7 @@ set_wallpaper;
 
 
 # Symlink bootkali scripts for using in another terminals
-ui_print "Symlinking Kali boot scripts";
+ui_print "- Symlinking Kali boot scripts";
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "$TARGET/bin/bootkali"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "$TARGET/bin/bootkali_init"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "$TARGET/bin/bootkali_login"
@@ -510,7 +511,7 @@ symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "$TARGET/bin/ki
 set_perm_recursive "$BIN" 0 0 0755 0755
 
 # Adding required permissions for NetHunter app
-ui_print "Granting required permissions to NetHunter app"
+ui_print "- Granting required permissions to NetHunter app"
 sh $TMP/tools/nh_perm.sh
 
 # Install kernel
@@ -527,7 +528,7 @@ mkdir -p "$IMGMNT/$MODID";
 touch "$IMGMNT/$MODID/update";
 cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/";
 
-ui_print "Unmounting.";
+ui_print "- Unmounting.";
 cd /;
 
 # Restore environment after installations
@@ -565,16 +566,13 @@ rm -rf $TMPDIR;
 umask $UMASK;
 
 # Done
-ui_print " ";
-ui_print "Done!";
-ui_print " ";
-ui_print "************************************************";
-ui_print "*       Kali NetHunter is now installed!       *";
-ui_print "*==============================================*";
-ui_print "*   Please update the NetHunter app via the    *";
-ui_print "*   NetHunter Store to work around an Android  *";
-ui_print "*   permission issue and run the NetHunter app *";
-ui_print "*       to finish setting everything up!       *";
-ui_print "************************************************";
-ui_print " ";
-
+ui_print ""
+ui_print "##################################################"
+ui_print "         Kali NetHunter is now installed!        "
+ui_print "##################################################"
+## This is a work around an Android permission issue
+ui_print "     Please UPDATE the NetHunter app via the      "
+ui_print "    NetHunter Store before RUNNING it to finish   "
+ui_print "              setting everything up!              "
+ui_print "##################################################"
+ui_print ""

@@ -121,11 +121,11 @@ print() {
 
 abort() {
   [ "$1" ] && {
-    print "Error: $1"
-    print "Aborting..."
+    print "! Error: $1"
+    print "* Aborting"
   }
   restore_env
-  print "Failed to install Kali NetHunter!"
+  print "* Failed to install Kali NetHunter!"
   exit 1
 }
 
@@ -153,13 +153,13 @@ installapp() {
   if [ "$3" ]; then
     for appdir in "/data/app/$3-"*; do
       [ -d "$appdir" ] || continue
-      echo "Found app directory: $appdir"
+      print "Found app directory: $appdir"
       if [ ! -f /data/data/com.android.vending/databases/localappstate.db ]; then
-        echo "Could not find Play Store app database!"
+        print "Could not find Play Store app database!"
       # This should also catch paid/alternative versions if they are suffixed
       elif strings /data/data/com.android.vending/databases/localappstate.db | grep -q "^$3"; then
         rm -f "/data/app/$2"
-        print "- Found Play Store installed $1"
+        print "* Found Play Store installed $1"
         return 0
       fi
       rm -f "/data/app/$2"
@@ -167,10 +167,11 @@ installapp() {
       break
     done
   fi
-  echo "Installing $1 to $installto"
-  print "- Installing $1"
+
+  #print "* Installing $1 to $installto"
+  print "*** Installing $1"
   cp -f "$tmp/data/app/$2" "$installto" && return 0
-  print "- Failed to install $1!" && return 1
+  print "* Failed to install $1!" && return 1
 }
 
 extract() {
@@ -390,7 +391,7 @@ restore_env() {
   done;
   $BB umount -l /dev/random) 2>/dev/null; 
 
-  print "Cleaning Up"
+  print "* Cleaning up"
   cleanup
 }
 
@@ -421,6 +422,7 @@ install_recovery_bb() {
     cd - >/dev/null
 }
 
+print ""
 print "##################################################"
 print "##                                              ##"
 print "##  88      a8P         db        88        88  ##"
@@ -433,29 +435,32 @@ print "##  88     '88.   d8'        '8b  88        88  ##"
 print "##  88       Y8b d8'          '8b 888888888 88  ##"
 print "##                                              ##"
 print "####  ############# NetHunter ####################"
-print""
-print "NetHunter (BOOTMODE: $BOOTMODE)"
-print""
+print ""
+print "* NetHunter (BOOTMODE: $BOOTMODE)"
+print ""
 
 # Unpack the installer
 [ "$ZIPFILE" ] && {
-  print "Unpacking the installer..."
+  print "* Unpacking the installer"
   extract "$ZIPFILE" "$tmp" "kalifs-*"
+  #print "* Installer unpacked"
 }
 cd "$tmp"
 
+print "* Loading environment"
 . ./env.sh
 
 [ -e /dev/block/mapper ] && {
-  print " "
+  # Not using abort(), as this is more verobse
+  print ""
   print "********** Dynamic Device Detected **********"
-  print " "
-  print "This NetHunter package cannot be"
+  print ""
+  print "This Kali NetHunter package cannot be"
   print "installed on this device via recovery"
-  print "Please Flash this file via Magisk Manager"
-  print "as Module And ensure, You have USB DEBUGGING"
+  print "Please flash this file via Magisk Manager"
+  print "as Module and ensure you have USB DEBUGGING"
   print "enabled for using ADB"
-  print " "
+  print ""
   print "******* NetHunter Installation failed *******"
   cleanup
   exit 1
@@ -463,12 +468,16 @@ cd "$tmp"
 
 
 progress 0.0
-print "Starting the installation"
+print "* Starting the installation"
 
+print "* Setting permissions"
 setperm 0755 0755 tools
+
+print "* Setting up BusyBox"
 BB=$(get_bb) # Get latest BusyBox
 install_recovery_bb
 
+print "* Setting environment"
 setup_env # Setup environment for NetHunter installation
 SYSTEM="/system" 
 
@@ -479,19 +488,21 @@ progress 0.1
 }
 
 
-print "Checking for previous versions of NetHunter"
+print "* Checking for previous versions of NetHunter"
 sh tools/previnstall.sh
+#print "* Done checking for previous versions"
 
 progress 0.2
 
 [ -f supersu.zip ] && {
-  print "Extracting SuperSU zip"
+  print "* Extracting SuperSU zip"
   extract supersu.zip "$sutmp"
 
   progress 0.3
 
+  print "* Installing SuperSU"
   sh tools/installsu.sh "$sutmp" "$supersu"
-
+  #print "* Done installing SuperSU"
 }
 
 progress 0.4
@@ -557,71 +568,76 @@ if [ $SDK -ge 26 ]; then
       install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"
   }
 fi
-print "Done installing apps"
 
 progress 0.5
 
 [ -f tools/freespace.sh ] && {
+  print "* Checking freespace"
   # This actually runs twice when the NetHunter kernel zip is included
   sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
+  #print "* Done checking freespace"
 }
 
-print "Running BusyBox installer"
+print "* Running BusyBox installer"
 sh tools/installbusybox.sh
+#print "* Done running BusyBox installer"
 
 progress 0.6
 
 [ -d wallpaper ] && {
-  print "Installing NetHunter wallpaper"
+  print "* Installing NetHunter wallpaper"
   sh wallpaper/setwallpaper.sh
+  #print "* Done installing wallpaper"
 }
 
 [ -f system/media/bootanimation.zip ] && {
-  print "Installing NetHunter boot animation"
+  print "* Installing NetHunter boot animation"
   install "/system/media/bootanimation.zip" 0755 0644 "${SYSTEM}/media/bootanimation.zip"
 }
 
 progress 0.7
 
 [ -d system/etc/nano ] && {
-  print "Copying nano highlights to ${SYSTEM}/etc/nano"
+  print "* Copying nano highlights to ${SYSTEM}/etc/nano"
   install "/system/etc/nano" 0755 0644 "${SYSTEM}/etc/nano"
 }
 
 [ -d system/etc/terminfo ] && {
-  print "Copying terminfo files to ${SYSTEM}/etc/terminfo"
+  print "* Copying terminfo files to ${SYSTEM}/etc/terminfo"
   install "/system/etc/terminfo" 0755 0644 "${SYSTEM}/etc/terminfo"
 }
 
 [ -d system/lib ] && {
-  print "Copying 32-bit shared libraries to ${SYSTEM}/lib"
+  print "* Copying 32-bit shared libraries to ${SYSTEM}/lib"
   install "/system/lib" 0755 0644 "${SYSTEM}/lib"
 }
 
 [ -d system/lib64 ] && {
-  print "Copying 64-bit shared libraries to ${SYSTEM}/lib64"
+  print "* Copying 64-bit shared libraries to ${SYSTEM}/lib64"
   install "/system/lib64" 0755 0644 "${SYSTEM}/lib64"
 }
 
 [ -d system/bin ] && {
-  print "Installing ${SYSTEM}/bin binaries"
+  print "* Installing ${SYSTEM}/bin binaries"
   install "/system/bin" 0755 0755 "${SYSTEM}/bin"
 }
 
 [ -d system/xbin ] && {
-  print "Installing ${SYSTEM}/xbin binaries"
+  print "* Installing ${SYSTEM}/xbin binaries"
         [ -d ${SYSTEM}/xbin ] || mkdir -p ${SYSTEM}/xbin
   install "/system/xbin" 0755 0755 "${SYSTEM}/xbin"
 }
 
 [ -d data/local ] && {
-  print "Copying additional files to /data/local"
+  print "* Copying additional files to /data/local"
   install "/data/local" 0755 0644
 }
 
 [ -d system/etc/init.d ] && {
-  print "Installing init.d scripts"
+  print "* Installing init.d scripts"
   install "/system/etc/init.d" 0755 0755 "${SYSTEM}/etc/init.d"
+
+  print "* Installing userinit.d scripts"
   # Create userinit.d and userinit.sh if they don't already exist
   mkdir -p "/data/local/userinit.d"
   setperm 0755 0755 "/data/local/userinit.d"
@@ -630,11 +646,11 @@ progress 0.7
 }
  
 [ -d system/addon.d/80-nethunter.sh ] && {
-  print "Installing ${SYSTEM}/addon.d backup scripts"
+  print "* Installing ${SYSTEM}/addon.d backup scripts"
   install "/system/80-nethunter.sh" 0755 0755 "${SYSTEM}/80-nethunter.sh"
 }
 
-print "Symlinking Kali boot scripts"
+print "* Symlinking Kali boot scripts"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "${SYSTEM}/bin/bootkali"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "${SYSTEM}/bin/bootkali_init"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "${SYSTEM}/bin/bootkali_login"
@@ -644,28 +660,33 @@ symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "${SYSTEM}/bin/
 progress 0.8
 
 [ -d "$patchtmp" ] && {
-  print "Running kernel installer..."
+  print "* Running kernel installer"
   sh "$patchtmp/META-INF/com/google/android/update-binary"
+  #print "* Done running kernel installer"
+
+  print "* Setting environment"
   # Setup environment again (all are restored by boot-patcher)
   setup_env
 }
 
 progress 0.9
 
-print "Running Kali chroot installer"
+print "* Running Kali chroot installer"
 sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
+#print "* Done running Kali chroot installer"
 
+print "* Restoring environment"
 restore_env # Restore environment after installation
 
-print " "
-print "************************************************"
-print "*       Kali NetHunter is now installed!       *"
-print "*==============================================*"
-print "*   Please update the NetHunter app via the    *"
-print "*   NetHunter Store to work around an Android  *"
-print "*   permission issue and run the NetHunter app *"
-print "*       to finish setting everything up!       *"
-print "************************************************"
-print " "
+print ""
+print "##################################################"
+print "         Kali NetHunter is now installed!        "
+print "##################################################"
+## This is a work around an Android permission issue
+print "     Please UPDATE the NetHunter app via the      "
+print "    NetHunter Store before RUNNING it to finish   "
+print "              setting everything up!              "
+print "##################################################"
+print ""
 
 progress 1.0

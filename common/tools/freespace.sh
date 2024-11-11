@@ -79,21 +79,21 @@ case $AndroidV in
 esac
 
 if [ -z $FreeSpace ]; then
-  print "Warning: Could not get free space status, continuing anyway!"
+  print "! Warning: Could not get free space status, continuing anyway!"
   exit 0
 fi
 
 if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
   exit 0
 else
-  print "Free space (before): $FreeSpace MB"
-  print "You don't have enough free space in your ${SYSTEM}"
-  print "Freeing up some space on ${SYSTEM}"
+  print "- Free space (before): $FreeSpace MB"
+  print "- You don't have enough free space in your ${SYSTEM}"
+  print "- Freeing up some space on ${SYSTEM}"
 
   if [ "$AndroidV" -gt "7" ]; then
-    print "Android Version: $android_ver"
-    print "Starting from Oreo,we can't move apps from /system to /data."
-    print "Aborting Installation"
+    print "- Android Version: $android_ver"
+    print "- Starting from Oreo,we can't move apps from /system to /data."
+    print "! Aborting Installation"
     exit 1
   else
     for app in $MoveableApps; do
@@ -103,29 +103,29 @@ else
 
       if [ -d "$SA/$app/" ]; then
         if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
-          print "Removing $SA/$app/ (extra)"
+          print "--- Removing $SA/$app/ (extra)"
           rm -rf "$SA/$app/"
         else
-          print "Moving $app/ to $DA"
+          print "--- Moving $app/ to $DA"
           mv "$SA/$app/" "$DA/"
         fi
       fi
 
       if [ -f "$SA/$app.apk" ]; then
         if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
-          print "Removing $SA/$app.apk (extra)"
+          print "--- Removing $SA/$app.apk (extra)"
           rm -f "$SA/$app.apk"
         else
-          print "Moving $app.apk to $DA"
+          print "--- Moving $app.apk to $DA"
           mv "$SA/$app.apk" "$DA/"
         fi
       fi
     done
 
-    print "Free space (after): $FreeSpace MB"
+    print "- Free space (after): $FreeSpace MB"
 
     if [ ! "$FreeSpace" -gt "$SpaceRequired" ]; then
-      print "Unable to free up $SpaceRequired MB of space on '$MNT'!"
+      print "! Unable to free up $SpaceRequired MB of space on '$MNT'!"
       exit 1
     fi
   fi
