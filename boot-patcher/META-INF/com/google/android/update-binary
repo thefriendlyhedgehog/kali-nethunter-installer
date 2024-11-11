@@ -123,7 +123,7 @@ fi
 
 # Unpack the installer
 [ "$ZIPFILE" ] && {
-	print "- Unpacking the installer, this may take a while..."
+	print "- Unpacking the installer, this may take a while"
 	extract "$ZIPFILE" "$tmp"
 	print "- Installer unpacked"
 }
@@ -139,11 +139,11 @@ chmod +x env
 setperm 0755 0755 tools
 
 if [ "$ZIPFILE" ]; then
-print "Running busybox installer..."
+print "Running busybox installer"
 sh tools/installbusybox.sh #run only 
-print "- Running kernel installer..." 
+print "- Running kernel installer"
 else                  
-print "- Running boot image patcher..."                     
+print "- Running boot image patcher"
 fi
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
 

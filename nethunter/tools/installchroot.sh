@@ -47,13 +47,13 @@ do_install() {
 
   # Remove previous chroot
   [ -d "$PRECHROOT" ] && {
-    print "- Previous Chroot Detected! Removing..."
+    print "- Previous Chroot Detected! Removing"
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
 
   # Extract new chroot
-  print "- Extracting Kali rootfs, this may take up to 25 minutes..."
+  print "- Extracting Kali rootfs, this may take up to 25 minutes"
   if [ "$1" ]; then
     unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
   else
@@ -102,7 +102,7 @@ case $ARCH in
   armeabi-v7a) NH_ARCH=armhf ;;
   x86_64) NH_ARCH=amd64 ;;
   x86*) NH_ARCH=i386 ;;
-  *) print "- Unknown architecture detected. Aborting chroot Installation..." && exit 1 ;;
+  *) print "- Unknown architecture detected. Aborting chroot Installation" && exit 1 ;;
 esac
 
 # Check zip for kalifs-*.tar.xz first
@@ -135,4 +135,4 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
   done
 done
 
-print "- No Kali rootfs archive found. Skipping..."
+print "- No Kali rootfs archive found. Skipping"

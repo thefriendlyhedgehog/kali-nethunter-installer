@@ -87,13 +87,13 @@ if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
   exit 0
 else
   print "Free space (before): $FreeSpace MB"
-  print "You don't have enough free space in your ${SYSTEM}."
-  print "Freeing up some space on ${SYSTEM}..."
+  print "You don't have enough free space in your ${SYSTEM}"
+  print "Freeing up some space on ${SYSTEM}"
 
   if [ "$AndroidV" -gt "7" ]; then
     print "Android Version: $android_ver"
     print "Starting from Oreo,we can't move apps from /system to /data."
-    print "Aborting Installation..."
+    print "Aborting Installation"
     exit 1
   else
     for app in $MoveableApps; do

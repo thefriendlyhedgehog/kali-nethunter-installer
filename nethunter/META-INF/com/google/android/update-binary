@@ -177,7 +177,7 @@ extract() {
   rm -rf "$2"
   mkdir -p "$2"
   unzip -o "$1" -d "$2" -x "$3" ||
-    abort "Unable to extract! The zip may be corrupt or your device may not have enough RAM to proceed. Consider using a smaller installer if it is available."
+    abort "Unable to extract! The zip may be corrupt or your device may not have enough RAM to proceed. Consider using a smaller installer if it is available"
 }
 
 setperm() {
@@ -390,7 +390,7 @@ restore_env() {
   done;
   $BB umount -l /dev/random) 2>/dev/null; 
 
-  print "Cleaning Up..."
+  print "Cleaning Up"
   cleanup
 }
 
@@ -485,7 +485,7 @@ sh tools/previnstall.sh
 progress 0.2
 
 [ -f supersu.zip ] && {
-  print "Extracting SuperSU zip..."
+  print "Extracting SuperSU zip"
   extract supersu.zip "$sutmp"
 
   progress 0.3
@@ -566,7 +566,7 @@ progress 0.5
   sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
 }
 
-print "Running BusyBox installer..."
+print "Running BusyBox installer"
 sh tools/installbusybox.sh
 
 progress 0.6
@@ -652,7 +652,7 @@ progress 0.8
 
 progress 0.9
 
-print "Running Kali chroot installer..."
+print "Running Kali chroot installer"
 sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
 
 restore_env # Restore environment after installation

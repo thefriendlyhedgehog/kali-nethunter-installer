@@ -17,7 +17,7 @@ About the structure:
 ├── uninstaller/          <-- aka: Removal            `./build.py --uninstaller`
 ├── bootstrap.sh          <-- REF: https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels
 ├── build.py              <-- Create a one off image
-└── generate-release.py   <-- Create a shell script (`./release-<release>.sh`) to generate multiple images, each time calling `./build.py <...>` (Meant for Kali NetHunter dev team)
+└── generate-release.py   <-- Create a shell script (`./release-<release>.sh`) to generate multiple images, each time calling `./build.py [...]` (Meant for Kali NetHunter dev team)
 -->
 
 ## Instructions

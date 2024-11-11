@@ -87,14 +87,14 @@ set_wallpaper() {
   }
 
   [ ! "$res" ] && {
-    ui_print "Can't get screen resolution of Device! Skipping..."
+    ui_print "Can't get screen resolution of Device! Skipping."
     return 1
   }
 
   ui_print "Found screen resolution: $res"
 
   [ ! -f "$TMP/wallpaper/$res.png" ] && {
-    ui_print "No wallpaper found for your screen resolution. Skipping..."
+    ui_print "No wallpaper found for your screen resolution. Skipping."
     return 1;
   }
 
@@ -159,10 +159,10 @@ f_umount_fs() {
 
 f_dir_umount() {
   sync
-  ui_print "Killing all running pids.."
+  ui_print "Killing all running pids."
   f_kill_pids
   f_restore_setup
-  ui_print "Removing all fs mounts.."
+  ui_print "Removing all fs mounts."
   for i in "dev/pts" "dev/shm" dev proc sys system; do
     f_umount_fs "$i"
   done
@@ -226,21 +226,21 @@ do_install() {
 
   # Remove previous chroot
   [ -d "$PRECHROOT" ] && {
-    ui_print "Previous chroot Detected!!"
+    ui_print "Previous chroot Detected!"
     do_umount;
     [ $? == 1 ] && {
-      ui_print "Aborting chroot Installations.."
+      ui_print "Aborting chroot Installations."
       ui_print "Remove the Previous chroot and install the new chroot via NetHunter App"
       return 1
     }
 
-    ui_print "Removing Previous chroot.."
+    ui_print "Removing Previous chroot."
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
 
   # Extract new chroot
-  ui_print "Extracting Kali rootfs, this may take up to 25 minutes..."
+  ui_print "Extracting Kali rootfs, this may take up to 25 minutes."
   unzip -p "$ZIPFILE" "$KALIFS" | tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 
   [ $? = 0 ] || {
@@ -272,7 +272,7 @@ flash_kernel() {
     KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
     # Check other locations if zip didn't contain a nethunter-installer.zip
     [ "$KERNEL" ] || {
-      ui_print "No kernel found. Skipping...."
+      ui_print "No kernel found. Skipping."
       return
     }
     do_flash
@@ -289,7 +289,7 @@ do_chroot() {
     KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
     # Check other locations if zip didn't contain a kalifs-*
     [ "$KALIFS" ] || {
-      ui_print "No Kali rootfs found. Skipping...."
+      ui_print "No Kali rootfs found. Skipping."
       return
     }
 
@@ -327,7 +327,7 @@ ui_print "Kali NetHunter Magisk module"
 ui_print ""
 
 # Extract the installer
-ui_print "Unpacking the installer...";
+ui_print "Unpacking the installer.";
 mkdir -p $TMPDIR/$MODID;
 cd $TMPDIR/$MODID;
 unzip -qq "$ZIPFILE" -x "kalifs-*";
@@ -384,7 +384,7 @@ pm uninstall  com.offsec.nethunter.store &> /dev/null
 
 # Install all NetHunter apps as user apps
 # System apps might not work
-ui_print "Installing apps...";
+ui_print "Installing apps.";
 
 # Install the core NetHunter app
 ui_print "- Installing NetHunter.apk"
@@ -527,7 +527,7 @@ mkdir -p "$IMGMNT/$MODID";
 touch "$IMGMNT/$MODID/update";
 cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/";
 
-ui_print "Unmounting...";
+ui_print "Unmounting.";
 cd /;
 
 # Restore environment after installations
