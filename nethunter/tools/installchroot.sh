@@ -47,7 +47,7 @@ do_install() {
 
   # Remove previous chroot
   [ -d "$PRECHROOT" ] && {
-    print "- Previous Chroot Detected! Removing"
+    print "- Previous chroot detected! Removing"
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
@@ -102,7 +102,7 @@ case $ARCH in
   armeabi-v7a) NH_ARCH=armhf ;;
   x86_64) NH_ARCH=amd64 ;;
   x86*) NH_ARCH=i386 ;;
-  *) print "! Unknown architecture detected. Aborting chroot Installation" && exit 1 ;;
+  *) print "! Unknown architecture detected. Aborting chroot installation" && exit 1 ;;
 esac
 
 # Check zip for kalifs-*.tar.xz first

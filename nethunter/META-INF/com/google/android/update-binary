@@ -405,7 +405,7 @@ get_bb() {
 }
 
 install_recovery_bb() {
-    # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all twrp versions
+    # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
     # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
     cd $tmp/tools
 

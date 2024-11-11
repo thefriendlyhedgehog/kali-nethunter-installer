@@ -69,24 +69,24 @@ setperm() {
 get_bb() {
     cd $tmp/tools
     BB_latest=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
-    BB=$tmp/tools/$BB_latest #Use NetHunter Busybox from tools
-    chmod 755 $BB #make busybox executable
+    BB=$tmp/tools/$BB_latest #Use NetHunter BusyBox from tools
+    chmod 755 $BB #make BusyBox executable
     echo $BB
     cd - >/dev/null
 }
 
 
 install_recovery_bb() {
-    # To identify the latest busybox version, we need the command "ls -v" which is not supported by all twrp versions
-    # We will pick the best available busybox version and use that to run "ls -v" to pick the latest version for the recovery partition
+    # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
+    # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
     cd $tmp/tools
 
-    # Try to pick the latest version of busybox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
+    # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
     recovery_bb=`(ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1`
     cp $recovery_bb busybox_tmp
     setperm 0755 0755 busybox_tmp
 
-    # Now that we picked a reasonably current busybox, use that to copy the absolute latest to the recovery partition using "ls -v"
+    # Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
     nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
     print "Installing $nethunter_bb applets to /sbin"
     cp $nethunter_bb /sbin/busybox_nh
@@ -136,7 +136,7 @@ BB=$(get_bb)
 print "* Loading environment"
 chmod +x env
 . ./env.sh
-# Install busybox applets if they haven't been installed by the NetHunter installer already
+# Install BusyBox applets if they haven't been installed by the NetHunter installer already
 [ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
 print "* Setting permissions"

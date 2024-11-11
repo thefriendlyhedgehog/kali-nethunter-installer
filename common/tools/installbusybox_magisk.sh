@@ -9,7 +9,7 @@ print_ui > /dev/null 2>&1 || {
 }
 
 ls $TMP/tools/busybox_nh-* 1> /dev/null 2>&1 || {
-  print_ui "No NetHunter Busybox found - skipping.";
+  print_ui "No NetHunter BusyBox found - skipping.";
   exit 1;
 }
 
