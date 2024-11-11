@@ -2,8 +2,11 @@
 # Set the wallpaper based on device screen resolution
 
 print() {
-  echo "ui_print - $1" > "$console"
-  echo
+  echo "${1:- }" \
+    | while read -r line; do
+       echo -e "ui_print $line" > "$console"
+       echo -e "ui_print \n" > "$console"
+    done
 }
 
 tmp=$(readlink -f "$0")
@@ -33,7 +36,7 @@ if [ -z $res_h ] || [ -z $res_w ]; then
     if [ -f "wallpaper/resolution.txt" ]; then
       res=$(cat wallpaper/resolution.txt)
     else
-      print "Can't get screen resolution from kernel! Skipping..."
+      print "- Can't get screen resolution from kernel! Skipping..."
       exit 1
     fi
   fi
@@ -42,10 +45,10 @@ if [ -z $res_h ] || [ -z $res_w ]; then
   res_h=$(echo "$res" | cut -f2 -dx)
 fi
 
-print "Found screen resolution: $res"
+print "- Found screen resolution: $res"
 
 if [ ! -f "wallpaper/$res.png" ]; then
-  print "No wallpaper found for your screen resolution. Skipping..."
+  print "- No wallpaper found for your screen resolution. Skipping..."
   exit 1
 fi
 
@@ -63,6 +66,6 @@ if [ "$setup_wp" ]; then
   chcon "u:object_r:system_data_file:s0" "$wpinfo"
 fi
 
-print "NetHunter wallpaper applied successfully"
+print "- NetHunter wallpaper applied successfully"
 
 exit 0

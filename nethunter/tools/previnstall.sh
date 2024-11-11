@@ -2,8 +2,11 @@
 # Check for previous install of Kali Chroot
 
 print() {
-  echo "ui_print - $1" > $console
-  echo
+  echo "${1:- }" \
+    | while read -r line; do
+       echo -e "ui_print $line" > "$console"
+       echo -e "ui_print \n" > "$console"
+    done
 }
 
 tmp=$(readlink -f "$0")
@@ -25,10 +28,10 @@ rm -rf "$NHSYS/dev/"* "$NHAPP/dev/"* "$NH/dev/"*
 
 # We probably don't want two old chroots in the same folder, so pick newer location in /data/local first
 if [ -d "$NH" ]; then
-  print "Detected previous install of Kali $ARCH, moving chroot..."
+  print "- Detected previous install of Kali $ARCH, moving chroot..."
   mv "$NH" "$NHSYS"
 elif [ -d "$NHAPP" ]; then
-  print "Detected previous install of Kali $ARCH, moving chroot..."
+  print "- Detected previous install of Kali $ARCH, moving chroot..."
   mv "$NHAPP" "$NHSYS"
 fi
 
