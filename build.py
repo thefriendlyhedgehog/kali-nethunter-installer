@@ -46,7 +46,7 @@ dl_supersu = {
     ],
 }
 
-# Install updated apps from the staging site (staging.nethunter.com) so that we can prepare images before we go live with releases
+# Install updated apps from the staging site (staging.nethunter.com) so that we can prepare images before we go live with a release
 dl_apps = {
     # com.offsec.nethunter_2024020400.apk
     # Alt: https://store.nethunter.com/NetHunter.apk
@@ -948,7 +948,7 @@ def main():
     if args.kernel:
         print("[i] Kernel ID: " + kernel)
 
-    print("[i] Android version: " + android)
+    print("[i] Android version: " + android) # Will be empty if --generic
 
     if args.force_download:
         print("[i] Force downloading external resources: true")
