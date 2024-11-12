@@ -4,6 +4,24 @@
 ## Detect bootmode
 ## "BOOTMODE=true"  = Device has booted into system (NetHunter installed as Magisk module)
 ## "BOOTMODE=false" = Device has booted into recovery (NetHunter installed through TWRP)
+##
+## Apps
+##   NetHunter.apk
+##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
+##     https://store.nethunter.com/packages/com.offsec.nethunter/
+##   NetHunterTerminal.apk
+##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
+##     https://store.nethunter.com/packages/com.offsec.nhterm/
+##   NetHunterKeX.apk
+##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-kex
+##     https://store.nethunter.com/packages/com.offsec.nethunter.kex/
+##   NetHunterStore.apk
+##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-client
+##     https://store.nethunter.com/packages/com.offsec.nethunter.store/
+##   NetHunterStorePrivilegedExtension.apk
+##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
+##     https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
+
 BOOTMODE=false;
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
 $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
