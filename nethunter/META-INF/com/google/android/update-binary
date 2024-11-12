@@ -626,7 +626,7 @@ if [ $SDK -ge 26 ]; then
     mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
   }
 
-  [ -f ${SYSTEM}/app/NetHunter-Terminal/NetHunterKeX.apk ] && {
+  [ -f ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk ] && {
     check_freespace ${SYSTEM}/app/NetHunter-KeX/
     print "*** Extracting NetHunterKeX"
     unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
