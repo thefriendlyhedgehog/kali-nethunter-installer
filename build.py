@@ -467,7 +467,7 @@ def setup_installer():
             os.path.join(out_path, "banner"),
             {
                 "   Kernel": kernelstring,
-                "   Version": version,
+                "   Version": str(version),
                 "   Author": author,
             },
             True,
@@ -481,7 +481,7 @@ def setup_installer():
             {
                 "kernel_string": kernelstring,
                 "kernel_author": author,
-                "kernel_version": version,
+                "kernel_version": str(version),
                 "device_names": devicenames,
             },
         )
@@ -980,7 +980,7 @@ def main():
     print("[i]   resolution  : " + x)
     x = block if block else '-'
     print("[i]   block       : " + x)
-    print("[i]   version     : " + version)
+    print("[i]   version     : " + str(version))
     x = supersu if supersu else '-'
     print("[i]   supersu     : " + x)
     if flasher == "anykernel":
