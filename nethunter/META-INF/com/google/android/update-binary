@@ -148,19 +148,19 @@ install() {
 #   if the app package is found in the play store app database, then don't install it
 installapp_user() {
   installto=/data/app/
-  if [ "$3" ]; then
-    for appdir in "/data/app/$3-"*; do
+  if [ "$2" ]; then
+    for appdir in "/data/app/$2-"*; do
       [ -d "$appdir" ] || continue
       print "Found app directory: $appdir"
       if [ ! -f /data/data/com.android.vending/databases/localappstate.db ]; then
         print "Could not find Play Store app database!"
       # This should also catch paid/alternative versions if they are suffixed
-      elif strings /data/data/com.android.vending/databases/localappstate.db | grep -q "^$3"; then
-        rm -f "/data/app/$2"
+      elif strings /data/data/com.android.vending/databases/localappstate.db | grep -q "^$2"; then
+        rm -f "/data/app/$1"
         print "* Found Play Store installed $1"
         return 0
       fi
-      rm -f "/data/app/$2"
+      rm -f "/data/app/$1"
       installto=$appdir/base.apk
       break
     done
@@ -168,7 +168,7 @@ installapp_user() {
 
   #print "* Installing $1 to $installto"
   print "*** Installing $1"
-  cp -f "$tmp/data/app/$2" "$installto" && return 0
+  cp -f "$tmp/data/app/$1" "$installto" && return 0
   print "* Failed to install $1!" && return 1
 }
 
@@ -599,10 +599,10 @@ else
   ## Apps in /data/app/
   check_freespace /data/app/ "True"
   print "Installing apps (via user):"
-  installapp_user "NetHunter App" "NetHunter.apk" "com.offsec.nethunter"
-  installapp_user "NetHunter Terminal" "NetHunterTerminal.apk" "com.offsec.nhterm"
-  installapp_user "NetHunter KeX" "NetHunterKeX.apk" "com.offsec.nethunter.kex"
-  installapp_user "NetHunter Store" "NetHunterStore.apk" "com.offsec.nethunter.store"
+  installapp_user "NetHunter.apk" "com.offsec.nethunter"
+  installapp_user "NetHunterTerminal.apk" "com.offsec.nhterm"         # NetHunter.apk depends on it
+  installapp_user "NetHunterKeX.apk" "com.offsec.nethunter.kex"       # NetHunter.apk uses it
+  installapp_user "NetHunterStore.apk" "com.offsec.nethunter.store"   # We need it
 fi
 
 ## Installing privileged extension
