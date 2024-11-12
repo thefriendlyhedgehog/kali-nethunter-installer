@@ -86,29 +86,29 @@ mount /data
   rm -f  /system/etc/firmware/rt3070.bin
 }
 
-[ -d "/system/app/NetHunter" ] && {
+[ -d "/system/app/com.offsec.nethunter" ] && {
   print "* Removing NetHunter.apk"
-  rm -rf /system/app/NetHunter
+  rm -rf /system/app/com.offsec.nethunter
 }
 
-[ -d "/system/app/NetHunter-Terminal" ] && {
+[ -d "/system/app/com.offsec.nhterm" ] && {
   print "* Removing NetHunterTerminal.apk"
-  rm -rf /system/app/NetHunter-Terminal
+  rm -rf /system/app/com.offsec.nhterm
 }
 
-[ -d "/system/app/NetHunter-KeX" ] && {
+[ -d "/system/app/com.offsec.nethunter.kex" ] && {
   print "* Removing NetHunterKeX.apk"
-  rm -rf /system/app/NetHunter-KeX
+  rm -rf /system/app/com.offsec.nethunter.kex
 }
 
-[ -d "/system/app/NetHunter-Store" ] && {
+[ -d "/system/app/com.offsec.nethunter.store" ] && {
   print "* Removing NetHunterStore.apk"
-  rm -rf /system/app/NetHunter-Store
+  rm -rf /system/app/com.offsec.nethunter.store
 }
 
-[ -d "/system/priv-app/NetHunterStorePrivilegedExtension" ] && {
+[ -d "/system/priv-app/com.offsec.nethunter.store.privileged" ] && {
   print "* Removing NetHunterStorePrivilegedExtension.apk"
-  rm -rf /system/priv-app/NetHunterStorePrivilegedExtension
+  rm -rf /system/priv-app/com.offsec.nethunter.store.privileged
 }
 
 [ -d "/data/data/com.offsec.nethunter" ] && {

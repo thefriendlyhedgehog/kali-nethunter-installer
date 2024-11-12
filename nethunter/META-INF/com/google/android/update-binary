@@ -591,10 +591,10 @@ if [ $SDK -ge 26 ]; then
   ## Apps in /system
   check_freespace $tmp/data/app/ "True"
   print "* Installing apps (via system):"
-  installapp_system "NetHunter.apk" "NetHunter"
-  installapp_system "NetHunterTerminal.apk" "NetHunter-Terminal" # and NetHunterTerminal.apk because NetHunter.apk depends on it
-  installapp_system "NetHunterKeX.apk" "NetHunter-KeX" # and NetHunterKeX.apk because NetHunter.apk depends on it # Disabling as its too large currently on OnePlus???
-  installapp_system "NetHunterStore.apk" "NetHunter-Store" # and NetHunterStore.apk because we need it
+  installapp_system "NetHunter.apk" "com.offsec.nethunter"
+  installapp_system "NetHunterTerminal.apk" "com.offsec.nhterm"       # NetHunter.apk depends on it
+  installapp_system "NetHunterKeX.apk" "com.offsec.nethunter.kex"     # NetHunter.apk uses it
+  installapp_system "NetHunterStore.apk" "com.offsec.nethunter.store" # We need it
 else
   ## Apps in /data/app/
   check_freespace /data/app/ "True"
@@ -606,39 +606,39 @@ else
 fi
 
 ## Installing privileged extension
-installapp_system "NetHunterStorePrivilegedExtension.apk" "NetHunterStorePrivilegedExtension" "priv-app"
+installapp_system "NetHunterStorePrivilegedExtension.apk" "com.offsec.nethunter.store.privileged" "priv-app"
 
 if [ $SDK -ge 26 ]; then
   print "* Extracting apps:"
 
-  [ -f ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk ] && {
-    check_freespace ${SYSTEM}/app/NetHunter-Terminal/
+  [ -f ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk ] && {
+    check_freespace ${SYSTEM}/app/com.offsec.nhterm/
     print "*** Extracting NetHunterTerminal.apk"
-    unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
+    unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
-    [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
+    [ -d ${SYSTEM}/app/com.offsec.nhterm/lib ] || {
       print "*** Extracting NetHunterTerminal.apk #2"
       mkdir -p /tmp/NetHunter-Terminal/
-      unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
-      mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
+      unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
+      mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/com.offsec.nhterm/
     }
-    mv ${SYSTEM}/app/NetHunter-Terminal/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-Terminal/lib/arm
-    mv ${SYSTEM}/app/NetHunter-Terminal/lib/arm64-v8a ${SYSTEM}/app/NetHunter-Terminal/lib/arm64
+    mv ${SYSTEM}/app/com.offsec.nhterm/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nhterm/lib/arm
+    mv ${SYSTEM}/app/com.offsec.nhterm/lib/arm64-v8a ${SYSTEM}/app/com.offsec.nhterm/lib/arm64
   }
 
-  [ -f ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk ] && {
-    check_freespace ${SYSTEM}/app/NetHunter-KeX/
+  [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk ] && {
+    check_freespace ${SYSTEM}/app/com.offsec.nethunter.kex/
     print "*** Extracting NetHunterKeX.apk"
-    unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
+    unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
-    [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
+    [ -d ${SYSTEM}/app/com.offsec.nethunter.kex/lib ] || {
       print "*** Extracting NetHunterKeX.apk #2"
-      mkdir -p /tmp/NetHunter-KeX/
-      unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
-      mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
+      mkdir -p /tmp/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/
+      mv /tmp/com.offsec.nethunter.kex/lib ${SYSTEM}/app/com.offsec.nethunter.kex/
     }
-    mv ${SYSTEM}/app/NetHunter-KeX/lib/armeabi-v7a ${SYSTEM}/app/NetHunter-KeX/lib/arm
-    mv ${SYSTEM}/app/NetHunter-KeX/lib/arm64-v8a ${SYSTEM}/app/NetHunter-KeX/lib/arm64
+    mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm
+    mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64-v8a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64
   }
 
   check_freespace ${SYSTEM}/etc/permissions
