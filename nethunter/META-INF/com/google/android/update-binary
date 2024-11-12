@@ -564,7 +564,7 @@ progress 0.2
 #------------------------------------------------------------------------------
 
 [ -f supersu.zip ] && {
-  print "* Extracting SuperSU zip"
+  print "* Extracting SuperSU.zip"
   extract supersu.zip "$sutmp"
 
   progress 0.3
@@ -613,11 +613,11 @@ if [ $SDK -ge 26 ]; then
 
   [ -f ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk ] && {
     check_freespace ${SYSTEM}/app/NetHunter-Terminal/
-    print "*** Extracting NetHunterTerminal"
+    print "*** Extracting NetHunterTerminal.apk"
     unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/NetHunter-Terminal/
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/NetHunter-Terminal/lib ] || {
-      print "*** Extracting NetHunterTerminal #2"
+      print "*** Extracting NetHunterTerminal.apk #2"
       mkdir -p /tmp/NetHunter-Terminal/
       unzip -qo ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
       mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/NetHunter-Terminal/
@@ -628,11 +628,11 @@ if [ $SDK -ge 26 ]; then
 
   [ -f ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk ] && {
     check_freespace ${SYSTEM}/app/NetHunter-KeX/
-    print "*** Extracting NetHunterKeX"
+    print "*** Extracting NetHunterKeX.apk"
     unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/NetHunter-KeX/
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/NetHunter-KeX/lib ] || {
-      print "*** Extracting NetHunterKeX #2"
+      print "*** Extracting NetHunterKeX.apk #2"
       mkdir -p /tmp/NetHunter-KeX/
       unzip -qo ${SYSTEM}/app/NetHunter-KeX/NetHunterKeX.apk -d /tmp/NetHunter-KeX/
       mv /tmp/NetHunter-KeX/lib ${SYSTEM}/app/NetHunter-KeX/
@@ -642,7 +642,7 @@ if [ $SDK -ge 26 ]; then
   }
 
   check_freespace ${SYSTEM}/etc/permissions
-  print "*** Extracting NetHunterStorePrivilegedExtension"
+  print "*** Extracting NetHunterStorePrivilegedExtension.apk"
   mkdir ${SYSTEM}/etc/permissions
   chmod 0755 ${SYSTEM}/etc/permissions
   [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
