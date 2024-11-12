@@ -516,7 +516,7 @@ print "* Loading environment"
 . ./env.sh
 
 [ -e /dev/block/mapper ] && {
-  # Not using abort(), as this is more verobse
+  # Not using abort(), as this is more verbose
   print ""
   print "********** Dynamic Device Detected **********"
   print ""
