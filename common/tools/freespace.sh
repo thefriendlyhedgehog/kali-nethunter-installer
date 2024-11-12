@@ -2,8 +2,11 @@
 # Move safe apps from system to data partition to free up space for installation
 
 print() {
-  echo "ui_print - $1" > $console
-  echo
+  echo "${1:- }" \
+    | while read -r line; do
+       echo -e "ui_print $line" > "$console"
+       echo -e "ui_print \n" > "$console"
+    done
 }
 
 get_bb() {

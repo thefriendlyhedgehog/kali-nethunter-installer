@@ -12,10 +12,10 @@ print() {
 abort() {
   [ "$1" ] && {
     print "! Error: $1"
-    print "* Aborting"
+    print "$prefix Aborting"
   }
   cleanup
-  print "* Failed to patch boot image!"
+  print "$prefix Failed to patch boot image!"
   exit 1
 }
 
@@ -69,7 +69,7 @@ install_recovery_bb() {
 
   # Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
   nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
-  print "Installing $nethunter_bb applets to /sbin"
+  print "*** Installing $nethunter_bb applets to /sbin"
   cp $nethunter_bb /sbin/busybox_nh
   /sbin/busybox_nh --install /sbin
   cd - >/dev/null
@@ -84,9 +84,11 @@ if [ "$3" ]; then
   console=/proc/$$/fd/$2
   # Write the location of the console buffer to /tmp/console for other scripts to use
   echo "$console" > /tmp/console
+  prefix="*"
 else
   console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
+  prefix="-"
 fi
 
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system
@@ -108,49 +110,50 @@ if [ "$ZIPFILE" ]; then
   print "##                                              ##"
   print "####  ############# NetHunter ####################"
   print ""
-  print "* Boot-Patcher" # Isn't just LazyFlasher
+  print "$prefix Boot-Patcher" # Isn't just LazyFlasher
   print ""
 else
   print "##################################################"
-  print "          A/B and A Devices Boot-patcher          "
+  print ".         A/B and A Devices Boot-Patcher"
   if [ "$generic" ]; then
-  print " for $generic devices - ramdisk modifications only" # Skipping indent formatting
+  print ".              For $generic devices"                # Skipping indent formatting
+  print ".           ramdisk modifications only"             # Skipping indent formatting
   fi
   print "##################################################"
 fi
 
 # Unpack the installer
 [ "$ZIPFILE" ] && {
-  print "* Unpacking the installer, this may take a while"
+  print "$prefix Unpacking the installer, this may take a while"
   extract "$ZIPFILE" "$tmp"
-  #print "* Installer unpacked"
+  #print "$prefix Installer unpacked"
 }
 
 cd "$tmp"
 
-print "* Loading environment"
+print "$prefix Loading environment"
 chmod +x env
 . ./env.sh
 
-print "* Setting permissions"
+print "$prefix Setting permissions"
 setperm 0755 0755 tools
 
-print "* Setting up BusyBox"
+print "$prefix Setting up BusyBox"
 BB=$(get_bb)
 # Install BusyBox applets if they haven't been installed by the NetHunter installer already
 [ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
 if [ "$ZIPFILE" ]; then
-  print "* Running BusyBox installer"
+  print "$prefix Running BusyBox installer"
   sh tools/installbusybox.sh #run only
-  #print "* Done running BusyBox installer"
+  #print "$prefix Done running BusyBox installer"
 
-  print "* Running kernel installer"
+  print "$prefix Running kernel installer"
 else
-  print "* Running boot image patcher"
+  print "$prefix Running boot image patcher"
 fi
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
-#print "* Done"
+#print "$prefix Done"
 
-print "* Boot image patching complete"
+print "$prefix Boot image patching complete"
 #cleanup # Don't clean up if not specified in anykernel.sh

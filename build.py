@@ -744,7 +744,7 @@ def main():
         help_device += "    %s\n" % kernel
 
     parser = argparse.ArgumentParser(
-        description="Kali NetHunter recovery flashable zip builder"
+        description="Kali NetHunter Installer (Recovery flashable ZIP script builder)"
     )
     parser.add_argument(
         "--generic",

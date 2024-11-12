@@ -421,7 +421,7 @@ install_recovery_bb() {
 
   # Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
   nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
-  print "Installing $nethunter_bb applets to /sbin"
+  print "*** Installing $nethunter_bb applets to /sbin"
   cp $nethunter_bb /sbin/busybox_nh
   /sbin/busybox_nh --install /sbin
   cd - >/dev/null
@@ -537,7 +537,7 @@ progress 0.1
   abort "Your data partition appears to be empty. Please complete the Android setup wizard before installing Kali NetHunter!"
 }
 
-print "* Checking for previous versions of Kali NetHunter"
+print "* Running legacy Kali NetHunter version script" # Checking for previous versions of Kali NetHunter
 sh tools/previnstall.sh
 #print "* Done checking for previous versions"
 
@@ -575,7 +575,7 @@ if [ $SDK -ge 26 ]; then
   print "* Installing apps (via system):"
   installapp_system "NetHunter.apk" "NetHunter"
   installapp_system "NetHunterTerminal.apk" "NetHunter-Terminal" # and NetHunterTerminal.apk because NetHunter.apk depends on it
-  installapp_system "NetHunterKeX.apk" "NetHunter-KeX" # and NetHunterKeX.apk because NetHunter.apk depends on it
+  installapp_system "NetHunterKeX.apk" "NetHunter-KeX" # and NetHunterKeX.apk because NetHunter.apk depends on it # Disabling as its too large currently on OnePlus???
   installapp_system "NetHunterStore.apk" "NetHunter-Store" # and NetHunterStore.apk because we need it
 else
   ## Apps in /data/app/
@@ -637,13 +637,13 @@ progress 0.5
 #------------------------------------------------------------------------------
 
 [ -f tools/freespace.sh ] && {
-  print "* Checking freespace"
+  print "* Running freespace script" # Check for freespace
   # This actually runs twice when the NetHunter kernel zip is included
   sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
   #print "* Done checking freespace"
 }
 
-print "* Running BusyBox installer"
+print "* Running BusyBox installer script"
 sh tools/installbusybox.sh
 #print "* Done running BusyBox installer"
 
@@ -652,7 +652,7 @@ progress 0.6
 #------------------------------------------------------------------------------
 
 [ -d wallpaper ] && {
-  print "* Installing Kali NetHunter wallpaper"
+  print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpape
   sh wallpaper/setwallpaper.sh
   #print "* Done installing wallpaper"
 }
@@ -731,7 +731,7 @@ progress 0.8
 #------------------------------------------------------------------------------
 
 [ -d "$patchtmp" ] && {
-  print "* Running kernel installer"
+  print "* Running kernel installer script"
   sh "$patchtmp/META-INF/com/google/android/update-binary"
   #print "* Done running kernel installer"
 
@@ -744,7 +744,7 @@ progress 0.9
 
 #------------------------------------------------------------------------------
 
-print "* Running Kali chroot installer"
+print "* Running Kali chroot installer script"
 sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
 #print "* Done running Kali chroot installer"
 
@@ -753,12 +753,12 @@ restore_env # Restore environment after installation
 
 print ""
 print "##################################################"
-print "         Kali NetHunter is now installed!        "
+print "#        Kali NetHunter is now installed!        #"
 print "##################################################"
 ## This is a work around an Android permission issue
-print "     Please UPDATE the NetHunter app via the      "
-print "    NetHunter Store before RUNNING it to finish   "
-print "              setting everything up!              "
+print "#    Please UPDATE the NetHunter app via the     #"
+print "#   NetHunter Store before RUNNING it to finish  #"
+print "#             setting everything up!             #"
 print "##################################################"
 print ""
 

@@ -568,11 +568,11 @@ umask $UMASK;
 # Done
 ui_print ""
 ui_print "##################################################"
-ui_print "         Kali NetHunter is now installed!        "
+ui_print "#         Kali NetHunter is now installed!       #"
 ui_print "##################################################"
 ## This is a work around an Android permission issue
-ui_print "     Please UPDATE the NetHunter app via the      "
-ui_print "    NetHunter Store before RUNNING it to finish   "
-ui_print "              setting everything up!              "
+ui_print "#    Please UPDATE the NetHunter app via the     #"
+ui_print "#   NetHunter Store before RUNNING it to finish  #"
+ui_print "#             setting everything up!             #"
 ui_print "##################################################"
 ui_print ""
