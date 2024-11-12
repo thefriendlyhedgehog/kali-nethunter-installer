@@ -38,5 +38,3 @@ $found_fstab || print "Unable to find the fstab!"
 
 setprop ro.config.dmverity false
 rm -f verity_key sbin/firmware_key.cer
-
-exit 0

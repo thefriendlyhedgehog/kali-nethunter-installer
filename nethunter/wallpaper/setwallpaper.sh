@@ -36,7 +36,7 @@ if [ -z $res_h ] || [ -z $res_w ]; then
     if [ -f "wallpaper/resolution.txt" ]; then
       res=$(cat wallpaper/resolution.txt)
     else
-      print "- Can't get screen resolution from kernel! Skipping..."
+      print "! Can't get screen resolution from kernel! Skipping"
       exit 1
     fi
   fi
@@ -48,7 +48,7 @@ fi
 print "- Found screen resolution: $res"
 
 if [ ! -f "wallpaper/$res.png" ]; then
-  print "- No wallpaper found for your screen resolution. Skipping..."
+  print "! No wallpaper found for your screen resolution. Skipping"
   exit 1
 fi
 
@@ -67,5 +67,3 @@ if [ "$setup_wp" ]; then
 fi
 
 print "- NetHunter wallpaper applied successfully"
-
-exit 0

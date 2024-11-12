@@ -6,7 +6,9 @@ Follow the instructions below to create the Kali NetHunter installer zip.
 
 All you have to do is flash it through **TWRP** (or **Magisk**) for a complete Kali NetHunter environment and chroot<!--/rootfs --> on your device.
 
-The default boot image patching script is based on [LazyFlasher](https://github.com/jcadduono/lazyflasher/tree/kernel-flasher)'s kernel-flasher branch, otherwise its [AnyKernel3](https://github.com/osm0sis/AnyKernel3)
+The default boot image patching script is based on [LazyFlasher](https://github.com/jcadduono/lazyflasher/tree/kernel-flasher)'s kernel-flasher branch, otherwise its [AnyKernel3](https://github.com/osm0sis/AnyKernel3).
+
+For more information, please see the [documentation page](https://www.kali.org/docs/nethunter/building-nethunter/).
 
 <!--
 About the structure:
@@ -17,7 +19,7 @@ About the structure:
 ├── uninstaller/          <-- aka: Removal            `./build.py --uninstaller`
 ├── bootstrap.sh          <-- REF: https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels
 ├── build.py              <-- Create a one off image
-└── generate-release.py   <-- Create a shell script (`./release-<release>.sh`) to generate multiple images, each time calling `./build.py <...>` (Meant for Kali NetHunter dev team)
+└── generate-release.py   <-- Create a shell script (`./release-<release>.sh`) to generate multiple images, each time calling `./build.py [...]` (Meant for Kali NetHunter dev team)
 -->
 
 ## Instructions
@@ -39,31 +41,33 @@ _This will clone [Kali NetHunter Kernels](https://gitlab.com/kalilinux/nethunter
 Example building for the **Nexus 5 (hammerhead)**:
 
 ```console
-$ ./build.py -d hammerhead --marshmallow
+$ ./build.py --kernel hammerhead --marshmallow
+# OR
+$ ./build.py -k hammerhead -6
 ```
 
 - - -
 
-Building the **kernel only** _(useful for testing if kernel works)_:
+Building the **kernel installer** _(useful for testing if kernel works)_:
 
 ```console
-$ ./build.py -d hammerhead --marshmallow -k
+$ ./build.py --kernel hammerhead --marshmallow --installer
 ```
 
 - - -
 
-Building **without the kernel** _(useful for just updating apps)_:
+Building **without the kernel installer** _(useful for just updating apps)_:
 
 ```console
-$ ./build.py -d hammerhead --marshmallow -nk
+$ ./build.py --kernel hammerhead --marshmallow --no-installer
 ```
 
 - - -
 
-Building with **adding a full chroot** _(use either [pre-created](https://kali.download/nethunter-images/current/rootfs/) (default) or [generate own](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-rootfs) then add to `./rootfs/kalifs-full-[arch].tar.xz`):_
+Building with **adding a full rootfs/chroot** _(use either [pre-created](https://kali.download/nethunter-images/current/rootfs/) (default) or [generate own](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-rootfs) then add to `./rootfs/kalifs-full-[arch].tar.xz`):_
 
 ```console
-$ ./build.py -d hammerhead --marshmallow --rootfs full
+$ ./build.py --kernel hammerhead --marshmallow --rootfs full
 ```
 
 - - -
@@ -71,15 +75,22 @@ $ ./build.py -d hammerhead --marshmallow --rootfs full
 Create a **release version**:
 
 ```console
-$ ./build.py -d hammerhead --marshmallow --rootfs full --release 2024.3
+$ ./build.py --kernel hammerhead --marshmallow --rootfs full --release 2024.3
+$ ./build.py --kernel hammerhead --marshmallow --rootfs minimal --release daily
 ```
 
 - - -
 
-Force **download all third party apps**:
+Force **downloading all external resources**:
 
 ```console
-$ ./build.py --force-down
+$ ./build.py --kernel hammerhead --marshmallow --force-download
+```
+
+Otherwise, able to "cache" without building anything:
+
+```console
+$ ./build.py --force-download
 ```
 
 - - -
@@ -87,7 +98,7 @@ $ ./build.py --force-down
 Building the **uninstaller**:
 
 ```console
-$ ./build.py --uninstaller
+$ ./build.py --kernel hammerhead --marshmallow --uninstaller
 ```
 
 - - -
@@ -96,7 +107,54 @@ Show **help**:
 
 ```console
 $ ./build.py -h
+[i] Reading: kernels/devices.yml
+usage: build.py [-h] [--generic ARCH] [--kernel KERNEL] [--kitkat] [--lollipop] [--marshmallow] [--nougat] [--oreo] [--pie] [--ten] [--eleven] [--twelve] [--thirteen] [--fourteen] [--fifteen] [--wearos]
+                [--rootfs SIZE] [--force-download] [--uninstaller] [--installer] [--no-installer] [--no-branding] [--no-freespace-check] [--supersu] [--release VERSION]
+
+Kali NetHunter Installer (Recovery flashable ZIP script builder)
+
+options:
+  -h, --help            show this help message and exit
+  --generic ARCH, -g ARCH
+                        Build a generic installer (modify ramdisk only)
+  --kernel KERNEL, -k KERNEL
+                        Allowed kernel IDs: a37-los a5ulte-cm a5ulte-tw a5xelte-tw a7xelte-los ailsa-ii alioth-los-ksu angler angler-los armani beryllium beryllium-los blueline bramble bullhead cancro-cm
+                        cedric-los crosshatch davinci-miui dogo-cm dragon drg-los es2 eva-emui eva-los flo flo-cm flounder gemini4g-p1 gemini4g-p2 gemini4g-p3 gracelte graceltekor grouper gts4llte gts4lwifi
+                        h830 h850 h918 h990 h990-los hammerhead hammerhead-los hammerhead-caf-los hero2lte-tw hero2lte-los hero2lte-oui hero2lte-kor-tw herolte-tw herolte-los herolte-oui herolte-kor-tw
+                        hlte-can-cm hlte-can-tw hlte-dcm-tw hlte-eur-cm hlte-eur-tw hlte-eur-los hlte-kdi-tw hlte-kor-cm hlte-kor-tw hlte-spr-cm hlte-spr-tw hlte-vzw-tw honami-los htc-pmewl ido-los j53g-los
+                        j5lte-los j5nlte-los j7y17lte-oui jalebi-los jfltexx-cm jiayus3a kiwi-cm klte-los klte-tw klte-chn-los klte-chnduo-los klte-duos-los klte-duos-tw klte-kdi-los klte-kdi-tw klte-kor-
+                        los klte-skt-tw klte-spr-los klte-spr-tw klte-usc-tw klte-vzw-tw kminilte-los laurel-sprout-los lv517-los mako mako-cm manning manta markw-los mocha-cm on7xlte-oui onem7gpe onem8gpe
+                        oneplus-nord-oos oneplus1-cm oneplus1-los oneplus2-oos oneplus2-cm oneplus2-los oneplus3-3t-oos oneplus3-3t-los oneplus3-oos oneplus3-v2-oos oneplus3-los oneplus3t-los oneplus3t-oos
+                        oneplus5-oos oneplus5-cm oneplus5-los oneplus5-pa oneplus5-los-ksu oneplus5-pa-ksu oneplus6-oos oneplus6-los oneplus7-oos oneplus7-v2-oos oneplus8-oos oneplusx-cm osprey-los payton-
+                        los pdx201-los pl2-los potter-los pyxis-los r8q-oui rmx1911-cos rmx1971 rmx2185-los rmx3031 s2-cm sakura-los santoni-miui mido-pe11 shamu shamu-los shieldtablet spacewar star2lte-los
+                        sunfish surya-los suzuran-los ticwatchpro ticwatchpro3 us996 vayu victara-cm vienna yuga-cm z00e-los zeroflte-los zeroflte-tw zerolte-los zerolte-tw
+  --kitkat, -4          Android 4.4
+  --lollipop, -5        Android 5
+  --marshmallow, -6     Android 6
+  --nougat, -7          Android 7
+  --oreo, -8            Android 8
+  --pie, -9             Android 9
+  --ten, -10            Android 10
+  --eleven, -11         Android 11
+  --twelve, -12         Android 12
+  --thirteen, -13       Android 13
+  --fourteen, -14       Android 14
+  --fifteen, -15        Android 15
+  --wearos, -w          Wear OS
+  --rootfs SIZE, -fs SIZE
+                        Build with Kali rootfs (full, minimal or nano)
+  --force-download, -f  Force re-downloading external resources
+  --uninstaller, -u     Create an uninstaller
+  --installer, -i       Build only the kernel installer (boot-patcher)
+  --no-installer        Build without the kernel installer (boot-patcher)
+  --no-branding         Build without wallpaper or boot animation
+  --no-freespace-check  Build without free space check
+  --supersu, -su        Build with SuperSU installer included
+  --release VERSION, -r VERSION
+                        Specify NetHunter release version
 ```
+
+For more examples, please see the [documentation page](https://www.kali.org/docs/nethunter/building-nethunter/).
 
 <!---
 ### Kali NetHunter Release

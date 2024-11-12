@@ -21,7 +21,7 @@ xbin=/system/xbin
 
 cd "$tmp/tools"
 for bb in busybox_nh-*; do 
-  print "- Installing $bb..."
+  print "- Installing $bb"
   rm -f $xbin/$bb
   cp $bb $xbin/$bb
   chmod 0755 $xbin/$bb
@@ -35,6 +35,6 @@ ln -s $xbin/$busybox_nh busybox_nh
 $xbin/busybox_nh --install -s $xbin
 
 [ -e $xbin/busybox ] || {
-  print "- $xbin/busybox not found! Symlinking..."
+  print "- $xbin/busybox not found! Symlinking"
   ln -s $xbin/busybox_nh $xbin/busybox
 }
