@@ -175,7 +175,7 @@ installapp_user() {
 installapp_system() {
   check_freespace $tmp/data/app/
   print "*** Installing $1"
-  mkdir -p ${SYSTEM}/app/$2
+  mkdir -p ${SYSTEM}/${3:-app}/$2/
   cp -f $tmp/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
   print "* Failed to install $1!" && return 1
 }
