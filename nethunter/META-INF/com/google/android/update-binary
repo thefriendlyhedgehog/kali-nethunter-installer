@@ -459,9 +459,13 @@ check_freespace() {
   elif [ -z $checkspace ]; then
     print "Warning: Could not get free space status for $1, continuing anyway!"
   elif [ "$mntspace" -lt "$checkspace" ]; then
-    abort "Warning: Didn't have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
+    if [ -n "$2" ]; then
+      abort "Didn't have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
+    else
+      print "Warning: may not have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
+    fi
   elif [ "$mntspace" -eq "0" ]; then
-    abort "Warning: Out of space on $ANDROID_ROOT ($mntspace MB free)"
+    abort "Out of space on $ANDROID_ROOT ($mntspace MB free)"
   fi
 }
 
