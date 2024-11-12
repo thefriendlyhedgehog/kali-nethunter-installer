@@ -609,7 +609,7 @@ fi
 installapp_system "NetHunterStorePrivilegedExtension.apk" "NetHunterStorePrivilegedExtension" "priv-app"
 
 if [ $SDK -ge 26 ]; then
-  print "* Extracting apps (via system):"
+  print "* Extracting apps:"
 
   [ -f ${SYSTEM}/app/NetHunter-Terminal/NetHunterTerminal.apk ] && {
     check_freespace ${SYSTEM}/app/NetHunter-Terminal/

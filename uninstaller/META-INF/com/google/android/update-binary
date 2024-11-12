@@ -112,7 +112,7 @@ mount /data
 }
 
 [ -d "/data/data/com.offsec.nethunter" ] && {
-  print "* Removing NetHunter chroot/data"
+  print "* Removing NetHunter chroot/rootfs data"
   rm -rf /data/data/com.offsec.nethunter
 }
 
