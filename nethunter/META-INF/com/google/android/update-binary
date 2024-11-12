@@ -632,8 +632,21 @@ if [ $SDK -ge 26 ]; then
 
   [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk ] && {
     check_freespace ${SYSTEM}/app/com.offsec.nethunter.kex/
-    print "*** Extracting NetHunterKeX.apk"
-    unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+    if [ -n "$ARCH" ]; then
+      case $ARCH in
+        amd64) x=x86_64;;
+        i386)  x=x86;;
+        arm64) x=arm64-v8a;;
+        armhf) x=armeabi-v7a;;
+        *) abort "Unknown arch: $ARCH"
+        ;;
+      esac;
+      print "*** Extracting NetHunterKeX.apk ($ARCH / $x)"
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/$x/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+    else
+      print "*** Extracting NetHunterKeX.apk"
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+    fi
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nethunter.kex/lib ] || {
       print "*** Extracting NetHunterKeX.apk #2"
