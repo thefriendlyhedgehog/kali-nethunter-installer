@@ -1020,20 +1020,19 @@ def main():
     if args.no_branding and not args.installer:
         file_tag += "-no_branding"
 
-    if args.installer:
-        file_tag = "kernel-" + file_tag
-
-    if args.no_installer:
-        file_tag += "-no_kernel"
-
     if args.uninstaller:
-        file_tag += "-uninstaller"
+            file_tag += "-uninstaller"
+    elif args.installer:
+        file_tag = "kernel-" + file_tag
+    else:
+        if args.no_installer:
+            file_tag += "-no_kernel"
 
-    if args.supersu:
-        file_tag += "-rooted"
+        if args.supersu:
+            file_tag += "-rooted"
 
-    if args.rootfs:
-        file_tag += "-kalifs_" + args.rootfs
+        if args.rootfs:
+            file_tag += "-kalifs_" + args.rootfs
 
     file_tag += ".zip"
 
