@@ -34,7 +34,12 @@ if [ -d /system/xbin ]; then
 else
   XBIN=$TARGET/bin;
 fi
-MEDIA=$TARGET/media;
+if [ -d /system/media ]; then
+  MEDIA=$TARGET/media;
+else if [ -d /system/product/media ]; then
+  MEDIA=$TARGET/product/media;
+fi
+fi
 
 file_getprop() {
   grep "^$2" "$1" | head -n1 | cut -d= -f2-;
@@ -267,10 +272,10 @@ do_flash() {
 }
 
 flash_kernel() {
-  # Check zip for nethunter-installer.zip first
+  # Check zip for kernel-*.zip first
   [ -e "$ZIPFILE" ] && {
     KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
-    # Check other locations if zip didn't contain a nethunter-installer.zip
+    # Check other locations if zip didn't contain a kernel-*.zip
     [ "$KERNEL" ] || {
       ui_print "- No kernel found. Skipping."
       return
@@ -417,15 +422,8 @@ set_wallpaper;
 # Install NetHunter boot animation
 [ -f $TMP/system/media/bootanimation.zip ] && {
   ui_print "- Installing NetHunter boot animation"
-  mkdir -p $TARGET/media;
-  cp $TMP/system/media/bootanimation.zip $TARGET/media/
-}
-
-# Install NetHunter boot animation into product partition
-[ -f $TMP/product/media/bootanimation.zip ] && {
-  ui_print "- Installing NetHunter boot animation in product partition"
-  mkdir -p $TARGET/product/media;
-  cp $TMP/product/media/bootanimation.zip $TARGET/product/media/
+  mkdir -p $MEDIA;
+  cp $TMP/system/media/bootanimation.zip $MEDIA
 }
 
 # Install required firmwares, binaries, lib files for Kali NetHunter
