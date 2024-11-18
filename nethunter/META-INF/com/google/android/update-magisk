@@ -310,9 +310,8 @@ fi
 
 if [ -d /system/media ]; then
   MEDIA=$TARGET/media
-else if [ -d /system/product/media ]; then
+elif [ -d /system/product/media ]; then
   MEDIA=$TARGET/product/media
-fi
 fi
 
 UMASK=$(umask)
