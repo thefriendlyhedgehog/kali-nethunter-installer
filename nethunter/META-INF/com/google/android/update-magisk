@@ -16,6 +16,7 @@ set_perm_recursive() {
   find $1 -type d 2>/dev/null | while read dir; do
     set_perm $dir $2 $3 $4 $6
   done
+
   find $1 -type f -o -type l 2>/dev/null | while read file; do
     set_perm $file $2 $3 $5 $6
   done
@@ -33,7 +34,7 @@ set_wallpaper() {
   # Define wallpaper variables
   wp=/data/system/users/0/wallpaper
   wpinfo=${wp}_info.xml
- 
+
   # Get screen resolution using wm size
   res=$(wm size | grep "Physical size:" | cut -d' ' -f3 2>/dev/null)
   res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f1 2>/dev/null)
@@ -80,15 +81,18 @@ set_wallpaper() {
 
 f_kill_pids() {
   local lsof_full=$(lsof | awk '{print $1}' | grep -c '^lsof')
+
   if [ "${lsof_full}" -eq 0 ]; then
     local pids=$(lsof | grep "$PRECHROOT" | awk '{print $1}' | uniq)
   else
     local pids=$(lsof | grep "$PRECHROOT" | awk '{print $2}' | uniq)
   fi
+
   if [ -n "${pids}" ]; then
     kill -9 ${pids} 2> /dev/null
     return $?
   fi
+
   return 0
 }
 
@@ -102,6 +106,7 @@ f_restore_setup() {
 
 f_umount_fs() {
   isAllunmounted=0
+
   if mountpoint -q $PRECHROOT/$1; then
     if umount -f $PRECHROOT/$1; then
       if [ ! "$1" = "dev/pts" -a ! "$1" = "dev/shm" ]; then
@@ -127,9 +132,11 @@ f_dir_umount() {
   f_kill_pids
   f_restore_setup
   ui_print "- Removing all fs mounts."
+
   for i in "dev/pts" "dev/shm" dev proc sys system; do
     f_umount_fs "$i"
   done
+
   # Don't force unmount sdcard
   # In some devices, it wipes the internal storage
   if umount -l $PRECHROOT/sdcard; then
@@ -171,11 +178,13 @@ verify_fs() {
     armhf|arm64|i386|amd64) ;;
     *) return 1 ;;
   esac
+
   # Valid build size?
   case $FS_SIZE in
     full|minimal|nano) ;;
     *) return 1 ;;
   esac
+
   return 0
 }
 
@@ -292,11 +301,13 @@ fi
 TARGET=$MNT$MAGISK;
 ETC=$TARGET/etc;
 BIN=$TARGET/bin;
+
 if [ -d /system/xbin ]; then
   XBIN=$TARGET/xbin;
 else
   XBIN=$TARGET/bin;
 fi
+
 if [ -d /system/media ]; then
   MEDIA=$TARGET/media;
 else if [ -d /system/product/media ]; then
@@ -310,6 +321,7 @@ umask 022;
 # Ensure zip installer shell is in a working scratch directory
 mkdir -p $TMPDIR;
 cd $TMPDIR;
+
 # Source custom installer functions and configuration
 unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2;
 MODID=$(file_getprop module.prop id);
@@ -352,19 +364,19 @@ if [ -d /dev/block/mapper ]; then
 fi;
 mount -o rw,remount -t auto /system || mount /system;
 [ $? != 0 ] && mount -o rw,remount -t auto / && SAR=true;
- 
+
 # Additional setup for installing apps via pm
 [[ "$(getenforce)" == "Enforcing" ]] && ENFORCE=true || ENFORCE=false
 ${ENFORCE} && setenforce 0
 VERIFY=$(settings get global verifier_verify_adb_installs)
 settings put global verifier_verify_adb_installs 0
- 
+
 # Uninstall previous apps and binaries module if they are installed
 ui_print "- Checking for previous version of NetHunter apps and files";
-pm uninstall  com.offsec.nethunter &> /dev/null
-pm uninstall  com.offsec.nethunter.kex &> /dev/null
-pm uninstall  com.offsec.nhterm &> /dev/null
-pm uninstall  com.offsec.nethunter.store &> /dev/null
+pm uninstall com.offsec.nethunter &> /dev/null
+pm uninstall com.offsec.nethunter.kex &> /dev/null
+pm uninstall com.offsec.nhterm &> /dev/null
+pm uninstall com.offsec.nethunter.store &> /dev/null
 
 # Remove Osmosis BusyBox module
 [ -d /data/adb/modules/busybox-ndk ] && {
@@ -379,7 +391,6 @@ pm uninstall  com.offsec.nethunter.store &> /dev/null
   touch /data/adb/modules/wirelessFirmware/disable
   touch /data/adb/modules/wirelessFirmware/remove
 }
-
 
 # Remove nano modules
 [ -d /data/adb/modules/nano-ndk ] && {
@@ -489,7 +500,7 @@ set_wallpaper;
   chmod 0755 "/data/local/userinit.sh"
   set_perm_recursive "$ETC/init.d" 0 0 0755 0644
 }
- 
+
 [ -e $TMP/system/addon.d/80-nethunter.sh ] && {
   ui_print "- Installing /system/addon.d backup scripts"
   mkdir -p "$TARGET/addon.d"
@@ -497,7 +508,6 @@ set_wallpaper;
   cp "$TMP/system/addon.d/80-nethunter.sh" "$TARGET/addon.d/"
   set_perm_recursive "$TARGET/addon.d" 0 0 0755 0644
 }
-
 
 # Symlink bootkali scripts for using in another terminals
 ui_print "- Symlinking Kali boot scripts";
