@@ -958,6 +958,13 @@ def main():
 
     if args.supersu:
         print("[i] Include SuperSU: true")
+        if android != "kitkat" or \
+           android != "lollipop" or \
+           android != "marshmallow" or \
+           android != "nougat" or \
+           android != "oreo" or \
+           android != "pie":
+            print("[-]   Warning: SuperSU is EOL and only really works on Android Pie (9) or lower", file=sys.stderr)
 
     x = args.release if args.release else TimeStamp
     print("[i] NetHunter release version: " + x)
