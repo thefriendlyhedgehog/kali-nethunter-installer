@@ -412,7 +412,6 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
 #------------------------------------------------------------------------------
 
 # Install all NetHunter apps as user apps
-# System apps might not work
 ui_print "* Installing apps (via user):"
 
 # Install the core NetHunter app
@@ -432,7 +431,8 @@ ui_print "*** Installing NetHunter-Store.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 # Installing privileged extension as system app
-# Not yet working - Tip: look into /system_ext
+ui_print "* Installing apps (via system):"
+ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not yet working - Tip: look into /system_ext
 
 #ui_print "* Done installing apps"
 
