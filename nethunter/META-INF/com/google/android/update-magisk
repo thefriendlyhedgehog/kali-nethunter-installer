@@ -317,14 +317,6 @@ fi
 UMASK=$(umask)
 umask 022
 
-# Ensure zip installer shell is in a working scratch directory
-mkdir -p $TMPDIR
-cd $TMPDIR
-
-# Source custom installer functions and configuration
-unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
-MODID=$(file_getprop module.prop id)
-
 # Print Kali NetHunter banner In Magisk installation terminal
 ui_print ""
 ui_print "##################################################"
@@ -342,6 +334,14 @@ ui_print "####  ############# NetHunter ####################"
 ui_print ""
 ui_print "* NetHunter (Magisk module)"
 ui_print ""
+
+# Ensure zip installer shell is in a working scratch directory
+mkdir -p $TMPDIR
+cd $TMPDIR
+
+# Source custom installer functions and configuration
+unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+MODID=$(file_getprop module.prop id)
 
 # Extract the installer
 ui_print "- Unpacking the installer"
