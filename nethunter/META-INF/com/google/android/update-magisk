@@ -411,6 +411,15 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
 
 #------------------------------------------------------------------------------
 
+[ -e "$ZIPFILE" ] && {
+  ZIP=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^supersu.zip/ { print $4; exit }')
+  [ "$ZIP" ] && {
+    ui_print "* [!] SuperSU.zip is not supported with Magisk"
+  }
+}
+
+#------------------------------------------------------------------------------
+
 # Install all NetHunter apps as user apps
 ui_print "* Installing apps (via user):"
 
