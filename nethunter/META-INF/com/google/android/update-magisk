@@ -1,46 +1,5 @@
 # NetHunter installation script for Magisk
 
-# Define several variables
-[ -z $TMPDIR ] && TMPDIR=/dev/tmp;
-[ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
-[ -z $ZIPFILE ] && ZIPFILE="$3";
-DIR=$(dirname "$ZIPFILE");
-TMP=$TMPDIR/$MODID;
-
-# Magisk manager/booted flashing support
-[ -e /data/adb/magisk ] && ADB=adb;
-OUTFD=/proc/self/fd/0;
-if [ -e /data/$ADB/magisk ]; then
-  [ -e /magisk/.core/busybox ] && MAGISKBB=/magisk/.core/busybox;
-  [ -e /sbin/.core/busybox ] && MAGISKBB=/sbin/.core/busybox;
-  [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox;
-  [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox);
-  [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH";
-fi
-
-# Define modules target dirs
-if [ -e /data/adb/modules ]; then
-  MNT=/data/adb/modules_update;
-  MAGISK=/$MODID/system;
-fi
-
-# Set target paths
-[ ! -z $MODPTH ] || MODPATH=$MNT/$MODID
-TARGET=$MNT$MAGISK;
-ETC=$TARGET/etc;
-BIN=$TARGET/bin;
-if [ -d /system/xbin ]; then
-  XBIN=$TARGET/xbin;
-else
-  XBIN=$TARGET/bin;
-fi
-if [ -d /system/media ]; then
-  MEDIA=$TARGET/media;
-else if [ -d /system/product/media ]; then
-  MEDIA=$TARGET/product/media;
-fi
-fi
-
 file_getprop() {
   grep "^$2" "$1" | head -n1 | cut -d= -f2-;
 }
@@ -303,6 +262,47 @@ do_chroot() {
     verify_fs && do_install
   }
 }
+
+# Define several variables
+[ -z $TMPDIR ] && TMPDIR=/dev/tmp;
+[ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
+[ -z $ZIPFILE ] && ZIPFILE="$3";
+DIR=$(dirname "$ZIPFILE");
+TMP=$TMPDIR/$MODID;
+
+# Magisk manager/booted flashing support
+[ -e /data/adb/magisk ] && ADB=adb;
+OUTFD=/proc/self/fd/0;
+if [ -e /data/$ADB/magisk ]; then
+  [ -e /magisk/.core/busybox ] && MAGISKBB=/magisk/.core/busybox;
+  [ -e /sbin/.core/busybox ] && MAGISKBB=/sbin/.core/busybox;
+  [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox;
+  [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox);
+  [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH";
+fi
+
+# Define modules target dirs
+if [ -e /data/adb/modules ]; then
+  MNT=/data/adb/modules_update;
+  MAGISK=/$MODID/system;
+fi
+
+# Set target paths
+[ ! -z $MODPTH ] || MODPATH=$MNT/$MODID
+TARGET=$MNT$MAGISK;
+ETC=$TARGET/etc;
+BIN=$TARGET/bin;
+if [ -d /system/xbin ]; then
+  XBIN=$TARGET/xbin;
+else
+  XBIN=$TARGET/bin;
+fi
+if [ -d /system/media ]; then
+  MEDIA=$TARGET/media;
+else if [ -d /system/product/media ]; then
+  MEDIA=$TARGET/product/media;
+fi
+fi
 
 UMASK=$(umask);
 umask 022;
