@@ -469,6 +469,8 @@ check_freespace() {
   fi
 }
 
+#------------------------------------------------------------------------------
+
 ## Start build generated variables
 supersu="auto"
 ## End build generated variables
@@ -489,6 +491,8 @@ patchtmp=$tmp/boot-patcher
 export home=$patchtmp
 sutmp=/tmp/supersu
 
+#------------------------------------------------------------------------------
+
 print ""
 print "##################################################"
 print "##                                              ##"
@@ -505,6 +509,8 @@ print "####  ############# NetHunter ####################"
 print ""
 print "* NetHunter (BOOTMODE: $BOOTMODE)"
 print ""
+
+#------------------------------------------------------------------------------
 
 # Unpack the installer
 [ "$ZIPFILE" ] && {

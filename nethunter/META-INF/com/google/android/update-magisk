@@ -273,6 +273,8 @@ do_chroot() {
   }
 }
 
+#------------------------------------------------------------------------------
+
 # Define several variables
 [ -z $TMPDIR ] && TMPDIR=/dev/tmp
 [ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
@@ -318,6 +320,8 @@ fi
 UMASK=$(umask)
 umask 022
 
+#------------------------------------------------------------------------------
+
 # Print Kali NetHunter banner In Magisk installation terminal
 ui_print ""
 ui_print "##################################################"
@@ -351,6 +355,8 @@ cd $TMPDIR/$MODID
 unzip -qq "$ZIPFILE" -x "kalifs-*"
 #ui_print "* Installer unpacked"
 
+#------------------------------------------------------------------------------
+
 # Setup environment before installations
 # Mount System as r/w just incase we need it
 ui_print "* Setting environment"
@@ -372,6 +378,8 @@ mount -o rw,remount -t auto /system || mount /system
 $ENFORCE && setenforce 0
 VERIFY=$(settings get global verifier_verify_adb_installs)
 settings put global verifier_verify_adb_installs 0
+
+#------------------------------------------------------------------------------
 
 # Uninstall previous apps and binaries module if they are installed
 ui_print "* Checking for previous version of NetHunter apps and files"
@@ -401,6 +409,8 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
   touch /data/adb/modules/nano-ndk/remove
 }
 
+#------------------------------------------------------------------------------
+
 # Install all NetHunter apps as user apps
 # System apps might not work
 ui_print "* Installing apps (via user):"
@@ -426,13 +436,19 @@ pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 #ui_print "* Done installing apps"
 
+#------------------------------------------------------------------------------
+
 # Install BusyBox
 ui_print "* Setting up BusyBox"
 [ -f $TMP/tools/installbusybox_magisk.sh ] && sh $TMP/tools/installbusybox_magisk.sh
 #print "* Done installing BusyBox"
 
+#------------------------------------------------------------------------------
+
 # SetUp Kali NetHunter wallpaper of correct resolution if there is one available
 set_wallpaper
+
+#------------------------------------------------------------------------------
 
 # Install NetHunter boot animation
 [ -f $TMP/system/media/bootanimation.zip ] && {
@@ -515,6 +531,8 @@ set_wallpaper
   set_perm_recursive "$TARGET/addon.d" 0 0 0755 0644
 }
 
+#------------------------------------------------------------------------------
+
 # Symlink bootkali scripts for using in another terminals
 ui_print "* Symlinking Kali boot scripts"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "$TARGET/bin/bootkali"
@@ -524,18 +542,26 @@ symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "$TARGET/b
 symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "$TARGET/bin/killkali"
 set_perm_recursive "$BIN" 0 0 0755 0755
 
+#------------------------------------------------------------------------------
+
 # Adding required permissions for NetHunter app
 ui_print "* Granting required permissions to NetHunter app"
 sh $TMP/tools/nh_perm.sh
 #print "* Done setting permissions to NetHunter app"
 
+#------------------------------------------------------------------------------
+
 # Install kernel
 ui_print "* Flashing kernel"
 flash_kernel
 
+#------------------------------------------------------------------------------
+
 # Install chroot
 ui_print "* Installing chroot"
 do_chroot
+
+#------------------------------------------------------------------------------
 
 # Random important Magisk stuff (Don't remove)
 ui_print "* Important Magisk"
@@ -545,6 +571,8 @@ touch $MNT/$MODID/auto_mount
 mkdir -p "$IMGMNT/$MODID"
 touch "$IMGMNT/$MODID/update"
 cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/"
+
+#------------------------------------------------------------------------------
 
 ui_print "* Restoring environment"
 cd /
@@ -569,6 +597,8 @@ for TARGET in $REPLACE; do
   mktouch $MODPATH$TARGET/.replace
 done
 
+#------------------------------------------------------------------------------
+
 # Update info for Magisk manager
 ui_print "* Setting metadata"
 mktouch $NVBASE/modules/$MODID/update
@@ -579,6 +609,8 @@ if [ -f $MODPATH/sepolicy.rule ]; then
   ui_print "* Installing custom sepolicy rules"
   copy_sepolicy_rules
 fi
+
+#------------------------------------------------------------------------------
 
 # Clean up
 ui_print "* Cleaning up"
