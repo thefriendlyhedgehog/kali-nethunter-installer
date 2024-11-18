@@ -82,14 +82,14 @@ set_wallpaper() {
 f_kill_pids() {
   local lsof_full=$(lsof | awk '{print $1}' | grep -c '^lsof')
 
-  if [ "${lsof_full}" -eq 0 ]; then
+  if [ "$lsof_full" -eq 0 ]; then
     local pids=$(lsof | grep "$PRECHROOT" | awk '{print $1}' | uniq)
   else
     local pids=$(lsof | grep "$PRECHROOT" | awk '{print $2}' | uniq)
   fi
 
-  if [ -n "${pids}" ]; then
-    kill -9 ${pids} 2> /dev/null
+  if [ -n "$pids" ]; then
+    kill -9 $pids 2> /dev/null
     return $?
   fi
 
@@ -367,7 +367,7 @@ mount -o rw,remount -t auto /system || mount /system
 
 # Additional setup for installing apps via pm
 [[ "$(getenforce)" == "Enforcing" ]] && ENFORCE=true || ENFORCE=false
-${ENFORCE} && setenforce 0
+$ENFORCE && setenforce 0
 VERIFY=$(settings get global verifier_verify_adb_installs)
 settings put global verifier_verify_adb_installs 0
 
@@ -425,7 +425,7 @@ pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 ui_print "- Done installing apps"
 
 # Install BusyBox
-[ -f $TMP/tools/installbusybox_magisk.sh ] && . $TMP/tools/installbusybox_magisk.sh
+[ -f $TMP/tools/installbusybox_magisk.sh ] && sh $TMP/tools/installbusybox_magisk.sh
 
 # SetUp Kali NetHunter wallpaper of correct resolution if there is one available
 set_wallpaper
@@ -550,8 +550,8 @@ fi
 [ "$SAR" ] && mount -o ro,remount -t auto / || mount -o ro,remount -t auto /system
 
 # Restore also additional settings we did before
-settings put global verifier_verify_adb_installs ${VERIFY}
-${ENFORCE} && setenforce 1
+settings put global verifier_verify_adb_installs $VERIFY
+$ENFORCE && setenforce 1
 
 # Handle replace folders
 for TARGET in $REPLACE; do
