@@ -569,19 +569,6 @@ cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/"
 
 #------------------------------------------------------------------------------
 
-# Update info for Magisk manager
-ui_print "* Setting metadata"
-mktouch $NVBASE/modules/$MODID/update
-cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
-
-# Copy over custom sepolicy rules
-if [ -f $MODPATH/sepolicy.rule ]; then
-  ui_print "* Installing custom sepolicy rules"
-  copy_sepolicy_rules
-fi
-
-#------------------------------------------------------------------------------
-
 ui_print "* Restoring environment"
 cd /
 

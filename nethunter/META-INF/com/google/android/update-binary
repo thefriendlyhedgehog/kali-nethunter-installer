@@ -1,6 +1,9 @@
 #!/sbin/sh
 ## Kali NetHunter installer
-
+##
+## REF: https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh
+##      https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
+##
 ## Detect bootmode
 ## "BOOTMODE=true"  = Device has booted into system (NetHunter installed as Magisk module)
 ## "BOOTMODE=false" = Device has booted into recovery (NetHunter installed through TWRP)
@@ -22,9 +25,11 @@
 ##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
 ##     https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
 
-BOOTMODE=false;
-ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
-$BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true;
+#<REF: ./scripts/util_functions.sh>
+[ -z $BOOTMODE ] && ps | grep zygote | grep -qv grep && BOOTMODE=true
+[ -z $BOOTMODE ] && ps -A 2>/dev/null | grep zygote | grep -qv grep && BOOTMODE=true
+[ -z $BOOTMODE ] && BOOTMODE=false
+#<REF: /./scripts/util_functions.sh>
 
 #------------------------------------------------------------------------------
 
@@ -63,13 +68,13 @@ print ""
 
 #------------------------------------------------------------------------------
 
-###################################
-##                               ##
-##  Install in Magisk            ##
-##                               ##
-###################################
+#####################################################
+## Install in Magisk                               ##
+##   ./scripts/util_functions.sh: install_module() ##
+#####################################################
 
 if $BOOTMODE; then
+#<REF: ./scripts/module_installer.sh>
   require_new_magisk() {
     echo "*******************************"
     echo " Please install Magisk v20.4+! "
@@ -93,12 +98,16 @@ if $BOOTMODE; then
   [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
   source /data/adb/magisk/util_functions.sh
   [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
+#</ REF: ./scripts/module_installer.sh>
 
+#<REF: ./scripts/util_functions.sh>
   #########################
   # Install module
   #########################
   rm -rf $TMPDIR
   mkdir -p $TMPDIR
+  chcon u:object_r:system_file:s0 $TMPDIR
+  cd $TMPDIR
 
   setup_flashable
   mount_partitions
@@ -108,30 +117,53 @@ if $BOOTMODE; then
   boot_actions
 
   # Extract prop file
-  unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+  unzip -oj "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
   [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
   MODDIRNAME=modules_update
+  MODULEROOT=/data/adb/$MODDIRNAME
   MODID=$(grep_prop id $TMPDIR/module.prop)
   MODNAME=$(grep_prop name $TMPDIR/module.prop)
   MODAUTH=$(grep_prop author $TMPDIR/module.prop)
-  MODPATH=$NVBASE/$MODDIRNAME/$MODID
+  MODPATH=$MODULEROOT/$MODID
 
   # Create mod paths
   rm -rf $MODPATH
-  mkdir -p $MODPATH
+  mkdir -p $MODPATH || abort "! Unable to: mkdir -p $MODPATH"
+#</ REF: ./scripts/util_functions.sh>
 
   ## Install NetHunter
-  unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
+  unzip -oj "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
+  # Default permissions
   set_perm_recursive $MODPATH 0 0 0755 0644
+  ## Run magisk script (Load customization script)
   [ -f $MODPATH/update-magisk ] && source $MODPATH/update-magisk
 
-  # Clean up
+#<REF: ./scripts/util_functions.sh>
+  # Update info for Magisk manager
+  print "* Setting metadata"
+  mktouch /data/adb/modules/$MODID/update
+  rm -rf /data/adb/modules/$MODID/remove 2>/dev/null
+  rm -rf /data/adb/modules/$MODID/disable 2>/dev/null
+  cp -af $MODPATH/module.prop /data/adb/modules/$MODID/module.prop
+
+  # Copy over custom sepolicy rules
+  if [ -f $MODPATH/sepolicy.rule ]; then
+    print "* Installing custom sepolicy rules"
+    copy_preinit_files
+  fi
+
+  # Remove stuff that doesn't belong to modules and clean up any empty directories
   rm -rf $MODPATH/update-magisk \
-  $MODPATH/system/placeholder $MODPATH/customize.sh \
-  $MODPATH/README.md $MODPATH/.git*
-  rm -rf $TMPDIR
+         $MODPATH/system/placeholder \
+         $MODPATH/customize.sh \
+         $MODPATH/README.md \
+         $MODPATH/.git*
+  #rmdir -p $MODPATH 2>/dev/null
+
   cd /
+  rm -rf $TMPDIR
+  #</ REF: ./scripts/util_functions.sh>
 
   exit 0
 fi
