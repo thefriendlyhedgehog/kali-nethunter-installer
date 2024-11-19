@@ -1016,7 +1016,7 @@ def main():
         file_tag += "-no_branding"
 
     if args.uninstaller:
-            file_tag += "-uninstaller"
+        file_tag += "-uninstaller"
     elif args.installer:
         file_tag = "kernel-" + file_tag
     else:

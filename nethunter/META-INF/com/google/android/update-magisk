@@ -1,48 +1,7 @@
 # NetHunter installation script for Magisk
 
-# Define several variables
-[ -z $TMPDIR ] && TMPDIR=/dev/tmp;
-[ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
-[ -z $ZIPFILE ] && ZIPFILE="$3";
-DIR=$(dirname "$ZIPFILE");
-TMP=$TMPDIR/$MODID;
-
-# Magisk manager/booted flashing support
-[ -e /data/adb/magisk ] && ADB=adb;
-OUTFD=/proc/self/fd/0;
-if [ -e /data/$ADB/magisk ]; then
-  [ -e /magisk/.core/busybox ] && MAGISKBB=/magisk/.core/busybox;
-  [ -e /sbin/.core/busybox ] && MAGISKBB=/sbin/.core/busybox;
-  [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox;
-  [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox);
-  [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH";
-fi
-
-# Define modules target dirs
-if [ -e /data/adb/modules ]; then
-  MNT=/data/adb/modules_update;
-  MAGISK=/$MODID/system;
-fi
-
-# Set target paths
-[ ! -z $MODPTH ] || MODPATH=$MNT/$MODID
-TARGET=$MNT$MAGISK;
-ETC=$TARGET/etc;
-BIN=$TARGET/bin;
-if [ -d /system/xbin ]; then
-  XBIN=$TARGET/xbin;
-else
-  XBIN=$TARGET/bin;
-fi
-if [ -d /system/media ]; then
-  MEDIA=$TARGET/media;
-else if [ -d /system/product/media ]; then
-  MEDIA=$TARGET/product/media;
-fi
-fi
-
 file_getprop() {
-  grep "^$2" "$1" | head -n1 | cut -d= -f2-;
+  grep "^$2" "$1" | head -n1 | cut -d= -f2-
 }
 
 set_perm() {
@@ -57,24 +16,25 @@ set_perm_recursive() {
   find $1 -type d 2>/dev/null | while read dir; do
     set_perm $dir $2 $3 $4 $6
   done
+
   find $1 -type f -o -type l 2>/dev/null | while read file; do
     set_perm $file $2 $3 $5 $6
   done
 }
 
 symlink() {
-  ln -sf "$1" "$2" 2>/dev/null;
-  chmod 0755 $2 2>/dev/null;
+  ln -sf "$1" "$2" 2>/dev/null
+  chmod 0755 $2 2>/dev/null
 }
 
 set_wallpaper() {
   [ -d $TMP/wallpaper ] || return 1
-  ui_print "- Installing NetHunter wallpaper";
+  ui_print "* Installing NetHunter wallpaper"
 
   # Define wallpaper variables
   wp=/data/system/users/0/wallpaper
   wpinfo=${wp}_info.xml
- 
+
   # Get screen resolution using wm size
   res=$(wm size | grep "Physical size:" | cut -d' ' -f3 2>/dev/null)
   res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f1 2>/dev/null)
@@ -96,11 +56,11 @@ set_wallpaper() {
     return 1
   }
 
-  ui_print "- Found screen resolution: $res"
+  ui_print "* Found screen resolution: $res"
 
   [ ! -f "$TMP/wallpaper/$res.png" ] && {
     ui_print "! No wallpaper found for your screen resolution. Skipping."
-    return 1;
+    return 1
   }
 
   [ -f "$wp" ] && [ -f "$wpinfo" ] || setup_wp=1
@@ -116,20 +76,23 @@ set_wallpaper() {
     chcon "u:object_r:system_data_file:s0" "$wpinfo"
   fi
 
-  ui_print "- NetHunter wallpaper applied successfully"
+  ui_print "* NetHunter wallpaper applied successfully"
 }
 
 f_kill_pids() {
   local lsof_full=$(lsof | awk '{print $1}' | grep -c '^lsof')
-  if [ "${lsof_full}" -eq 0 ]; then
+
+  if [ "$lsof_full" -eq 0 ]; then
     local pids=$(lsof | grep "$PRECHROOT" | awk '{print $1}' | uniq)
   else
     local pids=$(lsof | grep "$PRECHROOT" | awk '{print $2}' | uniq)
   fi
-  if [ -n "${pids}" ]; then
-    kill -9 ${pids} 2> /dev/null
+
+  if [ -n "$pids" ]; then
+    kill -9 $pids 2> /dev/null
     return $?
   fi
+
   return 0
 }
 
@@ -143,6 +106,7 @@ f_restore_setup() {
 
 f_umount_fs() {
   isAllunmounted=0
+
   if mountpoint -q $PRECHROOT/$1; then
     if umount -f $PRECHROOT/$1; then
       if [ ! "$1" = "dev/pts" -a ! "$1" = "dev/shm" ]; then
@@ -164,13 +128,16 @@ f_umount_fs() {
 
 f_dir_umount() {
   sync
-  ui_print "- Killing all running pids."
+
+  ui_print "* Killing all running pids"
   f_kill_pids
   f_restore_setup
-  ui_print "- Removing all fs mounts."
+
+  ui_print "* Removing all fs mounts"
   for i in "dev/pts" "dev/shm" dev proc sys system; do
     f_umount_fs "$i"
   done
+
   # Don't force unmount sdcard
   # In some devices, it wipes the internal storage
   if umount -l $PRECHROOT/sdcard; then
@@ -191,15 +158,15 @@ do_umount() {
   f_is_mntpoint
   res=$?
   case $res in
-    1) f_dir_umount ;;
-    *) return 0 ;;
+    1) f_dir_umount;;
+    *) return 0;;
   esac
 
   if [ -z "$(cat /proc/mounts | grep $PRECHROOT)" ]; then
-    ui_print "- All done."
+    ui_print "* All done"
     isAllunmounted=0
   else
-    ui_print "- There are still mounted points not unmounted yet."
+    ui_print "* There are still mounted points not unmounted yet"
     isAllunmounted=1
   fi
 
@@ -209,19 +176,21 @@ do_umount() {
 verify_fs() {
   # Valid architecture?
   case $FS_ARCH in
-    armhf|arm64|i386|amd64) ;;
-    *) return 1 ;;
+    armhf|arm64|i386|amd64);;
+    *) return 1;;
   esac
+
   # Valid build size?
   case $FS_SIZE in
-    full|minimal|nano) ;;
-    *) return 1 ;;
+    full|minimal|nano);;
+    *) return 1;;
   esac
+
   return 0
 }
 
 do_install() {
-  ui_print "- Found Kali chroot to be installed: $KALIFS"
+  ui_print "* Found Kali chroot to be installed: $KALIFS"
   mkdir -p "$NHSYS"
 
   # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
@@ -231,33 +200,33 @@ do_install() {
 
   # Remove previous chroot
   [ -d "$PRECHROOT" ] && {
-    ui_print "- Previous chroot detected!"
-    do_umount;
+    ui_print "* Previous chroot detected!"
+    do_umount
     [ $? == 1 ] && {
-      ui_print "! Aborting chroot installations."
-      ui_print "- Remove the previous chroot and install the new chroot via NetHunter app"
+      ui_print "! Aborting chroot installations"
+      ui_print "* Remove the previous chroot and install the new chroot via NetHunter app"
       return 1
     }
 
-    ui_print "- Removing previous chroot."
+    ui_print "* Removing previous chroot"
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
 
   # Extract new chroot
-  ui_print "- Extracting Kali rootfs, this may take up to 25 minutes."
+  ui_print "* Extracting Kali rootfs (This may take up to 25 minutes)"
   unzip -p "$ZIPFILE" "$KALIFS" | tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 
   [ $? = 0 ] || {
     ui_print "! Error: Kali $FS_ARCH $FS_SIZE chroot failed to install!"
-    ui_print "- Maybe you ran out of space on your data partition?"
+    ui_print "* Maybe you ran out of space on your data partition?"
     return 1
   }
 
   # HACK 2/2: Create a link to be used by apps effective 2020.1
   ln -sf "$CHROOT" "$ROOTFS"
   mkdir -m 0755 "$CHROOT/dev"
-  ui_print "- Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
+  ui_print "* Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
   # We should remove the rootfs archive to free up device memory or storage space (if not zip install)
   [ "$1" ] || rm -f "$KALIFS"
@@ -266,8 +235,8 @@ do_install() {
 }
 
 do_flash() {
-  ui_print "- Found Kali kernel to be installed: $KERNEL"
-  unzip -p "$ZIPFILE" "$KERNEL" >"$KERNEL"
+  ui_print "* Found Kali kernel to be installed: $KERNEL"
+  unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
   $MAGISKBB sh $TMP/tools/magic-flash $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
 }
 
@@ -277,7 +246,7 @@ flash_kernel() {
     KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
     # Check other locations if zip didn't contain a kernel-*.zip
     [ "$KERNEL" ] || {
-      ui_print "- No kernel found. Skipping."
+      ui_print "* No kernel found. Skipping."
       return
     }
     do_flash
@@ -294,7 +263,7 @@ do_chroot() {
     KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
     # Check other locations if zip didn't contain a kalifs-*
     [ "$KALIFS" ] || {
-      ui_print "- No Kali rootfs found. Skipping."
+      ui_print "* No Kali rootfs found. Skipping."
       return
     }
 
@@ -304,67 +273,106 @@ do_chroot() {
   }
 }
 
-UMASK=$(umask);
-umask 022;
+#------------------------------------------------------------------------------
 
-# Ensure zip installer shell is in a working scratch directory
-mkdir -p $TMPDIR;
-cd $TMPDIR;
-# Source custom installer functions and configuration
-unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2;
-MODID=$(file_getprop module.prop id);
+# Define several variables
+[ -z $TMPDIR ] && TMPDIR=/dev/tmp
+[ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
+[ -z $ZIPFILE ] && ZIPFILE="$3"
+DIR=$(dirname "$ZIPFILE")
+TMP=$TMPDIR/$MODID
+
+# Magisk manager/booted flashing support
+[ -e /data/adb/magisk ] && ADB=adb
+OUTFD=/proc/self/fd/0
+if [ -e /data/$ADB/magisk ]; then
+  [ -e /magisk/.core/busybox ] && MAGISKBB=/magisk/.core/busybox
+  [ -e /sbin/.core/busybox ] && MAGISKBB=/sbin/.core/busybox
+  [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox
+  [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox)
+  [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH"
+fi
+
+# Define modules target dirs
+if [ -e /data/adb/modules ]; then
+  MNT=/data/adb/modules_update
+  MAGISK=/$MODID/system
+fi
+
+# Set target paths
+[ ! -z $MODPTH ] || MODPATH=$MNT/$MODID
+TARGET=$MNT$MAGISK
+ETC=$TARGET/etc
+BIN=$TARGET/bin
+
+if [ -d /system/xbin ]; then
+  XBIN=$TARGET/xbin
+else
+  XBIN=$TARGET/bin
+fi
+
+if [ -d /system/media ]; then
+  MEDIA=$TARGET/media
+elif [ -d /system/product/media ]; then
+  MEDIA=$TARGET/product/media
+fi
+
+UMASK=$(umask)
+umask 022
+
+#------------------------------------------------------------------------------
 
 # Print Kali NetHunter banner In Magisk installation terminal
-ui_print ""
-ui_print "##################################################"
-ui_print "##                                              ##"
-ui_print "##  88      a8P         db        88        88  ##"
-ui_print "##  88    .88'         d88b       88        88  ##"
-ui_print "##  88   88'          d8''8b      88        88  ##"
-ui_print "##  88 d88           d8'  '8b     88        88  ##"
-ui_print "##  8888'88.        d8YaaaaY8b    88        88  ##"
-ui_print "##  88P   Y8b      d8''''''''8b   88        88  ##"
-ui_print "##  88     '88.   d8'        '8b  88        88  ##"
-ui_print "##  88       Y8b d8'          '8b 888888888 88  ##"
-ui_print "##                                              ##"
-ui_print "####  ############# NetHunter ####################"
-ui_print ""
 ui_print "* NetHunter (Magisk module)"
 ui_print ""
 
+# Ensure zip installer shell is in a working scratch directory
+mkdir -p $TMPDIR
+cd $TMPDIR
+
+# Source custom installer functions and configuration
+unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+MODID=$(file_getprop module.prop id)
+
 # Extract the installer
-ui_print "- Unpacking the installer.";
-mkdir -p $TMPDIR/$MODID;
-cd $TMPDIR/$MODID;
-unzip -qq "$ZIPFILE" -x "kalifs-*";
+ui_print "* Unpacking the installer"
+mkdir -p $TMPDIR/$MODID
+cd $TMPDIR/$MODID
+unzip -qq "$ZIPFILE" -x "kalifs-*"
+#ui_print "* Installer unpacked"
+
+#------------------------------------------------------------------------------
 
 # Setup environment before installations
 # Mount System as r/w just incase we need it
-DYNAMIC=false;
-SAR=false;
+ui_print "* Setting environment"
+DYNAMIC=false
+SAR=false
 if [ -d /dev/block/mapper ]; then
   for block in system; do
     for slot in "" _a _b; do
-      blockdev --setrw /dev/block/mapper/$block$slot 2>/dev/null;
-    done;
-  done;
-  DYNAMIC=true;
-fi;
-mount -o rw,remount -t auto /system || mount /system;
-[ $? != 0 ] && mount -o rw,remount -t auto / && SAR=true;
- 
+      blockdev --setrw /dev/block/mapper/$block$slot 2>/dev/null
+    done
+  done
+  DYNAMIC=true
+fi
+mount -o rw,remount -t auto /system || mount /system
+[ $? != 0 ] && mount -o rw,remount -t auto / && SAR=true
+
 # Additional setup for installing apps via pm
 [[ "$(getenforce)" == "Enforcing" ]] && ENFORCE=true || ENFORCE=false
-${ENFORCE} && setenforce 0
+$ENFORCE && setenforce 0
 VERIFY=$(settings get global verifier_verify_adb_installs)
 settings put global verifier_verify_adb_installs 0
- 
+
+#------------------------------------------------------------------------------
+
 # Uninstall previous apps and binaries module if they are installed
-ui_print "- Checking for previous version of NetHunter apps and files";
-pm uninstall  com.offsec.nethunter &> /dev/null
-pm uninstall  com.offsec.nethunter.kex &> /dev/null
-pm uninstall  com.offsec.nhterm &> /dev/null
-pm uninstall  com.offsec.nethunter.store &> /dev/null
+ui_print "* Checking for previous version of NetHunter apps and files"
+pm uninstall com.offsec.nethunter &> /dev/null
+pm uninstall com.offsec.nethunter.kex &> /dev/null
+pm uninstall com.offsec.nhterm &> /dev/null
+pm uninstall com.offsec.nethunter.store &> /dev/null
 
 # Remove Osmosis BusyBox module
 [ -d /data/adb/modules/busybox-ndk ] && {
@@ -380,7 +388,6 @@ pm uninstall  com.offsec.nethunter.store &> /dev/null
   touch /data/adb/modules/wirelessFirmware/remove
 }
 
-
 # Remove nano modules
 [ -d /data/adb/modules/nano-ndk ] && {
   # Follow Magisk way to disable and remove modules
@@ -388,119 +395,141 @@ pm uninstall  com.offsec.nethunter.store &> /dev/null
   touch /data/adb/modules/nano-ndk/remove
 }
 
+#------------------------------------------------------------------------------
+
+[ -e "$ZIPFILE" ] && {
+  ZIP=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^supersu.zip/ { print $4; exit }')
+  [ "$ZIP" ] && {
+    ui_print "* [!] SuperSU.zip is not supported with Magisk"
+  }
+}
+
+#------------------------------------------------------------------------------
+
 # Install all NetHunter apps as user apps
-# System apps might not work
-ui_print "- Installing apps.";
+ui_print "* Installing apps (via user):"
 
 # Install the core NetHunter app
-ui_print "--- Installing NetHunter.apk"
+ui_print "*** Installing NetHunter.apk"
 pm install $TMP/data/app/NetHunter.apk &>/dev/null
 
 # and NetHunterTerminal.apk because NetHunter.apk depends on it
-ui_print "--- Installing NetHunterTerminal.apk"
+ui_print "*** Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
 # and NetHunterKeX.apk because NetHunter.apk depends on it
-ui_print "--- Installing NetHunter-KeX.apk"
+ui_print "*** Installing NetHunter-KeX.apk"
 pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
-# and NetHunterStore.apk because we need it 
-ui_print "--- Installing NetHunter-Store.apk"
+# and NetHunterStore.apk because we need it
+ui_print "*** Installing NetHunter-Store.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 # Installing privileged extension as system app
-# Not yet working - Tip: look into /system_ext
+ui_print "* Installing apps (via system):"
+ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not yet working - Tip: look into /system_ext
 
-ui_print "- Done installing apps";
+#ui_print "* Done installing apps"
+
+#------------------------------------------------------------------------------
 
 # Install BusyBox
-[ -f $TMP/tools/installbusybox_magisk.sh ] && . $TMP/tools/installbusybox_magisk.sh
+ui_print "* Setting up BusyBox"
+[ -f $TMP/tools/installbusybox_magisk.sh ] && sh $TMP/tools/installbusybox_magisk.sh
+#print "* Done installing BusyBox"
+
+#------------------------------------------------------------------------------
 
 # SetUp Kali NetHunter wallpaper of correct resolution if there is one available
-set_wallpaper;
+set_wallpaper
+
+#------------------------------------------------------------------------------
 
 # Install NetHunter boot animation
 [ -f $TMP/system/media/bootanimation.zip ] && {
-  ui_print "- Installing NetHunter boot animation"
-  mkdir -p $MEDIA;
+  ui_print "* Installing Kali NetHunter boot animation"
+  mkdir -p $MEDIA
   cp $TMP/system/media/bootanimation.zip $MEDIA
 }
 
 # Install required firmwares, binaries, lib files for Kali NetHunter
 [ -d $TMP/system/etc/nano ] && {
-  ui_print "- Copying nano highlights to /system/etc/nano"
-  mkdir -p $ETC;
+  ui_print "* Copying nano highlights to /system/etc/nano"
+  mkdir -p $ETC
   cp -r "$TMP/system/etc/nano" "$ETC/"
   set_perm_recursive "$ETC/nano" 0 0 0755 0644
 }
 
 [ -d $TMP/system/etc/terminfo ] && {
-  ui_print "- Copying terminfo files to /system/etc/terminfo"
-  mkdir -p $ETC;
+  ui_print "* Copying terminfo files to /system/etc/terminfo"
+  mkdir -p $ETC
   cp -r "$TMP/system/etc/terminfo" "$ETC/"
   set_perm_recursive "$ETC/terminfo" 0 0 0755 0644
 }
 
 [ -d $TMP/boot-patcher/system/etc/firmware ] && {
-  ui_print "- Copying Wi-Fi firmwares to /system/etc/firmware"
-  mkdir -p $ETC;
+  ui_print "* Copying Wi-Fi firmwares to /system/etc/firmware"
+  mkdir -p $ETC
   cp -r "$TMP/boot-patcher/system/etc/firmware" "$ETC/"
   set_perm_recursive "$ETC/firmware" 0 0 0755 0644
 }
 
 [ -d $TMP/system/lib ] && {
-  ui_print "- Copying 32-bit shared libraries to /system/lib"
+  ui_print "* Copying 32-bit shared libraries to /system/lib"
   cp -r "$TMP/system/lib" "$TARGET/"
   set_perm_recursive "$TARGET/lib" 0 0 0755 0644
 }
 
 [ -d $TMP/system/lib64 ] && {
-  ui_print "- Copying 64-bit shared libraries to /system/lib64"
+  ui_print "* Copying 64-bit shared libraries to /system/lib64"
   cp -r "$TMP/system/lib64" "$TARGET/"
   set_perm_recursive "$TARGET/lib64" 0 0 0755 0644
 }
 
 [ -d $TMP/system/bin ] && {
-  ui_print "- Installing /system/bin binaries"
+  ui_print "* Installing /system/bin binaries"
   cp -r "$TMP/system/bin" "$TARGET/"
   set_perm_recursive "$BIN" 0 0 0755 0755
 }
 
 [ -d $TMP/boot-patcher/system/xbin ] && {
-  ui_print "- Installing hid-keyboard to /system/xbin"
+  ui_print "* Installing hid-keyboard to /system/xbin"
   cp -r "$TMP/boot-patcher/system/xbin/*" "$XBIN/"
   set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
 [ -d $TMP/data/local ] && {
-  ui_print "- Copying additional files to /data/local"
+  ui_print "* Copying additional files to /data/local"
   mkdir -p /data/local
   cp -r "$TMP/data/local/*" "/data/local/"
   set_perm_recursive "/data/local" 0 0 0755 0644
 }
 
 [ -d $TMP/system/etc/init.d ] && {
-  ui_print "- Installing init.d scripts"
+  ui_print "* Installing init.d scripts"
   cp -r "$TMP/system/etc/init.d" "$ETC/"
+
   # Create userinit.d and userinit.sh if they don't already exist
+  ui_print "* Installing userinit.d scripts"
   rm -rf /data/local/userinit.d # Remove previous one
   mkdir -p "/data/local/userinit.d"
   [ -f "/data/local/userinit.sh" ] || echo "#!/system/bin/sh" > "/data/local/userinit.sh"
   chmod 0755 "/data/local/userinit.sh"
   set_perm_recursive "$ETC/init.d" 0 0 0755 0644
 }
- 
+
 [ -e $TMP/system/addon.d/80-nethunter.sh ] && {
-  ui_print "- Installing /system/addon.d backup scripts"
+  ui_print "* Installing /system/addon.d backup scripts"
   mkdir -p "$TARGET/addon.d"
   cp "$TMP/system/addon.d/80-nethunter.sh" "$TARGET/"
   cp "$TMP/system/addon.d/80-nethunter.sh" "$TARGET/addon.d/"
   set_perm_recursive "$TARGET/addon.d" 0 0 0755 0644
 }
 
+#------------------------------------------------------------------------------
 
 # Symlink bootkali scripts for using in another terminals
-ui_print "- Symlinking Kali boot scripts";
+ui_print "* Symlinking Kali boot scripts"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "$TARGET/bin/bootkali"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "$TARGET/bin/bootkali_init"
 symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "$TARGET/bin/bootkali_login"
@@ -508,60 +537,67 @@ symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "$TARGET/b
 symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "$TARGET/bin/killkali"
 set_perm_recursive "$BIN" 0 0 0755 0755
 
+#------------------------------------------------------------------------------
+
 # Adding required permissions for NetHunter app
-ui_print "- Granting required permissions to NetHunter app"
+ui_print "* Granting required permissions to NetHunter app"
 sh $TMP/tools/nh_perm.sh
+#print "* Done setting permissions to NetHunter app"
+
+#------------------------------------------------------------------------------
 
 # Install kernel
-flash_kernel;
+ui_print "* Flashing kernel"
+flash_kernel
+
+#------------------------------------------------------------------------------
 
 # Install chroot
-do_chroot;
+ui_print "* Installing chroot"
+do_chroot
+
+#------------------------------------------------------------------------------
 
 # Random important Magisk stuff (Don't remove)
-cp -fp $TMP/tools/module.prop $MNT/$MODID/;
-touch $MNT/$MODID/auto_mount;
-[ -e /data/adb/modules ] && IMGMNT=/data/adb/modules;
-mkdir -p "$IMGMNT/$MODID";
-touch "$IMGMNT/$MODID/update";
-cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/";
+ui_print "* Important Magisk"
+cp -fp $TMP/tools/module.prop $MNT/$MODID/
+touch $MNT/$MODID/auto_mount
+[ -e /data/adb/modules ] && IMGMNT=/data/adb/modules
+mkdir -p "$IMGMNT/$MODID"
+touch "$IMGMNT/$MODID/update"
+cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/"
 
-ui_print "- Unmounting.";
-cd /;
+#------------------------------------------------------------------------------
+
+ui_print "* Restoring environment"
+cd /
 
 # Restore environment after installations
 if [ -d /dev/block/mapper ]; then
   for block in system; do
     for slot in "" _a _b; do
-      blockdev --setro /dev/block/mapper/$block$slot 2>/dev/null;
-    done;
-  done;
-fi;
-[ "$SAR" ] && mount -o ro,remount -t auto / || mount -o ro,remount -t auto /system;
+      blockdev --setro /dev/block/mapper/$block$slot 2>/dev/null
+    done
+  done
+fi
+[ "$SAR" ] && mount -o ro,remount -t auto / || mount -o ro,remount -t auto /system
 
 # Restore also additional settings we did before
-settings put global verifier_verify_adb_installs ${VERIFY}
-${ENFORCE} && setenforce 1
+settings put global verifier_verify_adb_installs $VERIFY
+$ENFORCE && setenforce 1
 
 # Handle replace folders
 for TARGET in $REPLACE; do
-  ui_print "- Replace target: $TARGET"
+  ui_print "* Replace target: $TARGET"
   mktouch $MODPATH$TARGET/.replace
 done
 
-# Update info for Magisk manager
-mktouch $NVBASE/modules/$MODID/update
-cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
-
-# Copy over custom sepolicy rules
-if [ -f $MODPATH/sepolicy.rule ]; then
-  ui_print "- Installing custom sepolicy rules"
-  copy_sepolicy_rules
-fi
+#------------------------------------------------------------------------------
 
 # Clean up
-rm -rf $TMPDIR;
-umask $UMASK;
+ui_print "* Cleaning up"
+rm -rf $TMPDIR
+umask $UMASK
 
 # Done
 ui_print ""
