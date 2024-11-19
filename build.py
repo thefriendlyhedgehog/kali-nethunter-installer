@@ -1086,7 +1086,9 @@ def main():
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
-        zip("uninstaller", file_tag)
+        out_path = os.path.join(tmp_path, "uninstaller")
+        copytree("uninstaller", out_path)
+        zip(out_path, file_tag)
 
         print("[+] Created uninstaller: " + file_tag)
     # Only build a kernel installer zip and exit if --installer is specified
