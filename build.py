@@ -1005,29 +1005,30 @@ def main():
     else:
         file_tag += "-" + TimeStamp
 
-    file_tag += "-" + kernel.replace("-", "_")
-
-    if args.kernel:
-        file_tag += "-" + android
-    else:
-        file_tag += "-" + arch
-
-    if args.no_branding and not args.installer:
-        file_tag += "-no_branding"
-
     if args.uninstaller:
         file_tag += "-uninstaller"
-    elif args.installer:
-        file_tag = "kernel-" + file_tag
     else:
-        if args.no_installer:
-            file_tag += "-no_kernel"
+        file_tag += "-" + kernel.replace("-", "_")
 
-        if args.supersu:
-            file_tag += "-rooted"
+        if args.kernel:
+            file_tag += "-" + android
+        else:
+            file_tag += "-" + arch
 
-        if args.rootfs:
-            file_tag += "-kalifs_" + args.rootfs
+        if args.installer:
+            file_tag = "kernel-" + file_tag
+        else:
+            if args.no_installer:
+                file_tag += "-no_kernel"
+
+            if args.no_branding:
+                file_tag += "-no_branding"
+
+            if args.supersu:
+                file_tag += "-rooted"
+
+            if args.rootfs:
+                file_tag += "-kalifs_" + args.rootfs
 
     file_tag += ".zip"
 
