@@ -3,6 +3,7 @@
 ## TODO:
 ## - Bootanimation
 ## - Wallpaper
+## - Magisk support (https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh // https://github.com/topjohnwu/Magisk/blob/master/scripts/uninstaller.sh)
 
 print() {
   echo "${1:- }" \
