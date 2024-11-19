@@ -567,6 +567,13 @@ progress 0.2
 
 #------------------------------------------------------------------------------
 
+print "* Finding SDK version"
+SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
+[ -z $SDK ] && {
+  abort "Could not find SDK version"
+}
+print "*** SDK Version: $SDK"
+
 [ -f supersu.zip ] && {
   print "* Extracting SuperSU.zip"
   extract supersu.zip "$sutmp"
@@ -574,6 +581,9 @@ progress 0.2
   progress 0.3
 
   print "* Installing SuperSU"
+  if [ $SDK -ge 29 ]; then
+    print "Warning: Warning: SuperSU is EOL and only really works on Android Pie (9) or lower"
+  fi
   sh tools/installsu.sh "$sutmp" "$supersu"
   #print "* Done installing SuperSU"
 }
@@ -581,13 +591,6 @@ progress 0.2
 progress 0.4
 
 #------------------------------------------------------------------------------
-
-print "* Finding SDK version"
-SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
-[ -z $SDK ] && {
-  abort "Could not find SDK version"
-}
-print "*** SDK Version: $SDK"
 
 ## Starting with Oreo (Android 8) we can no longer install user apps (/data/app/)
 ## So we install as system apps (/system)

@@ -36,10 +36,6 @@ dl_headers = {
 }
 
 dl_supersu = {
-    "beta": [
-        "https://download.chainfire.eu/supersu-beta",
-        False,
-    ],
     "stable": [
         "https://download.chainfire.eu/1220/SuperSU/SR5-SuperSU-v2.82-SR5-20171001224502.zip",
         "62ee48420cacedee53b89503aa43b5449d07946fe7174ee03fc118c23f65ea988a94e5ba76dff5afd61c19fe9b23260c4cee8e293839babdf1b263ffaabb92f3",
@@ -186,7 +182,7 @@ def download(url, file_name, verify_sha):
         abort('There was a problem downloading the file: ' + file_name)
 
 
-def download_supersu(beta):
+def download_supersu():
     global dl_supersu
     global args
 
@@ -214,16 +210,10 @@ def download_supersu(beta):
     if os.path.isfile(suzip_file):
         print("[i] Found SuperSU: " + suzip_file)
     else:
-        if beta:
-            surl = getdlpage(dl_supersu["beta"][0])
-        else:
-            surl = getdlpage(dl_supersu["stable"][0])
+        surl = getdlpage(dl_supersu["stable"][0])
 
         if surl:
-            if beta:
-                download(surl + "?retrieve_file=1", suzip_file, dl_supersu["beta"][1])
-            else:
-                download(surl + "?retrieve_file=1", suzip_file, dl_supersu["stable"][1])
+            download(surl + "?retrieve_file=1", suzip_file, dl_supersu["stable"][1])
         else:
             abort('Could not retrieve download URL for SuperSU')
 
@@ -719,7 +709,6 @@ def main():
     global author
     global supersu
 
-    supersu_beta = False
     IgnoredFiles = ["arch", "placeholder", ".DS_Store", ".git*", ".idea", "README.md"]
     devices_yml = os.path.join("kernels", "devices.yml")
     t = datetime.datetime.now()
@@ -849,7 +838,7 @@ def main():
         print('[i] Only downloading external resources (Caching, not building)')
         download_nethunter_apps()
         if args.supersu:
-            download_supersu(supersu_beta)
+            download_supersu()
         if args.rootfs:
             download_rootfs(args.rootfs)
         done()
@@ -969,7 +958,13 @@ def main():
 
     if args.supersu:
         print("[i] Include SuperSU: true")
-        print("[i] SuperSU beta: " , supersu_beta)
+        if android != "kitkat" or \
+           android != "lollipop" or \
+           android != "marshmallow" or \
+           android != "nougat" or \
+           android != "oreo" or \
+           android != "pie":
+            print("[-]   Warning: SuperSU is EOL and only really works on Android Pie (9) or lower", file=sys.stderr)
 
     x = args.release if args.release else TimeStamp
     print("[i] NetHunter release version: " + x)
@@ -1080,7 +1075,7 @@ def main():
 
         # Download SuperSU if we want it
         if args.supersu:
-            download_supersu(supersu_beta)
+            download_supersu()
             shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
 
     #
