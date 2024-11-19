@@ -1065,19 +1065,20 @@ def main():
     # Download external resources
     #
 
-    # Download Kali rootfs if we are building a zip with the chroot environment included
-    if args.rootfs:
-        download_rootfs(args.rootfs)
+    if not args.uninstaller and not args.installer:
+        # Download Kali rootfs if we are building a zip with the chroot environment included
+        if args.rootfs:
+            download_rootfs(args.rootfs)
 
-    # We don't need the apps or SuperSU if we are only building the kernel installer
-    if not args.installer:
-        download_nethunter_apps()
-        copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
+        # We don't need the apps or SuperSU if we are only building the kernel installer
+        if not args.installer:
+            download_nethunter_apps()
+            copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
 
-        # Download SuperSU if we want it
-        if args.supersu:
-            download_supersu()
-            shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
+            # Download SuperSU if we want it
+            if args.supersu:
+                download_supersu()
+                shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
 
     #
     # Do actions
