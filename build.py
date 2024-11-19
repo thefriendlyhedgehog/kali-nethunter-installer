@@ -1088,7 +1088,7 @@ def main():
 
         print("[+] Created uninstaller: " + file_tag)
     # Only build a kernel installer zip and exit if --installer is specified
-    if args.installer:
+    elif args.installer:
         setup_installer()
 
         zip(os.path.join(tmp_path, "boot-patcher"), file_tag)
