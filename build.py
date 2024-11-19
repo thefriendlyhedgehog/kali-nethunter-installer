@@ -1005,29 +1005,30 @@ def main():
     else:
         file_tag += "-" + TimeStamp
 
-    file_tag += "-" + kernel.replace("-", "_")
-
-    if args.kernel:
-        file_tag += "-" + android
-    else:
-        file_tag += "-" + arch
-
-    if args.no_branding and not args.installer:
-        file_tag += "-no_branding"
-
     if args.uninstaller:
         file_tag += "-uninstaller"
-    elif args.installer:
-        file_tag = "kernel-" + file_tag
     else:
-        if args.no_installer:
-            file_tag += "-no_kernel"
+        file_tag += "-" + kernel.replace("-", "_")
 
-        if args.supersu:
-            file_tag += "-rooted"
+        if args.kernel:
+            file_tag += "-" + android
+        else:
+            file_tag += "-" + arch
 
-        if args.rootfs:
-            file_tag += "-kalifs_" + args.rootfs
+        if args.installer:
+            file_tag = "kernel-" + file_tag
+        else:
+            if args.no_installer:
+                file_tag += "-no_kernel"
+
+            if args.no_branding:
+                file_tag += "-no_branding"
+
+            if args.supersu:
+                file_tag += "-rooted"
+
+            if args.rootfs:
+                file_tag += "-kalifs_" + args.rootfs
 
     file_tag += ".zip"
 
@@ -1064,19 +1065,20 @@ def main():
     # Download external resources
     #
 
-    # Download Kali rootfs if we are building a zip with the chroot environment included
-    if args.rootfs:
-        download_rootfs(args.rootfs)
+    if not args.uninstaller and not args.installer:
+        # Download Kali rootfs if we are building a zip with the chroot environment included
+        if args.rootfs:
+            download_rootfs(args.rootfs)
 
-    # We don't need the apps or SuperSU if we are only building the kernel installer
-    if not args.installer:
-        download_nethunter_apps()
-        copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
+        # We don't need the apps or SuperSU if we are only building the kernel installer
+        if not args.installer:
+            download_nethunter_apps()
+            copytree(os.path.join("data", "apps"), os.path.join(tmp_path, "data", "app"))
 
-        # Download SuperSU if we want it
-        if args.supersu:
-            download_supersu()
-            shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
+            # Download SuperSU if we want it
+            if args.supersu:
+                download_supersu()
+                shutil.copy(os.path.join("data", "supersu", "supersu.zip"), os.path.join(tmp_path, "supersu.zip"))
 
     #
     # Do actions
@@ -1084,11 +1086,13 @@ def main():
 
     # Build an uninstaller zip if --uninstaller is specified
     if args.uninstaller:
-        zip("uninstaller", file_tag)
+        out_path = os.path.join(tmp_path, "uninstaller")
+        copytree("uninstaller", out_path)
+        zip(out_path, file_tag)
 
         print("[+] Created uninstaller: " + file_tag)
     # Only build a kernel installer zip and exit if --installer is specified
-    if args.installer:
+    elif args.installer:
         setup_installer()
 
         zip(os.path.join(tmp_path, "boot-patcher"), file_tag)
