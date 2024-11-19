@@ -66,10 +66,6 @@ print ""
 print "* Uninstaller"
 print ""
 
-print "* Mounting /system & /data";
-mount /system
-mount /data
-
 # Remove added firmware (folder would only exist if you installed Kali NetHunter)
 [ -d "/system/etc/firmware/rtlwifi" ] && {
   print "* Removing firmware";
@@ -86,25 +82,30 @@ mount /data
   rm -f  /system/etc/firmware/rt3070.bin
 }
 
-[ -d "/system/app/com.offsec.nethunter" ] && {
-  print "* Removing NetHunter.apk"
-  rm -rf /system/app/com.offsec.nethunter
-}
+for x in data system; do
+  print "* Mounting /${x}";
+  mount /${x}
 
-[ -d "/system/app/com.offsec.nhterm" ] && {
-  print "* Removing NetHunterTerminal.apk"
-  rm -rf /system/app/com.offsec.nhterm
-}
+  [ -d "/${x}/app/com.offsec.nethunter" ] && {
+    print "* Removing NetHunter.apk"
+    rm -rf /${x}/app/com.offsec.nethunter
+  }
 
-[ -d "/system/app/com.offsec.nethunter.kex" ] && {
-  print "* Removing NetHunterKeX.apk"
-  rm -rf /system/app/com.offsec.nethunter.kex
-}
+  [ -d "/${x}/app/com.offsec.nhterm" ] && {
+    print "* Removing NetHunterTerminal.apk"
+    rm -rf /${x}/app/com.offsec.nhterm
+  }
 
-[ -d "/system/app/com.offsec.nethunter.store" ] && {
-  print "* Removing NetHunterStore.apk"
-  rm -rf /system/app/com.offsec.nethunter.store
-}
+  [ -d "/${x}/app/com.offsec.nethunter.kex" ] && {
+    print "* Removing NetHunterKeX.apk"
+    rm -rf /${x}/app/com.offsec.nethunter.kex
+  }
+
+  [ -d "/${x}/app/com.offsec.nethunter.store" ] && {
+    print "* Removing NetHunterStore.apk"
+    rm -rf /${x}/app/com.offsec.nethunter.store
+  }
+done
 
 [ -d "/system/priv-app/com.offsec.nethunter.store.privileged" ] && {
   print "* Removing NetHunterStorePrivilegedExtension.apk"
