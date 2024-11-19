@@ -1,4 +1,6 @@
-# NetHunter installation script for Magisk
+## Kali NetHunter installation script for Magisk (BOOTMODE=true)
+## REF: https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh
+##      https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
 
 file_getprop() {
   grep "^$2" "$1" | head -n1 | cut -d= -f2-
@@ -273,7 +275,65 @@ do_chroot() {
   }
 }
 
+require_new_magisk() {
+  echo "*******************************"
+  echo " Please install Magisk v20.4+! "
+  echo "*******************************"
+  exit 1
+}
+
 #------------------------------------------------------------------------------
+
+#<REF: ./scripts/module_installer.sh>
+#################
+# Initialization
+#################
+umask 022
+
+#########################
+# Load util_functions.sh
+#########################
+OUTFD=$2
+ZIPFILE=$3
+
+mount /data 2>/dev/null
+
+[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+source /data/adb/magisk/util_functions.sh
+[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
+#</ REF: ./scripts/module_installer.sh>
+
+#<REF: ./scripts/util_functions.sh>
+#########################
+# Install module
+#########################
+rm -rf $TMPDIR
+mkdir -p $TMPDIR
+chcon u:object_r:system_file:s0 $TMPDIR
+cd $TMPDIR
+
+setup_flashable
+mount_partitions
+api_level_arch_detect
+
+# Setup BusyBox and binaries
+boot_actions
+
+# Extract prop file
+unzip -oj "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+[ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
+
+MODDIRNAME=modules_update
+MODULEROOT=/data/adb/$MODDIRNAME
+MODID=$(grep_prop id $TMPDIR/module.prop)
+MODNAME=$(grep_prop name $TMPDIR/module.prop)
+MODAUTH=$(grep_prop author $TMPDIR/module.prop)
+MODPATH=$MODULEROOT/$MODID
+
+# Create mod paths
+rm -rf $MODPATH
+mkdir -p $MODPATH || abort "! Unable to: mkdir -p $MODPATH"
+#</ REF: ./scripts/util_functions.sh>
 
 # Define several variables
 [ -z $TMPDIR ] && TMPDIR=/dev/tmp
@@ -323,8 +383,8 @@ umask 022
 #------------------------------------------------------------------------------
 
 # Print Kali NetHunter banner In Magisk installation terminal
-ui_print "* NetHunter (Magisk module)"
-ui_print ""
+#ui_print "* NetHunter (Magisk module)"
+#ui_print ""
 
 # Ensure zip installer shell is in a working scratch directory
 mkdir -p $TMPDIR
@@ -600,13 +660,31 @@ rm -rf $TMPDIR
 umask $UMASK
 
 # Done
-ui_print ""
-ui_print "##################################################"
-ui_print "#         Kali NetHunter is now installed!       #"
-ui_print "##################################################"
-## This is a work around an Android permission issue
-ui_print "#    Please UPDATE the NetHunter app via the     #"
-ui_print "#   NetHunter Store before RUNNING it to finish  #"
-ui_print "#             setting everything up!             #"
-ui_print "##################################################"
-ui_print ""
+
+#------------------------------------------------------------------------------
+
+#<REF: ./scripts/util_functions.sh>
+# Update info for Magisk manager
+print "* Setting metadata"
+mktouch /data/adb/modules/$MODID/update
+rm -rf /data/adb/modules/$MODID/remove 2>/dev/null
+rm -rf /data/adb/modules/$MODID/disable 2>/dev/null
+cp -af $MODPATH/module.prop /data/adb/modules/$MODID/module.prop
+
+# Copy over custom sepolicy rules
+if [ -f $MODPATH/sepolicy.rule ]; then
+  print "* Installing custom sepolicy rules"
+  copy_preinit_files
+fi
+
+# Remove stuff that doesn't belong to modules and clean up any empty directories
+rm -rf $MODPATH/update-magisk \
+       $MODPATH/system/placeholder \
+       $MODPATH/customize.sh \
+       $MODPATH/README.md \
+       $MODPATH/.git*
+#rmdir -p $MODPATH 2>/dev/null
+
+cd /
+rm -rf $TMPDIR
+#</ REF: ./scripts/util_functions.sh>
