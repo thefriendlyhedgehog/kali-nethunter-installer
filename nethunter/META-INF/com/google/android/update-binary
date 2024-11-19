@@ -91,7 +91,7 @@ if $BOOTMODE; then
   mount /data 2>/dev/null
 
   [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
-  . /data/adb/magisk/util_functions.sh
+  source /data/adb/magisk/util_functions.sh
   [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
   #########################
@@ -124,7 +124,7 @@ if $BOOTMODE; then
   ## Install NetHunter
   unzip -jo "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
   set_perm_recursive $MODPATH 0 0 0755 0644
-  [ -f $MODPATH/update-magisk ] && . $MODPATH/update-magisk
+  [ -f $MODPATH/update-magisk ] && source $MODPATH/update-magisk
 
   # Clean up
   rm -rf $MODPATH/update-magisk \
