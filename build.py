@@ -1007,8 +1007,6 @@ def main():
 
     if args.uninstaller:
         file_tag += "-uninstaller"
-    else:
-        file_tag += "-" + kernel.replace("-", "_")
 
         if args.kernel:
             file_tag += "-" + android
