@@ -24,13 +24,15 @@ abort() {
 }
 
 cleanup() {
-  rm /system/.rw
-  rm /data/.rw
+  rm -f /system_root/.rw
+  rm -f /system/.rw
+  rm -f /data/.rw
 
+  umount /system_root
   umount /system
 
   [ "$ZIPFILE" ] && {
-   rm /tmp/console
+   rm -f /tmp/console
   }
 }
 
