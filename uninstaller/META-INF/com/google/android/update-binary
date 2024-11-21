@@ -39,6 +39,13 @@ mount() {
   >> "$1/.rw" && return || /sbin/busybox mount -o remount,rw "$1" || abort "Unable to write to $1!"
 }
 
+remove_app() {
+  [ -d "${1}" ] && {
+    print "* Removing ${2} (${3})"
+    rm -rf "${1}"
+  }
+}
+
 if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
@@ -82,40 +89,25 @@ print ""
   rm -f  /system/etc/firmware/rt3070.bin
 }
 
-for x in data system; do
+for x in data system_root; do
   print "* Mounting /${x}";
   mount /${x}
 
-  [ -d "/${x}/app/com.offsec.nethunter" ] && {
-    print "* Removing NetHunter.apk"
-    rm -rf /${x}/app/com.offsec.nethunter
-  }
+  [ "${x}" == "system_root" ] \
+    && x="${x}/system"
 
-  [ -d "/${x}/app/com.offsec.nhterm" ] && {
-    print "* Removing NetHunterTerminal.apk"
-    rm -rf /${x}/app/com.offsec.nhterm
-  }
-
-  [ -d "/${x}/app/com.offsec.nethunter.kex" ] && {
-    print "* Removing NetHunterKeX.apk"
-    rm -rf /${x}/app/com.offsec.nethunter.kex
-  }
-
-  [ -d "/${x}/app/com.offsec.nethunter.store" ] && {
-    print "* Removing NetHunterStore.apk"
-    rm -rf /${x}/app/com.offsec.nethunter.store
-  }
+  for y in app data; do
+    remove_app "/${x}/${y}/com.offsec.nethunter"                  "NetHunter.apk" "${y}"
+    remove_app "/${x}/${y}/com.offsec.nhterm"                     "NetHunterTerminal.apk" "${y}"
+    remove_app "/${x}/${y}/com.offsec.nethunter.kex"              "NetHunterKeX.apk" "${y}"
+    remove_app "/${x}/${y}/com.offsec.nethunter.store"            "NetHunterStore.apk" "${y}"
+    remove_app "/${x}/${y}/com.offsec.nethunter.store.privileged" "NetHunterStorePrivilegedExtension.apk" "${y}"
+  done
 done
 
-[ -d "/system/priv-app/com.offsec.nethunter.store.privileged" ] && {
-  print "* Removing NetHunterStorePrivilegedExtension.apk"
-  rm -rf /system/priv-app/com.offsec.nethunter.store.privileged
-}
-
-[ -d "/data/data/com.offsec.nethunter" ] && {
-  print "* Removing NetHunter chroot/rootfs data"
-  rm -rf /data/data/com.offsec.nethunter
-}
+for x in system system_root/system; do
+  remove_app "/${x}/priv-app/com.offsec.nethunter.store.privileged" "NetHunterStorePrivilegedExtension.apk" "${x}"
+done
 
 print "* Cleaning up"
 cleanup
