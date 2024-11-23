@@ -623,7 +623,7 @@ do_chroot || ui_print "[!] Failed to install chroot"
 #------------------------------------------------------------------------------
 
 # Random important Magisk stuff (Don't remove)
-ui_print "* Important Magisk"
+ui_print "* Important Magisk items"
 cp -fp $TMP/tools/module.prop $MNT/$MODID/
 touch $MNT/$MODID/auto_mount
 [ -e /data/adb/modules ] && IMGMNT=/data/adb/modules
@@ -669,7 +669,7 @@ umask $UMASK
 
 #<REF: ./scripts/util_functions.sh>
 # Update info for Magisk manager
-print "* Setting metadata"
+print "* Setting Magisk metadata"
 mktouch /data/adb/modules/$MODID/update
 rm -rf /data/adb/modules/$MODID/remove 2>/dev/null
 rm -rf /data/adb/modules/$MODID/disable 2>/dev/null
