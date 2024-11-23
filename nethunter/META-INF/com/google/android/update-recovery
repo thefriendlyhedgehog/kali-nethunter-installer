@@ -18,17 +18,17 @@ cleanup() {
   [ "$ZIPFILE" ] && {
    rm /tmp/console
   }
-  cd $(dirname $tmp)
-  rm -rf $tmp
+  cd $(dirname $TMPDIR)
+  rm -rf $TMPDIR
 }
 
 install() {
-  setperm "$2" "$3" "$tmp$1"
+  setperm "$2" "$3" "$TMPDIR$1"
   if [ "$4" ]; then
-    cp -r "$tmp$1" "$(dirname "$4")/"
+    cp -r "$TMPDIR$1" "$(dirname "$4")/"
     return
   fi
-  cp -r "$tmp$1" "$(dirname "$1")/"
+  cp -r "$TMPDIR$1" "$(dirname "$1")/"
 }
 
 # installapp_user "App Name" "appfile.apk" "play.store.package.name"
@@ -55,15 +55,15 @@ installapp_user() {
 
   #print "* Installing $1 to $installto"
   print "*** Installing $1"
-  cp -f "$tmp/data/app/$1" "$installto" && return 0
+  cp -f "$TMPDIR/data/app/$1" "$installto" && return 0
   print "* Failed to install $1!" && return 1
 }
 
 installapp_system() {
-  check_freespace $tmp/data/app/
+  check_freespace $TMPDIR/data/app/
   print "*** Installing $1"
   mkdir -p ${SYSTEM}/${3:-app}/$2/
-  cp -f $tmp/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
+  cp -f $TMPDIR/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
   print "* Failed to install $1!" && return 1
 }
 
@@ -306,9 +306,9 @@ restore_env() {
 }
 
 get_bb() {
-  cd $tmp/tools
+  cd $TMPDIR/tools
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
+  BB=$TMPDIR/tools/$BB_latest # Use NetHunter BusyBox from tools
   chmod 0755 $BB # Make BusyBox executable
   echo $BB
   cd - >/dev/null
@@ -317,7 +317,7 @@ get_bb() {
 install_recovery_bb() {
   # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
   # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
-  cd $tmp/tools
+  cd $TMPDIR/tools
 
   # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
@@ -374,7 +374,7 @@ fi
 
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 tmp=/tmp/nethunter
-patchtmp=$tmp/boot-patcher
+patchtmp=$TMPDIR/boot-patcher
 export home=$patchtmp
 sutmp=/tmp/supersu
 
@@ -384,11 +384,11 @@ sutmp=/tmp/supersu
 ### Unpack the installer (everything but "kalifs-*")
 #[ "$ZIPFILE" ] && {
 #  print "* Unpacking the installer"
-#  extract "$ZIPFILE" "$tmp" "kalifs-*"
+#  extract "$ZIPFILE" "$TMPDIR" "kalifs-*"
 #  #print "* Installer unpacked"
 #}
 
-cd "$tmp"
+cd "$TMPDIR"
 
 print "* Loading environment"
 #chmod +x env
@@ -471,7 +471,7 @@ progress 0.4
 ## So we install as system apps (/system)
 if [ $SDK -ge 26 ]; then
   ## Apps in /system
-  check_freespace $tmp/data/app/ "True"
+  check_freespace $TMPDIR/data/app/ "True"
   print "* Installing apps (via system):"
   installapp_system "NetHunter.apk" "com.offsec.nethunter"
   installapp_system "NetHunterTerminal.apk" "com.offsec.nhterm"       # NetHunter.apk depends on it
@@ -658,7 +658,7 @@ progress 0.9
 #------------------------------------------------------------------------------
 
 print "* Running Kali chroot installer script"
-sh "$tmp/tools/install-chroot.sh" "$ZIPFILE"
+sh "$TMPDIR/tools/install-chroot.sh" "$ZIPFILE"
 #print "* Done running Kali chroot installer"
 
 print "* Restoring environment"

@@ -120,16 +120,16 @@ else
   #####################################################
   ## Install in Recovery/TWRP                        ##
   #####################################################
-  tmp=/tmp/nethunter
+  TMPDIR=/tmp/nethunter
 
   print "* Unpacking the installer"
-  rm -rf "$tmp"
-  mkdir -p "$tmp"
+  rm -rf "$TMPDIR"
+  mkdir -p "$TMPDIR"
   # Unpack the installer (everything but "kalifs-*")
-  unzip -o "$ZIPFILE" -d "$tmp" -x "kalifs-*"
+  unzip -o "$ZIPFILE" -d "$TMPDIR" -x "kalifs-*"
   #print "* Installer unpacked"
 
-  [ -f $tmp/META-INF/com/google/android/update-recovery ] && source $tmp/META-INF/com/google/android/update-recovery
+  [ -f $TMPDIR/META-INF/com/google/android/update-recovery ] && source $TMPDIR/META-INF/com/google/android/update-recovery
 fi
 
 print ""
