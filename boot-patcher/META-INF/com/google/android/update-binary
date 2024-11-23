@@ -146,7 +146,7 @@ BB=$(get_bb)
 
 if [ "$ZIPFILE" ]; then
   print "$prefix Running BusyBox installer"
-  sh tools/installbusybox.sh #run only
+  sh tools/install-busybox.sh #run only
   #print "$prefix Done running BusyBox installer"
 
   print "$prefix Running kernel installer"

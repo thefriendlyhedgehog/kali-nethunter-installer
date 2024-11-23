@@ -435,7 +435,7 @@ progress 0.1
 }
 
 print "* Running legacy Kali NetHunter version script" # Checking for previous versions of Kali NetHunter
-sh tools/previnstall.sh
+sh tools/previous-install.sh
 #print "* Done checking for previous versions"
 
 progress 0.2
@@ -459,7 +459,7 @@ print "*** SDK Version: $SDK"
   if [ $SDK -ge 29 ]; then
     print "Warning: Warning: SuperSU is EOL and only really works on Android Pie (9) or lower"
   fi
-  sh tools/installsu.sh "$sutmp" "$supersu"
+  sh tools/install-su.sh "$sutmp" "$supersu"
   #print "* Done installing SuperSU"
 }
 
@@ -557,7 +557,7 @@ progress 0.5
 }
 
 print "* Running BusyBox installer script"
-sh tools/installbusybox.sh
+sh tools/install-busybox.sh
 #print "* Done running BusyBox installer"
 
 progress 0.6
@@ -565,8 +565,8 @@ progress 0.6
 #------------------------------------------------------------------------------
 
 [ -d wallpaper ] && {
-  print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpape
-  sh wallpaper/setwallpaper.sh
+  print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpaper
+  sh tools/setwallpaper.sh
   #print "* Done installing wallpaper"
 }
 
@@ -658,7 +658,7 @@ progress 0.9
 #------------------------------------------------------------------------------
 
 print "* Running Kali chroot installer script"
-sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
+sh "$tmp/tools/install-chroot.sh" "$ZIPFILE"
 #print "* Done running Kali chroot installer"
 
 print "* Restoring environment"

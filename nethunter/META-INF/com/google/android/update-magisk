@@ -239,7 +239,7 @@ do_install() {
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
-  $MAGISKBB sh $TMP/tools/magic-flash $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
+  $MAGISKBB sh $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
 }
 
 flash_kernel() {
@@ -495,7 +495,7 @@ ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not 
 
 # Install BusyBox
 ui_print "* Setting up BusyBox"
-[ -f $TMP/tools/installbusybox_magisk.sh ] && sh $TMP/tools/installbusybox_magisk.sh
+[ -f $TMP/tools/install-busybox-magisk.sh ] && sh $TMP/tools/install-busybox-magisk.sh
 #print "* Done installing BusyBox"
 
 #------------------------------------------------------------------------------
@@ -601,7 +601,7 @@ set_perm_recursive "$BIN" 0 0 0755 0755
 
 # Adding required permissions for NetHunter app
 ui_print "* Granting required permissions to NetHunter app"
-sh $TMP/tools/nh_perm.sh
+sh $TMP/tools/apk-permissions.sh
 #print "* Done setting permissions to NetHunter app"
 
 #------------------------------------------------------------------------------
