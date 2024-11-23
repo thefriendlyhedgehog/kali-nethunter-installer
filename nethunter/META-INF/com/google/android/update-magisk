@@ -554,14 +554,14 @@ set_wallpaper
 
 [ -d $TMP/boot-patcher/system/xbin ] && {
   ui_print "* Installing hid-keyboard to /system/xbin"
-  cp -r "$TMP/boot-patcher/system/xbin/*" "$XBIN/"
+  cp -r $TMP/boot-patcher/system/xbin/* "$XBIN/"
   set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
 [ -d $TMP/data/local ] && {
   ui_print "* Copying additional files to /data/local"
   mkdir -p /data/local
-  cp -r "$TMP/data/local/*" "/data/local/"
+  cp -r $TMP/data/local/* "/data/local/"
   set_perm_recursive "/data/local" 0 0 0755 0644
 }
 
