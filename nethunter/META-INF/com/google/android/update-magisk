@@ -476,6 +476,10 @@ pm install $TMP/data/app/NetHunter.apk &>/dev/null
 ui_print "*** Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
+# NetHunter.apk uses it
+ui_print "*** Installing NetHunter-KeX.apk"
+pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
+
 # We need it
 ui_print "*** Installing NetHunter-Store.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
@@ -483,13 +487,6 @@ pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 # NetHunterStore.apk depends on it
 ui_print "*** Installing NetHunterStorePrivilegedExtension.apk"
 pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
-
-# Optional apps, allowing for users to remove if they wish
-ui_print "* Installing apps (via user):"
-
-# NetHunter.apk uses it
-ui_print "*** Installing NetHunter-KeX.apk"
-pm install --user $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
 #ui_print "* Done installing apps"
 
