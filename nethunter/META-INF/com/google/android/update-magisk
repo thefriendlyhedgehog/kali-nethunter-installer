@@ -463,28 +463,33 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
 
 #------------------------------------------------------------------------------
 
-# Install all NetHunter apps as user apps
-ui_print "* Installing apps (via user):"
+# Install all NetHunter apps
+# `/system/bin/pm` is an helper-script for `/system/bin/cmd package`
+
+ui_print "* Installing apps (via system):"
 
 # Install the core NetHunter app
 ui_print "*** Installing NetHunter.apk"
 pm install $TMP/data/app/NetHunter.apk &>/dev/null
 
-# and NetHunterTerminal.apk because NetHunter.apk depends on it
+# NetHunter.apk depends on it
 ui_print "*** Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
-# and NetHunterKeX.apk because NetHunter.apk depends on it
-ui_print "*** Installing NetHunter-KeX.apk"
-pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
-
-# and NetHunterStore.apk because we need it
+# We need it
 ui_print "*** Installing NetHunter-Store.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
-# Installing privileged extension as system app
-ui_print "* Installing apps (via system):"
-ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not yet working - Tip: look into /system_ext
+# NetHunterStore.apk depends on it
+ui_print "*** Installing NetHunterStorePrivilegedExtension.apk"
+pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
+
+# Optional apps, allowing for users to remove if they wish
+ui_print "* Installing apps (via user):"
+
+# NetHunter.apk uses it
+ui_print "*** Installing NetHunter-KeX.apk"
+pm install --user $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
 #ui_print "* Done installing apps"
 

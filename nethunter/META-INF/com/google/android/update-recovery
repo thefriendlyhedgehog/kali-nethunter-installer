@@ -487,7 +487,7 @@ else
   installapp_user "NetHunterStore.apk" "com.offsec.nethunter.store"   # We need it
 fi
 
-## Installing privileged extension
+## Installing privileged extension                                    # NetHunterStore.apk depends on it
 installapp_system "NetHunterStorePrivilegedExtension.apk" "com.offsec.nethunter.store.privileged" "priv-app"
 
 if [ $SDK -ge 26 ]; then
