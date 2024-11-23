@@ -15,7 +15,6 @@ app/NetHunterStore.apk
 app/NetHunterStore/NetHunterStore.apk
 app/NetHunter/NetHunter.apk
 app/NetHunter-Terminal/NetHunterTerminal.apk
-app/NetHunter-VNC/NetHunterVNC.apk
 etc/permissions/permissions_com.offsec.nethunter.store.privileged.xml
 priv-app/NetHunterStorePrivilegedExtension.apk
 priv-app/NetHunterStorePrivilegedExtension/NetHunterStorePrivilegedExtension.apk
