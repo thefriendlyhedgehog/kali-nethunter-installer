@@ -87,7 +87,7 @@ if [ "$3" ]; then
   echo "$console" > /tmp/console
   prefix="*"
 else
-  console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
   prefix="-"
 fi

@@ -54,7 +54,7 @@ if [ "$3" ]; then
   # Write the location of the console buffer to /tmp/console for other scripts to use
   echo "$console" > /tmp/console
 else
-  console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 

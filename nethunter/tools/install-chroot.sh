@@ -88,7 +88,7 @@ zip=$1
 
 NHSYS=/data/local/nhsystem
 
-console=$(cat /tmp/console)
+[ -f /tmp/console ] && console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 BB=$(get_bb)

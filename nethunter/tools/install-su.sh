@@ -13,7 +13,7 @@ tmp=$(readlink -f "$0")
 tmp=${tmp%/*/*}
 . "$tmp/env.sh"
 
-console=$(cat /tmp/console)
+[ -f /tmp/console ] && console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 sutmp=$1
