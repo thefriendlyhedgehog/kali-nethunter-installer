@@ -382,10 +382,6 @@ umask 022
 
 #------------------------------------------------------------------------------
 
-# Print Kali NetHunter banner In Magisk installation terminal
-#ui_print "* NetHunter (Magisk module)"
-#ui_print ""
-
 # Ensure zip installer shell is in a working scratch directory
 mkdir -p $TMPDIR
 cd $TMPDIR
@@ -398,6 +394,7 @@ MODID=$(file_getprop module.prop id)
 ui_print "* Unpacking the installer"
 mkdir -p $TMPDIR/$MODID
 cd $TMPDIR/$MODID
+## Unpack the installer (everything but "kalifs-*")
 unzip -qq "$ZIPFILE" -x "kalifs-*"
 #ui_print "* Installer unpacked"
 
@@ -500,7 +497,7 @@ ui_print "* Setting up BusyBox"
 
 #------------------------------------------------------------------------------
 
-# SetUp Kali NetHunter wallpaper of correct resolution if there is one available
+# Setup Kali NetHunter wallpaper of correct resolution if there is one available
 set_wallpaper
 
 #------------------------------------------------------------------------------
