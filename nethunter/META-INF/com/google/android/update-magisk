@@ -40,10 +40,10 @@ set_wallpaper() {
   # Get screen resolution using wm size
   res=$(wm size | grep "Physical size:" | cut -d' ' -f3 2>/dev/null)
   res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f1 2>/dev/null)
-  res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f2 2>/dev/null)
+  res_h=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f2 2>/dev/null)
 
   # Check if we grabbed resolution from wm or not
-  [ -z $res_h -o -z $res_w ] && {
+  ([ -z $res_h ] || [ -z $res_w ]) && {
     unset res res_h res_w
 
     # Try to grab the wallpaper height and width from sysfs
