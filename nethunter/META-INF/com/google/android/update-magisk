@@ -239,7 +239,7 @@ do_install() {
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
-  $MAGISKBB sh $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
+  $MAGISKBB source $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'   # Don't use sh over source
 }
 
 flash_kernel() {
@@ -495,7 +495,7 @@ ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not 
 
 # Install BusyBox
 ui_print "* Setting up BusyBox"
-[ -f $TMP/tools/install-busybox-magisk.sh ] && sh $TMP/tools/install-busybox-magisk.sh
+[ -f $TMP/tools/install-busybox-magisk.sh ] && source $TMP/tools/install-busybox-magisk.sh   # Don't use sh over source
 #print "* Done installing BusyBox"
 
 #------------------------------------------------------------------------------
