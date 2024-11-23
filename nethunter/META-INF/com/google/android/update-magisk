@@ -500,7 +500,7 @@ ui_print "* Setting up BusyBox"
 #------------------------------------------------------------------------------
 
 # Setup Kali NetHunter wallpaper of correct resolution if there is one available
-set_wallpaper
+set_wallpaper || ui_print "[!] Failed to set wallpaper"
 
 #------------------------------------------------------------------------------
 
@@ -605,20 +605,20 @@ set_perm_recursive "$BIN" 0 0 0755 0755
 
 # Adding required permissions for NetHunter app
 ui_print "* Granting required permissions to NetHunter app"
-sh $TMP/tools/apk-permissions.sh
+source $TMP/tools/apk-permissions.sh || ui_print "[!] Failed to set permissions"   # Don't use sh over source
 #print "* Done setting permissions to NetHunter app"
 
 #------------------------------------------------------------------------------
 
 # Install kernel
 ui_print "* Flashing kernel"
-flash_kernel
+flash_kernel || ui_print "[!] Failed to flash kernel"
 
 #------------------------------------------------------------------------------
 
 # Install chroot
 ui_print "* Installing chroot"
-do_chroot
+do_chroot || ui_print "[!] Failed to install chroot"
 
 #------------------------------------------------------------------------------
 
