@@ -587,13 +587,18 @@ set_wallpaper
 
 #------------------------------------------------------------------------------
 
-# Symlink bootkali scripts for using in another terminals
-ui_print "* Symlinking Kali boot scripts"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "$TARGET/bin/bootkali"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "$TARGET/bin/bootkali_init"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "$TARGET/bin/bootkali_login"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "$TARGET/bin/bootkali_bash"
-symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "$TARGET/bin/killkali"
+# Symlink bootkali* scripts for using in another terminals
+# May need to start up NetHunter.apk first!
+ui_print "* Symlinking NetHunter.apk boot scripts"
+if [ -e /data/data/com.offsec.nethunter/assets/scripts/ ]; then
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali" "$TARGET/bin/bootkali" || ui_print "[!] Missing bootkali"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_init" "$TARGET/bin/bootkali_init" || ui_print "[!] Missing bootkali_init"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_login" "$TARGET/bin/bootkali_login" || ui_print "[!] Missing bootkali_login"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_bash" "$TARGET/bin/bootkali_bash" || ui_print "[!] Missing bootkali_bash"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/killkali" "$TARGET/bin/killkali" || ui_print "[!] Missing killkali"
+else
+  ui_print "[!] Magisk doesn't have permission to access"
+fi
 set_perm_recursive "$BIN" 0 0 0755 0755
 
 #------------------------------------------------------------------------------

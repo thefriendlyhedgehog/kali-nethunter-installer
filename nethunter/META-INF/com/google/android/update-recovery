@@ -632,12 +632,12 @@ progress 0.7
   install "/system/80-nethunter.sh" 0755 0755 "${SYSTEM}/80-nethunter.sh"
 }
 
-print "* Symlinking Kali boot scripts"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "${SYSTEM}/bin/bootkali"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "${SYSTEM}/bin/bootkali_init"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "${SYSTEM}/bin/bootkali_login"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "${SYSTEM}/bin/bootkali_bash"
-symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "${SYSTEM}/bin/killkali"
+print "* Symlinking NetHunter.apk boot scripts"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali" "${SYSTEM}/bin/bootkali"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_init" "${SYSTEM}/bin/bootkali_init"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_login" "${SYSTEM}/bin/bootkali_login"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_bash" "${SYSTEM}/bin/bootkali_bash"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/killkali" "${SYSTEM}/bin/killkali"
 
 progress 0.8
 
