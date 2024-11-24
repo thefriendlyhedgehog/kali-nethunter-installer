@@ -239,7 +239,7 @@ do_install() {
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
-  $MAGISKBB source $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'   # Don't use sh over source
+  $MAGISKBB sh $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'   # Don't use sh over source
 }
 
 flash_kernel() {
