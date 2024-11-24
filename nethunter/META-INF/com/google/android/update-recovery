@@ -18,17 +18,17 @@ cleanup() {
   [ "$ZIPFILE" ] && {
    rm /tmp/console
   }
-  cd $(dirname $tmp)
-  rm -rf $tmp
+  cd $(dirname $TMPDIR)
+  rm -rf $TMPDIR
 }
 
 install() {
-  setperm "$2" "$3" "$tmp$1"
+  setperm "$2" "$3" "$TMPDIR$1"
   if [ "$4" ]; then
-    cp -r "$tmp$1" "$(dirname "$4")/"
+    cp -r "$TMPDIR$1" "$(dirname "$4")/"
     return
   fi
-  cp -r "$tmp$1" "$(dirname "$1")/"
+  cp -r "$TMPDIR$1" "$(dirname "$1")/"
 }
 
 # installapp_user "App Name" "appfile.apk" "play.store.package.name"
@@ -55,15 +55,15 @@ installapp_user() {
 
   #print "* Installing $1 to $installto"
   print "*** Installing $1"
-  cp -f "$tmp/data/app/$1" "$installto" && return 0
+  cp -f "$TMPDIR/data/app/$1" "$installto" && return 0
   print "* Failed to install $1!" && return 1
 }
 
 installapp_system() {
-  check_freespace $tmp/data/app/
+  check_freespace $TMPDIR/data/app/
   print "*** Installing $1"
   mkdir -p ${SYSTEM}/${3:-app}/$2/
-  cp -f $tmp/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
+  cp -f $TMPDIR/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
   print "* Failed to install $1!" && return 1
 }
 
@@ -306,9 +306,9 @@ restore_env() {
 }
 
 get_bb() {
-  cd $tmp/tools
+  cd $TMPDIR/tools
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
+  BB=$TMPDIR/tools/$BB_latest # Use NetHunter BusyBox from tools
   chmod 0755 $BB # Make BusyBox executable
   echo $BB
   cd - >/dev/null
@@ -317,7 +317,7 @@ get_bb() {
 install_recovery_bb() {
   # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
   # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
-  cd $tmp/tools
+  cd $TMPDIR/tools
 
   # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
@@ -368,13 +368,13 @@ if [ "$3" ]; then
   # Write the location of the console buffer to /tmp/console for other scripts to use
   echo "$console" > /tmp/console
 else
-  console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 tmp=/tmp/nethunter
-patchtmp=$tmp/boot-patcher
+patchtmp=$TMPDIR/boot-patcher
 export home=$patchtmp
 sutmp=/tmp/supersu
 
@@ -384,11 +384,11 @@ sutmp=/tmp/supersu
 ### Unpack the installer (everything but "kalifs-*")
 #[ "$ZIPFILE" ] && {
 #  print "* Unpacking the installer"
-#  extract "$ZIPFILE" "$tmp" "kalifs-*"
+#  extract "$ZIPFILE" "$TMPDIR" "kalifs-*"
 #  #print "* Installer unpacked"
 #}
 
-cd "$tmp"
+cd "$TMPDIR"
 
 print "* Loading environment"
 #chmod +x env
@@ -435,7 +435,7 @@ progress 0.1
 }
 
 print "* Running legacy Kali NetHunter version script" # Checking for previous versions of Kali NetHunter
-sh tools/previnstall.sh
+sh tools/previous-install.sh
 #print "* Done checking for previous versions"
 
 progress 0.2
@@ -459,7 +459,7 @@ print "*** SDK Version: $SDK"
   if [ $SDK -ge 29 ]; then
     print "Warning: Warning: SuperSU is EOL and only really works on Android Pie (9) or lower"
   fi
-  sh tools/installsu.sh "$sutmp" "$supersu"
+  sh tools/install-su.sh "$sutmp" "$supersu"
   #print "* Done installing SuperSU"
 }
 
@@ -471,7 +471,7 @@ progress 0.4
 ## So we install as system apps (/system)
 if [ $SDK -ge 26 ]; then
   ## Apps in /system
-  check_freespace $tmp/data/app/ "True"
+  check_freespace $TMPDIR/data/app/ "True"
   print "* Installing apps (via system):"
   installapp_system "NetHunter.apk" "com.offsec.nethunter"
   installapp_system "NetHunterTerminal.apk" "com.offsec.nhterm"       # NetHunter.apk depends on it
@@ -487,7 +487,7 @@ else
   installapp_user "NetHunterStore.apk" "com.offsec.nethunter.store"   # We need it
 fi
 
-## Installing privileged extension
+## Installing privileged extension                                    # NetHunterStore.apk depends on it
 installapp_system "NetHunterStorePrivilegedExtension.apk" "com.offsec.nethunter.store.privileged" "priv-app"
 
 if [ $SDK -ge 26 ]; then
@@ -557,7 +557,7 @@ progress 0.5
 }
 
 print "* Running BusyBox installer script"
-sh tools/installbusybox.sh
+sh tools/install-busybox.sh
 #print "* Done running BusyBox installer"
 
 progress 0.6
@@ -565,8 +565,8 @@ progress 0.6
 #------------------------------------------------------------------------------
 
 [ -d wallpaper ] && {
-  print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpape
-  sh wallpaper/setwallpaper.sh
+  print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpaper
+  sh tools/setwallpaper.sh
   #print "* Done installing wallpaper"
 }
 
@@ -632,12 +632,12 @@ progress 0.7
   install "/system/80-nethunter.sh" 0755 0755 "${SYSTEM}/80-nethunter.sh"
 }
 
-print "* Symlinking Kali boot scripts"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "${SYSTEM}/bin/bootkali"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "${SYSTEM}/bin/bootkali_init"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "${SYSTEM}/bin/bootkali_login"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "${SYSTEM}/bin/bootkali_bash"
-symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "${SYSTEM}/bin/killkali"
+print "* Symlinking NetHunter.apk boot scripts"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali" "${SYSTEM}/bin/bootkali"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_init" "${SYSTEM}/bin/bootkali_init"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_login" "${SYSTEM}/bin/bootkali_login"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_bash" "${SYSTEM}/bin/bootkali_bash"
+symlink "/data/data/com.offsec.nethunter/assets/scripts/killkali" "${SYSTEM}/bin/killkali"
 
 progress 0.8
 
@@ -658,7 +658,7 @@ progress 0.9
 #------------------------------------------------------------------------------
 
 print "* Running Kali chroot installer script"
-sh "$tmp/tools/installchroot.sh" "$ZIPFILE"
+sh "$TMPDIR/tools/install-chroot.sh" "$ZIPFILE"
 #print "* Done running Kali chroot installer"
 
 print "* Restoring environment"

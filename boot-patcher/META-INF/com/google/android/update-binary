@@ -87,7 +87,7 @@ if [ "$3" ]; then
   echo "$console" > /tmp/console
   prefix="*"
 else
-  console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
   prefix="-"
 fi
@@ -146,7 +146,7 @@ BB=$(get_bb)
 
 if [ "$ZIPFILE" ]; then
   print "$prefix Running BusyBox installer"
-  sh tools/installbusybox.sh #run only
+  sh tools/install-busybox.sh #run only
   #print "$prefix Done running BusyBox installer"
 
   print "$prefix Running kernel installer"

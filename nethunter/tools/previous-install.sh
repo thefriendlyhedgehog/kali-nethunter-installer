@@ -16,7 +16,7 @@ tmp=${tmp%/*/*}
 # HACK: Old installations only exist as armhf anyways
 ARCH=armhf
 
-console=$(cat /tmp/console)
+[ -f /tmp/console ] && console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 NH=/data/local/kali-$ARCH

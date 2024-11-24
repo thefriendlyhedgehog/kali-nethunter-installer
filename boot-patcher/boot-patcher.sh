@@ -19,7 +19,7 @@ chmod -R 755 "$bin"
 rm -rf "$ramdisk" "$split_img"
 mkdir "$ramdisk"
 
-console=$(cat /tmp/console)
+[ -f /tmp/console ] && console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 print() {

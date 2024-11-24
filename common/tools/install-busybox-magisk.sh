@@ -66,4 +66,4 @@ done;
   $XBIN/$busybox_latest ln -sf busybox_nh busybox;
 }
 set_perm_recursive "$XBIN" 0 0 0755 0755;
-cd -
+cd - >/dev/null

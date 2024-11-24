@@ -17,7 +17,7 @@ cd "$tmp"
 wp=/data/system/users/0/wallpaper
 wpinfo=${wp}_info.xml
 
-console=$(cat /tmp/console)
+[ -f /tmp/console ] && console=$(cat /tmp/console)
 [ "$console" ] || console=/proc/$$/fd/1
 
 #Try to Grab the Wallpaper Height and Width from /sys 

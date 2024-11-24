@@ -40,10 +40,10 @@ set_wallpaper() {
   # Get screen resolution using wm size
   res=$(wm size | grep "Physical size:" | cut -d' ' -f3 2>/dev/null)
   res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f1 2>/dev/null)
-  res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f2 2>/dev/null)
+  res_h=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f2 2>/dev/null)
 
   # Check if we grabbed resolution from wm or not
-  [ -z $res_h -o -z $res_w ] && {
+  ([ -z $res_h ] || [ -z $res_w ]) && {
     unset res res_h res_w
 
     # Try to grab the wallpaper height and width from sysfs
@@ -227,7 +227,7 @@ do_install() {
 
   # HACK 2/2: Create a link to be used by apps effective 2020.1
   ln -sf "$CHROOT" "$ROOTFS"
-  mkdir -m 0755 "$CHROOT/dev"
+  mkdir -pv -m 0755 "$CHROOT/dev"
   ui_print "* Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
   # We should remove the rootfs archive to free up device memory or storage space (if not zip install)
@@ -239,7 +239,7 @@ do_install() {
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
-  $MAGISKBB sh $TMP/tools/magic-flash $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'
+  $MAGISKBB source $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'   # Don't use sh over source
 }
 
 flash_kernel() {
@@ -382,10 +382,6 @@ umask 022
 
 #------------------------------------------------------------------------------
 
-# Print Kali NetHunter banner In Magisk installation terminal
-#ui_print "* NetHunter (Magisk module)"
-#ui_print ""
-
 # Ensure zip installer shell is in a working scratch directory
 mkdir -p $TMPDIR
 cd $TMPDIR
@@ -398,6 +394,7 @@ MODID=$(file_getprop module.prop id)
 ui_print "* Unpacking the installer"
 mkdir -p $TMPDIR/$MODID
 cd $TMPDIR/$MODID
+## Unpack the installer (everything but "kalifs-*")
 unzip -qq "$ZIPFILE" -x "kalifs-*"
 #ui_print "* Installer unpacked"
 
@@ -466,28 +463,30 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
 
 #------------------------------------------------------------------------------
 
-# Install all NetHunter apps as user apps
-ui_print "* Installing apps (via user):"
+# Install all NetHunter apps
+# `/system/bin/pm` is an helper-script for `/system/bin/cmd package`
+
+ui_print "* Installing apps (via system):"
 
 # Install the core NetHunter app
 ui_print "*** Installing NetHunter.apk"
 pm install $TMP/data/app/NetHunter.apk &>/dev/null
 
-# and NetHunterTerminal.apk because NetHunter.apk depends on it
+# NetHunter.apk depends on it
 ui_print "*** Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
-# and NetHunterKeX.apk because NetHunter.apk depends on it
+# NetHunter.apk uses it
 ui_print "*** Installing NetHunter-KeX.apk"
 pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
-# and NetHunterStore.apk because we need it
+# We need it
 ui_print "*** Installing NetHunter-Store.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
-# Installing privileged extension as system app
-ui_print "* Installing apps (via system):"
-ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not yet working - Tip: look into /system_ext
+# NetHunterStore.apk depends on it
+ui_print "*** Installing NetHunterStorePrivilegedExtension.apk"
+pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
 
 #ui_print "* Done installing apps"
 
@@ -495,13 +494,13 @@ ui_print "*** [!] Skipping NetHunterStorePrivilegedExtension.apk" # TODO!!! Not 
 
 # Install BusyBox
 ui_print "* Setting up BusyBox"
-[ -f $TMP/tools/installbusybox_magisk.sh ] && sh $TMP/tools/installbusybox_magisk.sh
+[ -f $TMP/tools/install-busybox-magisk.sh ] && source $TMP/tools/install-busybox-magisk.sh   # Don't use sh over source
 #print "* Done installing BusyBox"
 
 #------------------------------------------------------------------------------
 
-# SetUp Kali NetHunter wallpaper of correct resolution if there is one available
-set_wallpaper
+# Setup Kali NetHunter wallpaper of correct resolution if there is one available
+set_wallpaper || ui_print "[!] Failed to set wallpaper"
 
 #------------------------------------------------------------------------------
 
@@ -554,14 +553,14 @@ set_wallpaper
 
 [ -d $TMP/boot-patcher/system/xbin ] && {
   ui_print "* Installing hid-keyboard to /system/xbin"
-  cp -r "$TMP/boot-patcher/system/xbin/*" "$XBIN/"
+  cp -r $TMP/boot-patcher/system/xbin/* "$XBIN/"
   set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
 [ -d $TMP/data/local ] && {
   ui_print "* Copying additional files to /data/local"
   mkdir -p /data/local
-  cp -r "$TMP/data/local/*" "/data/local/"
+  cp -r $TMP/data/local/* "/data/local/"
   set_perm_recursive "/data/local" 0 0 0755 0644
 }
 
@@ -588,38 +587,43 @@ set_wallpaper
 
 #------------------------------------------------------------------------------
 
-# Symlink bootkali scripts for using in another terminals
-ui_print "* Symlinking Kali boot scripts"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali" "$TARGET/bin/bootkali"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_init" "$TARGET/bin/bootkali_init"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_login" "$TARGET/bin/bootkali_login"
-symlink "/data/data/com.offsec.nethunter/files/scripts/bootkali_bash" "$TARGET/bin/bootkali_bash"
-symlink "/data/data/com.offsec.nethunter/files/scripts/killkali" "$TARGET/bin/killkali"
+# Symlink bootkali* scripts for using in another terminals
+# May need to start up NetHunter.apk first!
+ui_print "* Symlinking NetHunter.apk boot scripts"
+if [ -e /data/data/com.offsec.nethunter/assets/scripts/ ]; then
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali" "$TARGET/bin/bootkali" || ui_print "[!] Missing bootkali"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_init" "$TARGET/bin/bootkali_init" || ui_print "[!] Missing bootkali_init"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_login" "$TARGET/bin/bootkali_login" || ui_print "[!] Missing bootkali_login"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_bash" "$TARGET/bin/bootkali_bash" || ui_print "[!] Missing bootkali_bash"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/killkali" "$TARGET/bin/killkali" || ui_print "[!] Missing killkali"
+else
+  ui_print "[!] Magisk doesn't have permission to access"
+fi
 set_perm_recursive "$BIN" 0 0 0755 0755
 
 #------------------------------------------------------------------------------
 
 # Adding required permissions for NetHunter app
 ui_print "* Granting required permissions to NetHunter app"
-sh $TMP/tools/nh_perm.sh
+source $TMP/tools/apk-permissions.sh || ui_print "[!] Failed to set permissions"   # Don't use sh over source
 #print "* Done setting permissions to NetHunter app"
 
 #------------------------------------------------------------------------------
 
 # Install kernel
 ui_print "* Flashing kernel"
-flash_kernel
+flash_kernel || ui_print "[!] Failed to flash kernel"
 
 #------------------------------------------------------------------------------
 
 # Install chroot
 ui_print "* Installing chroot"
-do_chroot
+do_chroot || ui_print "[!] Failed to install chroot"
 
 #------------------------------------------------------------------------------
 
 # Random important Magisk stuff (Don't remove)
-ui_print "* Important Magisk"
+ui_print "* Important Magisk items"
 cp -fp $TMP/tools/module.prop $MNT/$MODID/
 touch $MNT/$MODID/auto_mount
 [ -e /data/adb/modules ] && IMGMNT=/data/adb/modules
@@ -665,7 +669,7 @@ umask $UMASK
 
 #<REF: ./scripts/util_functions.sh>
 # Update info for Magisk manager
-print "* Setting metadata"
+print "* Setting Magisk metadata"
 mktouch /data/adb/modules/$MODID/update
 rm -rf /data/adb/modules/$MODID/remove 2>/dev/null
 rm -rf /data/adb/modules/$MODID/disable 2>/dev/null

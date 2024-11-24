@@ -50,9 +50,9 @@ if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
   # Write the location of the console buffer to /tmp/console for other scripts to use
-  echo "$console" > /tmp/console
+  [ -d /tmp ] && echo "$console" > /tmp/console
 else
-  console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
@@ -120,16 +120,16 @@ else
   #####################################################
   ## Install in Recovery/TWRP                        ##
   #####################################################
-  tmp=/tmp/nethunter
+  TMPDIR=/tmp/nethunter
 
   print "* Unpacking the installer"
-  rm -rf "$tmp"
-  mkdir -p "$tmp"
+  rm -rf "$TMPDIR"
+  mkdir -p "$TMPDIR"
   # Unpack the installer (everything but "kalifs-*")
-  unzip -o "$ZIPFILE" -d "$tmp" -x "kalifs-*"
+  unzip -o "$ZIPFILE" -d "$TMPDIR" -x "kalifs-*"
   #print "* Installer unpacked"
 
-  [ -f $tmp/META-INF/com/google/android/update-recovery ] && source $tmp/META-INF/com/google/android/update-recovery
+  [ -f $TMPDIR/META-INF/com/google/android/update-recovery ] && source $TMPDIR/META-INF/com/google/android/update-recovery
 fi
 
 print ""
