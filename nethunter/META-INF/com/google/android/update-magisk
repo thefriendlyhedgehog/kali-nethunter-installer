@@ -219,7 +219,7 @@ chcon u:object_r:system_file:s0 $TMPDIR
 cd $TMPDIR
 
 setup_flashable
-mount_partitions
+mount_partitions || true
 api_level_arch_detect
 
 ## Setup BusyBox and binaries
@@ -319,7 +319,7 @@ if [ -d /dev/block/mapper ]; then
   done
   DYNAMIC=true
 fi
-mount -o rw,remount -t auto /system || mount /system
+mount -o rw,remount -t auto /system || mount /system || true
 [ $? != 0 ] && mount -o rw,remount -t auto / && SAR=true
 
 ## Additional setup for installing apps via pm
@@ -332,10 +332,10 @@ settings put global verifier_verify_adb_installs 0
 
 # Uninstall previous apps and binaries module if they are installed
 ui_print "* Checking for previous version of NetHunter apps and files"
-pm uninstall com.offsec.nethunter &> /dev/null
-pm uninstall com.offsec.nethunter.kex &> /dev/null
-pm uninstall com.offsec.nhterm &> /dev/null
-pm uninstall com.offsec.nethunter.store &> /dev/null
+pm uninstall com.offsec.nethunter &>/dev/null || true
+pm uninstall com.offsec.nethunter.kex &>/dev/null || true
+pm uninstall com.offsec.nhterm &>/dev/null || true
+pm uninstall com.offsec.nethunter.store &>/dev/null || true
 
 ## Remove Osmosis BusyBox module
 [ -d /data/adb/modules/busybox-ndk ] && {
@@ -516,19 +516,19 @@ set_perm_recursive "$BIN" 0 0 0755 0755
 
 ## Adding required permissions for NetHunter app
 ui_print "* Granting required permissions to NetHunter app"
-pm grant -g com.offsec.nethunter android.permission.INTERNET
-pm grant -g com.offsec.nethunter android.permission.ACCESS_WIFI_STATE
-pm grant -g com.offsec.nethunter android.permission.CHANGE_WIFI_STATE
-pm grant -g com.offsec.nethunter android.permission.READ_EXTERNAL_STORAGE
-pm grant -g com.offsec.nethunter android.permission.WRITE_EXTERNAL_STORAGE
-pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT
-pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT_SU
-pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT_NH
-pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT_NH_LOGIN
-pm grant -g com.offsec.nethunter android.permission.RECEIVE_BOOT_COMPLETED
-pm grant -g com.offsec.nethunter android.permission.WAKE_LOCK
-pm grant -g com.offsec.nethunter android.permission.VIBRATE
-pm grant -g com.offsec.nethunter android.permission.FOREGROUND_SERVICE
+pm grant -g com.offsec.nethunter android.permission.INTERNET || true
+pm grant -g com.offsec.nethunter android.permission.ACCESS_WIFI_STATE || true
+pm grant -g com.offsec.nethunter android.permission.CHANGE_WIFI_STATE || true
+pm grant -g com.offsec.nethunter android.permission.READ_EXTERNAL_STORAGE || true
+pm grant -g com.offsec.nethunter android.permission.WRITE_EXTERNAL_STORAGE || true
+pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT || true
+pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT_SU || true
+pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT_NH || true
+pm grant -g com.offsec.nethunter com.offsec.nhterm.permission.RUN_SCRIPT_NH_LOGIN || true
+pm grant -g com.offsec.nethunter android.permission.RECEIVE_BOOT_COMPLETED || true
+pm grant -g com.offsec.nethunter android.permission.WAKE_LOCK || true
+pm grant -g com.offsec.nethunter android.permission.VIBRATE || true
+pm grant -g com.offsec.nethunter android.permission.FOREGROUND_SERVICE || true
 
 #------------------------------------------------------------------------------
 
