@@ -51,14 +51,14 @@ print "- Found screen resolution: $res"
 res_w=$(echo "$res" | cut -f1 -dx)
 res_h=$(echo "$res" | cut -f2 -dx)
 
-if [ ! -f "wallpaper/$res.png" ]; then
+if [ ! -f "$TMP/wallpaper/$res.png" ]; then
   print "! No wallpaper found for your screen resolution. Skipping"
   return 1
 fi
 
 [ -f "$wp" ] && [ -f "$wpinfo" ] || setup_wp=1
 
-cat "wallpaper/$res.png" > "$wp"
+cat "$TMP/wallpaper/$res.png" > "$wp"
 
 echo "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>" > "$wpinfo"
 echo "<wp width=\"$res_w\" height=\"$res_h\" name=\"nethunter.png\" />" >> "$wpinfo"

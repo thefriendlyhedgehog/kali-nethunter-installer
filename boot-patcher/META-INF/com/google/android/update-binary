@@ -132,7 +132,7 @@ cd "$TMP"
 
 print "$prefix Loading environment"
 chmod +x env
-. ./env.sh
+source "$TMP/env.sh"
 
 print "$prefix Setting permissions"
 setperm 0755 0755 tools

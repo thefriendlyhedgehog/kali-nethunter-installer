@@ -384,7 +384,7 @@ cd "$TMP"
 
 print "* Loading environment"
 #chmod +x env
-. ./env.sh
+source "$TMP/env.sh"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 
 [ -e /dev/block/mapper ] && {
   ## Not using abort(), as this is more verbose
@@ -558,13 +558,13 @@ progress 0.6
 
 #------------------------------------------------------------------------------
 
-[ -d wallpaper ] && {
+[ -d $TMP/wallpaper ] && {
   print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpaper
   source "$TMP/tools/set-wallpaper.sh" || abort "Set wallpaper failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done installing wallpaper"
 }
 
-[ -f system/media/bootanimation.zip ] && {
+[ -f $TMP/system/media/bootanimation.zip ] && {
   print "* Installing Kali NetHunter boot animation"
   install "/system/media/bootanimation.zip" 0755 0644 "${SYSTEM}/media/bootanimation.zip"
 }
@@ -573,32 +573,32 @@ progress 0.7
 
 #------------------------------------------------------------------------------
 
-[ -d system/etc/nano ] && {
+[ -d $TMP/system/etc/nano ] && {
   print "* Copying nano highlights to ${SYSTEM}/etc/nano"
   install "/system/etc/nano" 0755 0644 "${SYSTEM}/etc/nano"
 }
 
-[ -d system/etc/terminfo ] && {
+[ -d $TMP/system/etc/terminfo ] && {
   print "* Copying terminfo files to ${SYSTEM}/etc/terminfo"
   install "/system/etc/terminfo" 0755 0644 "${SYSTEM}/etc/terminfo"
 }
 
-[ -d system/lib ] && {
+[ -d $TMP/system/lib ] && {
   print "* Copying 32-bit shared libraries to ${SYSTEM}/lib"
   install "/system/lib" 0755 0644 "${SYSTEM}/lib"
 }
 
-[ -d system/lib64 ] && {
+[ -d $TMP/system/lib64 ] && {
   print "* Copying 64-bit shared libraries to ${SYSTEM}/lib64"
   install "/system/lib64" 0755 0644 "${SYSTEM}/lib64"
 }
 
-[ -d system/bin ] && {
+[ -d $TMP/system/bin ] && {
   print "* Installing ${SYSTEM}/bin binaries"
   install "/system/bin" 0755 0755 "${SYSTEM}/bin"
 }
 
-[ -d system/xbin ] && {
+[ -d $TMP/system/xbin ] && {
   print "* Installing ${SYSTEM}/xbin binaries"
   [ -d ${SYSTEM}/xbin ] || mkdir -p ${SYSTEM}/xbin
   install "/system/xbin" 0755 0755 "${SYSTEM}/xbin"
@@ -609,7 +609,7 @@ progress 0.7
   install "/data/local" 0755 0644
 }
 
-[ -d system/etc/init.d ] && {
+[ -d $TMP/system/etc/init.d ] && {
   print "* Installing init.d scripts"
   install "/system/etc/init.d" 0755 0755 "${SYSTEM}/etc/init.d"
 
