@@ -19,8 +19,10 @@ $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMO
 DIR=/sdcard;
 $BOOTMODE || DIR=$(dirname "$ZIPFILE");
 
-[ "$AKHOME" ] || AKHOME=/tmp/nethunter/boot-patcher;
 TMPDIR=/dev/tmp
+NN_DIR=$TMPDIR/nethunter/
+TMP=$TMPDIR/nethunter/boot-patcher
+[ "$AKHOME" ] || AKHOME=$TMP
 [ "$ANDROID_ROOT" ] || ANDROID_ROOT=/system;
 
 ui_print() {
@@ -399,7 +401,7 @@ do_modules() {
         done;
       done;
     fi;
-    if [ ! -d /tmp/nethunter ]; then
+    if [ ! -d $NN_DIR ]; then
       $BB mount -o rw,remount -t auto /system;
       $BB mount -o rw,remount -t auto /vendor 2>/dev/null;
     fi;
@@ -439,7 +441,7 @@ do_modules() {
         $BB mount -o ro,remount -t auto $modtarget;
       fi;
     done;
-    if [ ! -d /tmp/nethunter ]; then
+    if [ ! -d $NN_DIR ]; then
       $BB mount -o ro,remount -t auto /system;
       $BB mount -o ro,remount -t auto /vendor 2>/dev/null;
     fi;
