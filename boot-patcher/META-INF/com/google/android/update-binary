@@ -2,6 +2,8 @@
 ## Kali NetHunter kernel installer
 ## This can be called direct (aka "--installer" which would mean ZIPFILE=true) or via ./nethunter/META-INF/com/google/android/update-binary
 
+#------------------------------------------------------------------------------
+
 print() {
   echo "${1:- }" \
     | while read -r line; do
@@ -79,6 +81,7 @@ install_recovery_bb() {
 ## start build generated variables
 generic="arm64"
 ## end build generated variables
+#------------------------------------------------------------------------------
 
 if [ "$3" ]; then
   ZIPFILE=$3

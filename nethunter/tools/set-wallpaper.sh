@@ -45,6 +45,8 @@ if [ -z $res_h ] || [ -z $res_w ]; then
   res_h=$(echo "$res" | cut -f2 -dx)
 fi
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 print "- Found screen resolution: $res"
 
 if [ ! -f "wallpaper/$res.png" ]; then
