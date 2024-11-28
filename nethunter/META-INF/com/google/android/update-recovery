@@ -621,7 +621,7 @@ progress 0.7
   chmod 0755 "/data/local/userinit.sh"
 }
 
-[ -d system/addon.d/80-nethunter.sh ] && {
+[ -e $TMP/system/addon.d/80-nethunter.sh ] && {
   print "* Installing ${SYSTEM}/addon.d backup scripts"
   install "/system/80-nethunter.sh" 0755 0755 "${SYSTEM}/80-nethunter.sh"
 }
