@@ -427,8 +427,7 @@ def setup_installer():
 
     if flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
-        x = "update-binary-anykernel_only" if not args.no_installer else "update-binary-anykernel"
-        print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
+        print("[i] Replacing LazyFlasher with AnyKernel3")
         shutil.move(
             os.path.join(
                 out_path,
@@ -436,7 +435,7 @@ def setup_installer():
                 "com",
                 "google",
                 "android",
-                x,
+                "update-binary-anykernel",
             ),
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
@@ -473,6 +472,7 @@ def setup_installer():
             True,
         )
     else:
+        print("[i] Using LazyFlasher")
         # Set up variables in the kernel installer script
         update_config(
             os.path.join(
