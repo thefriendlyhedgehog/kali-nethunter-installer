@@ -426,7 +426,7 @@ progress 0.1
   abort "Your data partition appears to be empty. Please complete the Android setup wizard before installing Kali NetHunter!"
 }
 
-print "* Running legacy Kali NetHunter version script" # Checking for previous versions of Kali NetHunter
+print "* Running legacy Kali NetHunter version script" # Checking for legacy version of NetHunter
 source "$TMP/tools/previous-install.sh" || abort "Legacy Kali NetHunter failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 #print "* Done checking for previous versions"
 
@@ -583,6 +583,11 @@ progress 0.7
   install "/system/etc/terminfo" 0755 0644 "${SYSTEM}/etc/terminfo"
 }
 
+[ -d $TMP/boot-patcher/system/etc/firmware ] && {
+  print "* Copying Wi-Fi firmwares to ${SYSTEM}/etc/firmware"
+  install "/boot-patcher/system/etc/firmware" 0755 0644 "${SYSTEM}/etc/firmware"
+}
+
 [ -d $TMP/system/lib ] && {
   print "* Copying 32-bit shared libraries to ${SYSTEM}/lib"
   install "/system/lib" 0755 0644 "${SYSTEM}/lib"
@@ -602,6 +607,12 @@ progress 0.7
   print "* Installing ${SYSTEM}/xbin binaries"
   [ -d ${SYSTEM}/xbin ] || mkdir -p ${SYSTEM}/xbin
   install "/system/xbin" 0755 0755 "${SYSTEM}/xbin"
+}
+
+[ -d $TMP/boot-patcher/system/xbin ] && {
+  print "* Installing hid-keyboard to ${SYSTEM}/xbin"
+  [ -d ${SYSTEM}/xbin ] || mkdir -p ${SYSTEM}/xbin
+  install "/boot-patcher/system/xbin" 0755 0755 "${SYSTEM}/xbin"
 }
 
 [ -d data/local ] && {
