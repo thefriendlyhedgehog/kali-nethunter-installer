@@ -178,7 +178,7 @@ flash_kernel() {
     KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
     ## If zip didn't contain a kernel-*.zip
     [ "$KERNEL" ] || {
-      ui_print "* No kernel found. Skipping."
+      ui_print "* No kernel found. Skipping"
       return
     }
     do_flash
@@ -195,7 +195,7 @@ do_chroot() {
     KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
     ## If zip didn't contain a kalifs-*
     [ "$KALIFS" ] || {
-      ui_print "* No Kali rootfs found. Skipping."
+      ui_print "* No Kali rootfs found. Skipping"
       return
     }
 

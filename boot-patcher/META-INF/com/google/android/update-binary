@@ -18,7 +18,7 @@ abort() {
     print "$prefix Aborting"
   }
   cleanup
-  print "$prefix Failed to patch boot image!"
+  print "! Failed to patch boot image"
   exit 1
 }
 
