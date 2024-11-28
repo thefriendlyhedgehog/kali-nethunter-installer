@@ -45,7 +45,7 @@ make_chroot() {
   for dir in apex cache data sbin $vendor $system_ext $product sys proc dev sideload sdcard sysblock etc mnt; do
     mkdir -p $NEWROOT/$dir
   done
-   
+
   mount -t tmpfs tmpfs $NEWROOT/sysblock
 
   if [ "$NOSYSTEM" == 1 ]; then
@@ -62,7 +62,7 @@ make_chroot() {
     ln -s "./magisk" "$NEWROOT/sbin/resetprop"
     ln -s "./magisk" "$NEWROOT/sbin/magiskhide"
     ln -s "./magiskpolicy" "$NEWROOT/sbin/supolicy"
-   fi
+  fi
 
   sysroot_major_minor="$(mountpoint -d /)"
   sysroot_major="${sysroot_major_minor%:*}"
@@ -70,7 +70,7 @@ make_chroot() {
   if [ "$sysroot_major" != "0" ]; then
     echo "Device is system-as-root"
     mknod -m 666 "$NEWROOT/sysblock/system_root" b "$sysroot_major" "$sysroot_minor"
-    echo "/sysblock/system_root /system_root ext4 ro 0 0" >>"$NEWROOT/etc/fstab"
+    echo "/sysblock/system_root /system_root ext4 ro 0 0" >> "$NEWROOT/etc/fstab"
     mkdir -p "$NEWROOT/system_root/system/bin"
     ln -sf "system_root/system" "$NEWROOT/system"
     prepare_sh "$NEWROOT"
@@ -84,7 +84,7 @@ make_chroot() {
     mkdir -p "$NEWROOT/system/bin"
     prepare_sh "$NEWROOT"
     mknod -m 666 "$NEWROOT/sysblock/system" b "$system_major" "$system_minor"
-    echo "/sysblock/system /system ext4 ro 0 0" >>"$NEWROOT/etc/fstab"
+    echo "/sysblock/system /system ext4 ro 0 0" >> "$NEWROOT/etc/fstab"
     if [ "$NOSYSTEM" != 1 ]; then
       mount -o ro "$NEWROOT/sysblock/system" "$NEWROOT/system"
     fi
@@ -96,13 +96,13 @@ make_chroot() {
     dev_mount="$(mount -t ext4 | grep " $ext_part " | tail -1 | awk '{ print $1 }')"
     if [ ! -z "$dev_mount" ]; then
       mount -t ext4 "$dev_mount" "$NEWROOT/$ext_part"
-      echo "$dev_mount $ext_part ext4 rw 0 0">>"$NEWROOT/etc/fstab"
+      echo "$dev_mount $ext_part ext4 rw 0 0" >> "$NEWROOT/etc/fstab"
     fi
   done
 
   echo "proc /proc proc default 0 0
 sysfs /sys sysfs default 0 0
-/system/apex /apex ext4 bind 0 0" >>"$NEWROOT/etc/fstab"
+/system/apex /apex ext4 bind 0 0" >> "$NEWROOT/etc/fstab"
 
   for systemfs in /vendor /product /system_ext; do
     if mountpoint -q $systemfs; then
@@ -113,7 +113,7 @@ sysfs /sys sysfs default 0 0
       system_major="${system_major_minor%:*}"
       system_minor="${system_major_minor: ${#system_major}+1}"
       mknod -m 666 "$NEWROOT/sysblock/$systemfs" b "$system_major" "$system_minor"
-      echo "/sysblock$systemfs $systemfs ext4 ro 0 0" >>"$NEWROOT/etc/fstab"
+      echo "/sysblock$systemfs $systemfs ext4 ro 0 0" >> "$NEWROOT/etc/fstab"
     fi
   done
 
@@ -130,8 +130,8 @@ sysfs /sys sysfs default 0 0
     mount -t selinuxfs selinuxfs "$NEWROOT/sys/fs/selinux"
   else
     mount -t tmpfs selinuxfs "$NEWROOT/sys/fs/selinux"
-    echo -n "0" >"$NEWROOT/sys/fs/selinux/enforce"
-    echo -n >"$NEWROOT/sys/fs/selinux/policy"
+    echo -n "0" > "$NEWROOT/sys/fs/selinux/enforce"
+    echo -n > "$NEWROOT/sys/fs/selinux/policy"
   fi
 
   if [ "${MAGISKTMP%/*}" == "/dev" ]; then
@@ -236,7 +236,7 @@ case $(basename "$0") in
       echo "       $(basename "$0") ZIP1 ZIP2..."
       echo "environment variable flag:"
       echo "   NOSYSTEM=1 - Ignore mount system partition in chroot"
-      echo "   SYSTEM_MODE=ro - Remount all system partitions as read-only "
+      echo "   SYSTEM_MODE=ro - Remount all system partitions as read-only"
       echo "   SYSTEM_MODE=rw - Remount all system partitions as read-write"
       echo "   DEBUG=1 - Show all error dialogs"
     fi
