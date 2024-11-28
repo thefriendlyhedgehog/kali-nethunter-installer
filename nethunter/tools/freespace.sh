@@ -2,7 +2,7 @@
 ## Move safe apps from system to data partition to free up space for installation
 
 # Free space we require on /system (in Megabytes)
-SpaceRequired=50
+SpaceRequired=20
 
 MoveableApps="
 QuickOffice
