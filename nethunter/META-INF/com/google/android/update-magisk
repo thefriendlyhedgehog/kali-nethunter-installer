@@ -320,7 +320,7 @@ api_level_arch_detect
 boot_actions
 
 # Extract prop file
-unzip -oj "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+unzip -oj "$ZIPFILE" module.prop -d $TMPDIR >&2
 [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
 MODDIRNAME=modules_update
@@ -387,7 +387,7 @@ mkdir -p $TMPDIR
 cd $TMPDIR
 
 # Source custom installer functions and configuration
-unzip -jo "$ZIPFILE" tools/module.prop -d $TMPDIR >&2
+unzip -jo "$ZIPFILE" module.prop -d $TMPDIR >&2
 MODID=$(file_getprop module.prop id)
 
 # Extract the installer
@@ -624,12 +624,12 @@ do_chroot || ui_print "[!] Failed to install chroot"
 
 # Random important Magisk stuff (Don't remove)
 ui_print "* Important Magisk items"
-cp -fp $TMP/tools/module.prop $MNT/$MODID/
+cp -fp $TMP/module.prop $MNT/$MODID/
 touch $MNT/$MODID/auto_mount
 [ -e /data/adb/modules ] && IMGMNT=/data/adb/modules
 mkdir -p "$IMGMNT/$MODID"
 touch "$IMGMNT/$MODID/update"
-cp -fp $TMP/tools/module.prop "$IMGMNT/$MODID/"
+cp -fp $TMP/module.prop "$IMGMNT/$MODID/"
 
 #------------------------------------------------------------------------------
 
