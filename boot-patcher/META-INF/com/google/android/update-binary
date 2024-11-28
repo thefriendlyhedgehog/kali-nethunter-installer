@@ -78,9 +78,6 @@ install_recovery_bb() {
   cd - >/dev/null
 }
 
-## start build generated variables
-generic="arm64"
-## end build generated variables
 #------------------------------------------------------------------------------
 
 if [ "$3" ]; then
@@ -120,10 +117,7 @@ if [ "$ZIPFILE" ]; then
 else
   print "##################################################"
   print ".         A/B and A Devices Boot-Patcher"
-  if [ "$generic" ]; then
-  print ".              For $generic devices"                # Skipping indent formatting
   print ".           ramdisk modifications only"             # Skipping indent formatting
-  fi
   print "##################################################"
 fi
 
