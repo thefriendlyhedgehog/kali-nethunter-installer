@@ -11,13 +11,13 @@ VALUE="$1"
 #set -x
 
 abort() {
-  echo "$1"
+  echo "! $1"
   exit 1
 }
 
 make_chroot() {
-  command -v busybox &>/dev/null || abort "! Busybox not found"
-  [ ! -e "$(command -v busybox)" ] && abort "! Busybox not found"
+  command -v busybox &>/dev/null || abort "BusyBox not found"
+  [ ! -e "$(command -v busybox)" ] && abort "BusyBox not found"
 
   ## Create suitable environment to flash
   export NEWROOT="/dev/rootfs_$$"
@@ -28,7 +28,7 @@ make_chroot() {
   mkdir /data/adb/sideload
   chmod 0777 /data/adb/sideload
   chcon u:object_r:system_file:s0 /data/adb/sideload
-  mount -t tmpfs tmpfs $NEWROOT || abort "! Failed to prepare chroot environment"
+  mount -t tmpfs tmpfs $NEWROOT || abort "Failed to prepare chroot environment"
 
   mountpoint -q /vendor && vendor=vendor || ln -sf /system/vendor $NEWROOT/vendor
   mountpoint -q /system_ext && system_ext=system_ext || ln -sf /system/system_ext $NEWROOT/system_ext
@@ -192,7 +192,7 @@ flash_process() {
   ZIP="$1"
   [ "$DEBUG" == 1 ] && { set -x; exec 2>&1; } && echo "DEBUG: is on"
   [ "$ZIP" == "flash" ] && unset ZIP
-  test -z "$ZIP" && abort "! Please provide a zip"
+  test -z "$ZIP" && abort "Please provide a zip"
 
   ZIP_NAME="$(basename "$ZIP")"
   rm -rf "$NEWROOT/sideload/$ZIP_NAME"
@@ -214,7 +214,7 @@ case $(basename "$0") in
     if [ "$VALUE" == "vmshell" ]; then
       exec "$@";
     else
-      test "$(id -u)" == 0 || abort "! Root user only!"
+      test "$(id -u)" == 0 || abort "Root user only"
       exec busybox unshare -m sh "$0" vmshell "$@";
     fi
     ;;
@@ -222,7 +222,7 @@ case $(basename "$0") in
     if [ "$VALUE" == "flash" ]; then
       exec "$@";
     elif [ ! -z "$1" ]; then
-      test "$(id -u)" == 0 || abort "! Root user only!"
+      test "$(id -u)" == 0 || abort "Root user only"
       exec busybox unshare -m sh "$0" flash "$@";
     else
       echo "Flash any recovery zip without using Custom Recovery"
