@@ -204,8 +204,10 @@ flash_process() {
   chmod +x "$NEWROOT/sbin/update-binary"
 
   unshare -m $NEWROOT/sbin/busybox chroot $NEWROOT "/sbin/update-binary" 3 1 "$ZIP_CHROOT"
+  ret=$?
 
-  echo "Flashing exists with code $?"
+  echo "Flashing exists with code $ret"
+  exit $ret    # We are using sh, not source
 }
 
 [ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
