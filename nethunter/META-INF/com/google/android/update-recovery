@@ -354,11 +354,13 @@ check_freespace() {
   elif [ -z $checkspace ]; then
     print "Warning: Could not get free space status for $1, continuing anyway!"
   elif [ "$mntspace" -lt "$checkspace" ]; then
-    if [ -n "$2" ]; then
-      abort "Didn't have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
-    else
+    ## Disabling, as if you run this twice, the first time will be happy as no apps - afterwards, could be limited on space, but able to replace!
+    ## May also want to check for [ -f tools/freespace.sh ], as the end-user may want this disabled
+    #if [ -n "$2" ]; then
+    #  abort "Didn't have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
+    #else
       print "Warning: May not have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
-    fi
+    #fi
   elif [ "$mntspace" -eq "0" ]; then
     abort "Out of space on $ANDROID_ROOT ($mntspace MB free)"
   fi
