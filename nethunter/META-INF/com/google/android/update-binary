@@ -86,6 +86,8 @@ fi
 [ -n "$DEBUG" ] && print "* Debug Mode: Enabled"
 print ""
 
+mount /data || true # May fail, if we don't have /etc/fstab
+
 rm -rf "$TMP"
 mkdir -p "$TMP"
 
