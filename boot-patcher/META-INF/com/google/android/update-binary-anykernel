@@ -458,7 +458,6 @@ do_modules() {
   cd $AKHOME;
 }
 
-
 mkdir -p $AKHOME/bin;
 cd $AKHOME;
 

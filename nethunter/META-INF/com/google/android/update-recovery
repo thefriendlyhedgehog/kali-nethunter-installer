@@ -396,7 +396,6 @@ export home=$bootpatcher_tmp
 #  extract "$ZIPFILE" "$TMP" "kalifs-*"
 #  #print "* Installer unpacked"
 #}
-
 cd "$TMP"
 
 print "* Loading environment"
@@ -498,6 +497,7 @@ if [ $SDK -ge 26 ]; then
 
   [ -f ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk ] && {
     check_freespace ${SYSTEM}/app/com.offsec.nhterm/
+
     print "** Extracting NetHunterTerminal.apk"
     unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
