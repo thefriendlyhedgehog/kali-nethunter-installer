@@ -145,18 +145,10 @@ setperm 0755 0755 tools
 
 print "$prefix Setting up BusyBox"
 BB=$(get_bb)
-
-if [ "$ZIPFILE" ]; then
-  print "$prefix Running BusyBox installer"
-  sh tools/install-busybox.sh #run only
-  #print "$prefix Done running BusyBox installer"
 ## Install BusyBox applets if they haven't been installed by the NetHunter already
 [ -e $TMPDIR/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
-  print "$prefix Running kernel installer"
-else
-  print "$prefix Running boot image patcher"
-fi
+print "$prefix Running boot patcher"
 sh "META-INF/com/google/android/update-binary-anykernel" || abort "boot patcher failed"
 #print "$prefix Boot patcher done"
 
