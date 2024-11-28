@@ -97,7 +97,10 @@ SYSTEM="/system"
 TMPDIR=/dev/tmp
 TMP=$TMPDIR/nethunter/boot-patcher # This is fixed path due to ./installer/, as that extracts and needs to know of this path
 
-if [ "$ZIPFILE" ]; then
+#------------------------------------------------------------------------------
+
+## How has this script been called? (Sourced vs Standalone)
+if [ "$ZIPFILE" ] && [ ! -d "$TMP" ]; then
   print ""
   print "################################################"
   print "#                                              #"
@@ -145,4 +148,4 @@ sh "META-INF/com/google/android/update-binary-anykernel" || abort "boot patcher 
 #print "$prefix Boot patcher done"
 
 print "$prefix Boot image patching complete"
-#cleanup # Don't clean up if not specified in anykernel.sh
+cleanup
