@@ -78,7 +78,11 @@ print "#  88       Y8b d8'          '8b 888888888 88  #"
 print "#                                              #"
 print "###  ############# NetHunter ###################"
 print ""
-print "* NetHunter (BOOTMODE: $BOOTMODE)"
+if $BOOTMODE; then
+print "* NetHunter (Magisk)"        # Skipping indent formatting
+else
+print "* NetHunter (Recovery/TWRP)" # Skipping indent formatting
+fi
 [ -n "$DEBUG" ] && print "* Debug Mode: Enabled"
 print ""
 

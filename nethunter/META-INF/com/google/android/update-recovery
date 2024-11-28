@@ -435,7 +435,7 @@ progress 0.2
 
 #------------------------------------------------------------------------------
 
-print "* Finding SDK version"
+print "* Finding Android SDK version"
 SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
 [ -z $SDK ] && {
   abort "Could not find SDK version"

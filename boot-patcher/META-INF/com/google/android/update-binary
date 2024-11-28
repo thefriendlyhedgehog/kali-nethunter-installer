@@ -112,13 +112,12 @@ if [ "$ZIPFILE" ]; then
   print "#                                              #"
   print "###  ############# NetHunter ###################"
   print ""
-  print "$prefix Boot-Patcher" # Isn't just LazyFlasher
+  print "$prefix Boot-Patcher (A/B and A devices)"
   print ""
 else
-  print "##################################################"
-  print ".         A/B and A Devices Boot-Patcher"
-  print ".           ramdisk modifications only"             # Skipping indent formatting
-  print "##################################################"
+  print "################################################"
+  print "#       Boot-Patcher (A/B and A devices)       #"
+  print "################################################"
 fi
 
 # Unpack the installer

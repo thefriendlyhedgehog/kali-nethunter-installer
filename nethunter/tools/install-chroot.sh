@@ -56,9 +56,11 @@ do_install() {
   mkdir -m 0755 "$CHROOT/dev"
   print "- Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
-  # We should remove the rootfs archive to free up device memory or storage space (if not zip install)
-  [ "$1" ] || rm -f "$KALIFS"
-
+  ## We should remove the rootfs archive to free up device memory or storage space (if not zip install)
+  if [ -z "$1" ]; then
+    print "- Cleaning up old chroot/rootfs ($KALIFS)"
+    rm -f "$KALIFS"
+  fi
 }
 
 NHSYS=/data/local/nhsystem
