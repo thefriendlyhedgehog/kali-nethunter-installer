@@ -92,3 +92,5 @@ else
     fi
   fi
 fi
+
+print "- Freespace done"

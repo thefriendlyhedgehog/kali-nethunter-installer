@@ -21,3 +21,5 @@ EOF
 fi
 
 sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" || print "update-binary/supersu.zip failed"
+
+print "- SuperSU successfully installed"

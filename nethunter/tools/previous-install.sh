@@ -25,3 +25,4 @@ rm -f  /data/app/NetHunter.apk
 rm -f  /data/app/nethunter.apk
 rm -rf /system/app/NetHunter
 
+print "- Clean up from previous install"
