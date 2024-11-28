@@ -5,9 +5,6 @@
 ## CREDITS to HuskyDG
 ##   REF: https://github.com/Magisk-Modules-Alt-Repo/magic-flash/blob/1b1092d88e1172a86f1470744320718dc6117754/system/bin/magic-flash
 
-export PATH=/sbin:/data/adb/modules/magic-flash/busybox:/system/bin:/system/xbin
-exec 2>/dev/null
-VALUE="$1"
 #set -x
 
 abort() {
@@ -208,6 +205,12 @@ flash_process() {
 
   echo "Flashing exists with code $?"
 }
+
+export PATH=/sbin:/data/adb/modules/magic-flash/busybox:/system/bin:/system/xbin:${TMP}/tools/   # Alt: $XBIN
+#exec 2>/dev/null   # Not sure of the value this brings?
+
+#export DEBUG=1
+VALUE="$1"
 
 case $(basename "$0") in
   vmshell)
