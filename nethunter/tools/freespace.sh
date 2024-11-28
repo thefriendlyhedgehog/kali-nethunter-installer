@@ -40,16 +40,6 @@ SA=$MNT/app
 DA=/data/app
 AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
 
-case $AndroidV in
-   4) android_ver="Kitkat";;
-   5) android_ver="Lolipop";;
-   6) android_ver="Marshmallow";;
-   7) android_ver="Nougat";;
-   8) android_ver="Oreo";;
-   9) android_ver="Pie";;
-  10) android_ver="Q";;
-  11) android_ver="R";;
-esac
 
 # TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
 FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
@@ -68,8 +58,8 @@ else
   print "- Freeing up some space on ${SYSTEM}"
 
   if [ "$AndroidV" -gt "7" ]; then
-    print "- Android Version: $android_ver (Android $AndroidV)"
-    print "- Starting from Oreo (Android 8), we can't move apps from /system to /data"
+    print "- Android Version: Android $AndroidV"
+    print "- Starting from Android 8 'Oreo', we can't move apps from /system to /data"
     print "! Aborting installation"
     return 1
   else
