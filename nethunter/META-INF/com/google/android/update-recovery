@@ -555,8 +555,7 @@ progress 0.5
 #------------------------------------------------------------------------------
 
 [ -f tools/freespace.sh ] && {
-  print "* Running freespace script" # Check for freespace
-  # This actually runs twice when the NetHunter kernel zip is included
+  print "* Running freespace script"   # Check for freespace different to check_freespace()
   source "$TMP/tools/freespace.sh" || abort "Not enough free space on ${SYSTEM} to continue!"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done checking freespace"
 }
@@ -636,7 +635,7 @@ progress 0.7
   install "/system/etc/init.d" 0755 0755 "${SYSTEM}/etc/init.d"
 
   print "* Installing userinit.d scripts"
-  # Create userinit.d and userinit.sh if they don't already exist
+  ## Create userinit.d and userinit.sh if they don't already exist
   mkdir -p "/data/local/userinit.d"
   setperm 0755 0755 "/data/local/userinit.d"
   [ -f "/data/local/userinit.sh" ] || echo "#!/system/bin/sh" > "/data/local/userinit.sh"
@@ -664,7 +663,7 @@ progress 0.8
   sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" || abort "Boot-Patcher script failed"   # As it can be its own item, not using source
   #print "* Done running boot-patcher"
 
-  # Setup environment again (all are restored by boot-patcher)
+  ## Setup environment again due to boot-patcher (possibly) altering
   print "* Re-setting environment"
   setup_env
 }

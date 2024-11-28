@@ -1,7 +1,11 @@
 ## [Magisk] [nethunter] [This is sourced, not a standalone script]
 ## Kali NetHunter installation script for Magisk
-## REF: https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh
+##
+## REF: https://topjohnwu.github.io/Magisk/guides.html
+##      https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh
 ##      https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
+##
+## Troubleshoot: Save log via Magisk && $ adb shell 'cat /sdcard/Download/magisk_install_log_*.log; rm /sdcard/Download/magisk_install_log_*.log'
 
 symlink() {
   ln -sf "$1" "$2" 2>/dev/null
@@ -120,6 +124,7 @@ verify_fs() {
   return 0
 }
 
+## REF: ./nethunter/tools/install-chroot.sh
 do_install() {
   ui_print "* Found Kali chroot to be installed: $KALIFS"
   mkdir -p "$NHSYS"
@@ -225,7 +230,7 @@ api_level_arch_detect
 ## Setup BusyBox and binaries
 boot_actions
 
-# Extract prop file
+## Extract prop file
 unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
@@ -292,7 +297,7 @@ umask 022
 mkdir -p $TMPDIR
 cd $TMPDIR
 
-# Source custom installer functions and configuration
+## Source custom installer functions and configuration
 #unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 #MODID=$(file_getprop module.prop id) # Alt: MODID=$(grep_prop id $TMPDIR/module.prop)
 
@@ -330,8 +335,8 @@ settings put global verifier_verify_adb_installs 0
 
 #------------------------------------------------------------------------------
 
-# Uninstall previous apps and binaries module if they are installed
-ui_print "* Checking for previous version of NetHunter apps and files"
+## Uninstall previous apps and binaries module if they are installed
+ui_print "* Checking for legacy version of NetHunter"
 pm uninstall com.offsec.nethunter &>/dev/null || true
 pm uninstall com.offsec.nethunter.kex &>/dev/null || true
 pm uninstall com.offsec.nhterm &>/dev/null || true
@@ -374,23 +379,23 @@ pm uninstall com.offsec.nethunter.store &>/dev/null || true
 
 ui_print "* Installing apps (via system):"
 
-# Install the core NetHunter app
+## Install the core NetHunter app
 ui_print "** Installing NetHunter.apk"
 pm install $TMP/data/app/NetHunter.apk &>/dev/null
 
-# NetHunter.apk depends on it
+## NetHunter.apk depends on it
 ui_print "** Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
-# NetHunter.apk uses it
+## NetHunter.apk uses it
 ui_print "** Installing NetHunterKeX.apk"
 pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
-# We need it
+## We need it
 ui_print "** Installing NetHunterStore.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
-# NetHunterStore.apk depends on it
+## NetHunterStore.apk depends on it
 ui_print "** Installing NetHunterStorePrivilegedExtension.apk"
 pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
 
@@ -498,8 +503,8 @@ fi
 
 #------------------------------------------------------------------------------
 
-# Symlink bootkali* scripts for using in another terminals
-# May need to start up NetHunter.apk first!
+## Symlink bootkali* scripts for using in another terminals
+## May need to start up NetHunter.apk first!
 if [ -e /data/data/com.offsec.nethunter/assets/scripts/ ]; then
   ui_print "* Symlinking NetHunter.apk boot scripts"
   symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali" "$TARGET/bin/bootkali" || ui_print "[!] Missing bootkali"

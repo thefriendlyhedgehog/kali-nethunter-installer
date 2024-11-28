@@ -1,7 +1,7 @@
 ## [Recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
 ## Move safe apps from system to data partition to free up space for installation
 
-# Free space we require on /system (in Megabytes)
+## Free space we require on /system (in Megabytes)
 SpaceRequired=20
 
 MoveableApps="
@@ -39,7 +39,7 @@ SYSTEM_APP=$SYSTEM/app
 DATA_APP=/data/app
 AndroidV=$(grep 'ro.build.version.release=' ${SYSTEM}/build.prop | cut -d'=' -f2) # Alt: ro.build.version.release_or_codename
 
-# TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
+## TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
 FreeSpace=$($BB df -m $SYSTEM | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 
 if [ -z $FreeSpace ]; then
