@@ -290,7 +290,7 @@ def download_rootfs(fs_size):
 def zip_rootfs(fs_size, dst):
     global arch
 
-    print("[i] Adding Kali rootfs archive to the installer zip")
+    print("[i] Adding Kali rootfs archive to the nethunter zip")
 
     try:
         fs_arch = arch
@@ -1091,7 +1091,7 @@ def main():
         zip(out_path, file_tag)
 
         print("[+] Created uninstaller: " + file_tag)
-    # Only build a kernel installer zip and exit if --installer is specified
+    # Only build a boot-patch/kernel installer zip and exit if --installer is specified
     elif args.installer:
         setup_installer()
 

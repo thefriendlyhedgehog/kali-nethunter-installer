@@ -390,13 +390,13 @@ cd $TMPDIR
 unzip -jo "$ZIPFILE" module.prop -d $TMPDIR >&2
 MODID=$(file_getprop module.prop id)
 
-# Extract the installer
-ui_print "* Unpacking the installer"
+## Extract the ZIP
+ui_print "* Unpacking ZIP"
 mkdir -p $TMPDIR/$MODID
 cd $TMPDIR/$MODID
-## Unpack the installer (everything but "kalifs-*")
+## Unpack the ZIP (everything but "kalifs-*")
 unzip -qq "$ZIPFILE" -x "kalifs-*"
-#ui_print "* Installer unpacked"
+#ui_print "* ZIP unpacked"
 
 #------------------------------------------------------------------------------
 
