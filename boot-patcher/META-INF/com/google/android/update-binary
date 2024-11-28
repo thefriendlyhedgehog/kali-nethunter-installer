@@ -123,12 +123,16 @@ else
   print "################################################"
 fi
 
-# Unpack the installer
-[ "$ZIPFILE" ] && {
-  print "$prefix Unpacking the installer, this may take a while"
-  extract "$ZIPFILE" "$tmp"
-  #print "$prefix Installer unpacked"
-}
+## Unpack the ZIP
+if [ "$ZIPFILE" ]; then
+  ## Fresh start
+  rm -rf "$TMP"
+  mkdir -p "$TMP"
+
+  print "$prefix Unpacking the ZIP, this may take a while"
+  extract "$ZIPFILE" "$TMP"
+  #print "$prefix ZIP unpacked"
+fi
 
 cd "$TMP"
 
