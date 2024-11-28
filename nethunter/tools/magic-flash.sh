@@ -21,7 +21,7 @@ prepare_sh() {
 
 make_chroot() {
   command -v busybox &>/dev/null || abort "BusyBox not found"
-  [ ! -e "$(command -v busybox)" ] && abort "BusyBox not found"
+  [ ! -e "$(command -v busybox)" ] && abort "BusyBox missing"
 
   ## Create suitable environment to flash
   export NEWROOT="/dev/rootfs_$$"

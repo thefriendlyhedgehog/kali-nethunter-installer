@@ -653,8 +653,8 @@ progress 0.8
   sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" || abort "Boot-Patcher script failed"   # As it can be its own item, not using source
   #print "* Done running boot-patcher"
 
-  print "* Setting environment"
   # Setup environment again (all are restored by boot-patcher)
+  print "* Re-setting environment"
   setup_env
 }
 
