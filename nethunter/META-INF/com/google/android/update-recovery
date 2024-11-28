@@ -140,7 +140,11 @@ mount_apex() {
       eval OLD_${var}=\$$var
     done
 
-  $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's; /;=/;'); unset export;
+    #$($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's; /;=/;')   # BusyBox is putting everything on a singe line, so not executing correct
+    for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's_ /_=/_; s/^export //'); do
+      eval $var
+    done
+    unset export
   }
 }
 
