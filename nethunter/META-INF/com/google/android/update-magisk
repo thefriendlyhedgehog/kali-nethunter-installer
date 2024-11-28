@@ -241,7 +241,7 @@ mkdir -p $MODPATH || abort "! Unable to: mkdir -p $MODPATH"
 
 ## Define several variables
 [ -z $TMPDIR ] && TMPDIR=/dev/tmp
-[ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
+[ -n $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
 [ -z $ZIPFILE ] && ZIPFILE="$3"
 DIR=$(dirname "$ZIPFILE")
 TMP=$TMPDIR/$MODID

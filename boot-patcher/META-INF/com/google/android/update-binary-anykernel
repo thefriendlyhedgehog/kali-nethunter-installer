@@ -481,7 +481,7 @@ if [ -f version ]; then
 fi;
 ui_print "- AnyKernel3 by osm0sis @ xda-developers";
 
-if [ ! -z "$(ls /tmp/nethunter/tools)" ]; then
+if [ -e "$NN_DIR/tools" ]; then
    restore_env;
 fi;
 setup_env;
