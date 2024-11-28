@@ -156,7 +156,7 @@ do_install() {
 
   ## HACK 2/2: Create a link to be used by apps effective 2020.1
   ln -sf "$CHROOT" "$ROOTFS"
-  mkdir -pv -m 0755 "$CHROOT/dev"
+  mkdir -p -m 0755 "$CHROOT/dev"
   ui_print "* Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
   ## We should remove the rootfs archive to free up device memory or storage space (if not zip install)
