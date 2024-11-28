@@ -5,6 +5,7 @@
 export PATH=/sbin:/data/adb/modules/magic-flash/busybox:/system/bin:/system/xbin
 exec 2>/dev/null
 VALUE="$1"
+#set -x
 
 abort() {
   echo "$1"

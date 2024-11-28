@@ -671,7 +671,7 @@ done
 
 # Clean up
 ui_print "* Cleaning up"
-rm -rf $TMPDIR
+[ -n "$DEBUG" ] || rm -rf $TMPDIR
 umask $UMASK
 
 # Done
@@ -701,5 +701,5 @@ rm -rf $MODPATH/update-magisk \
 #rmdir -p $MODPATH 2>/dev/null
 
 cd /
-rm -rf $TMPDIR
 #</ REF: ./scripts/util_functions.sh>
+[ -n "$DEBUG" ] || rm -rf $TMPDIR

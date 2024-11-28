@@ -1,4 +1,6 @@
 ## Kali NetHunter installation script for recovery/TWRP (BOOTMODE=false)
+##
+## Troubleshoot: $ adb shell 'tail -f /tmp/recovery.log'
 
 progress() {
   echo "set_progress $1" > "$console"

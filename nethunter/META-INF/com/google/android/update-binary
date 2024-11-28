@@ -22,6 +22,9 @@
 ##     https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
 ##     https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
 
+#set -e
+#set -x
+
 #------------------------------------------------------------------------------
 
 # Magisk - echo
@@ -56,6 +59,8 @@ else
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
+DEBUG=
+
 #------------------------------------------------------------------------------
 
 print ""
@@ -73,6 +78,7 @@ print "#                                              #"
 print "###  ############# NetHunter ###################"
 print ""
 print "* NetHunter (BOOTMODE: $BOOTMODE)"
+[ -n "$DEBUG" ] && print "* Debug Mode: Enabled"
 print ""
 
 #------------------------------------------------------------------------------
