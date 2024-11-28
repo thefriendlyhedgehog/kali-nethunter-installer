@@ -206,6 +206,7 @@ flash_process() {
   echo "Flashing exists with code $?"
 }
 
+[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
 export PATH=/sbin:/data/adb/modules/magic-flash/busybox:/system/bin:/system/xbin:${TMP}/tools/   # Alt: $XBIN
 #exec 2>/dev/null   # Not sure of the value this brings?
 
