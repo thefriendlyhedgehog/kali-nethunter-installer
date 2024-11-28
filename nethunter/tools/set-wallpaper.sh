@@ -65,7 +65,7 @@ echo "<wp width=\"$res_w\" height=\"$res_h\" name=\"nethunter.png\" />" >> "$wpi
 
 if [ "$setup_wp" ]; then
   chown system:system "$wp" "$wpinfo"
-  chmod 600 "$wp" "$wpinfo"
+  chmod 0600 "$wp" "$wpinfo"
   chcon "u:object_r:wallpaper_file:s0" "$wp"
   chcon "u:object_r:system_data_file:s0" "$wpinfo"
 fi

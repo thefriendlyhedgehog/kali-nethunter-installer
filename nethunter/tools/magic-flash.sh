@@ -199,7 +199,7 @@ flash_process() {
 
   busybox unzip -oj "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin" #&>/dev/null
   echo "Flashing \"$ZIP_NAME\""
-  chmod 0777 "$NEWROOT/sbin/update-binary"
+  chmod +x "$NEWROOT/sbin/update-binary"
 
   $NEWROOT/sbin/busybox unshare -m $NEWROOT/sbin/busybox chroot $NEWROOT "/sbin/update-binary" 3 1 "$ZIP_CHROOT"
 
