@@ -229,12 +229,12 @@ case $(basename "$0") in
       exec busybox unshare -m sh "$0" flash "$@";
     else
       echo "Flash any recovery zip without using Custom Recovery"
-      echo "Flashing will be processed in isolated chroot evironment"
+      echo "Flashing will be processed in isolated chroot environment"
       echo "Multiple flashing at same time are allowed"
       echo "Make sure the current environment is clean"
       echo "usage: $(basename "$0") ZIP"
       echo "       $(basename "$0") ZIP1 ZIP2..."
-      echo "environment variable flag:"
+      echo "Environment variable flag:"
       echo "   NOSYSTEM=1 - Ignore mount system partition in chroot"
       echo "   SYSTEM_MODE=ro - Remount all system partitions as read-only"
       echo "   SYSTEM_MODE=rw - Remount all system partitions as read-write"
