@@ -72,7 +72,7 @@ install_recovery_bb() {
 
   ## Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
   nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
-  print "*** Installing $nethunter_bb applets to /sbin"
+  print "** Installing $nethunter_bb applets to /sbin"
   cp $nethunter_bb /sbin/busybox_nh
   /sbin/busybox_nh --install /sbin
   cd - >/dev/null

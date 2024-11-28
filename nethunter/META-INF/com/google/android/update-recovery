@@ -57,14 +57,14 @@ installapp_user() {
   fi
 
   #print "* Installing $1 to $installto"
-  print "*** Installing $1"
+  print "** Installing $1"
   cp -f "$TMP/data/app/$1" "$installto" && return 0
   print "* Failed to install $1!" && return 1
 }
 
 installapp_system() {
   check_freespace $TMP/data/app/
-  print "*** Installing $1"
+  print "** Installing $1"
   mkdir -p ${SYSTEM}/${3:-app}/$2/
   cp -f $TMP/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
   print "* Failed to install $1!" && return 1
@@ -329,7 +329,7 @@ install_recovery_bb() {
 
   ## Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
   nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
-  print "*** Installing $nethunter_bb applets to /sbin"
+  print "** Installing $nethunter_bb applets to /sbin"
   cp $nethunter_bb /sbin/busybox_nh
   /sbin/busybox_nh --install /sbin
   cd - >/dev/null
@@ -439,7 +439,7 @@ SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
 [ -z $SDK ] && {
   abort "Could not find SDK version"
 }
-print "*** SDK Version: $SDK"
+print "** SDK Version: $SDK"
 
 [ -f supersu.zip ] && {
   print "* Extracting SuperSU.zip"
@@ -487,11 +487,11 @@ if [ $SDK -ge 26 ]; then
 
   [ -f ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk ] && {
     check_freespace ${SYSTEM}/app/com.offsec.nhterm/
-    print "*** Extracting NetHunterTerminal.apk"
+    print "** Extracting NetHunterTerminal.apk"
     unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nhterm/lib ] || {
-      print "*** Extracting NetHunterTerminal.apk #2"
+      print "** Extracting NetHunterTerminal.apk #2"
       mkdir -p /tmp/NetHunter-Terminal/
       unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
       mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/com.offsec.nhterm/
@@ -513,15 +513,15 @@ if [ $SDK -ge 26 ]; then
         *) abort "Unknown arch: $ARCH"
         ;;
       esac;
-      print "*** Extracting NetHunterKeX.apk ($ARCH / $x)"
+      print "** Extracting NetHunterKeX.apk ($ARCH / $x)"
       unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/$x/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
     else
-      print "*** Extracting NetHunterKeX.apk"
+      print "** Extracting NetHunterKeX.apk"
       unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
     fi
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nethunter.kex/lib ] || {
-      print "*** Extracting NetHunterKeX.apk #2"
+      print "** Extracting NetHunterKeX.apk #2"
       mkdir -p /tmp/com.offsec.nethunter.kex/
       unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/
       mv /tmp/com.offsec.nethunter.kex/lib ${SYSTEM}/app/com.offsec.nethunter.kex/
@@ -531,7 +531,7 @@ if [ $SDK -ge 26 ]; then
   }
 
   check_freespace ${SYSTEM}/etc/permissions
-  print "*** Extracting NetHunterStorePrivilegedExtension.apk"
+  print "** Extracting NetHunterStorePrivilegedExtension.apk"
   mkdir ${SYSTEM}/etc/permissions
   chmod 0755 ${SYSTEM}/etc/permissions
   [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {

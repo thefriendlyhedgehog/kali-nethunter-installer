@@ -373,23 +373,23 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
 ui_print "* Installing apps (via system):"
 
 # Install the core NetHunter app
-ui_print "*** Installing NetHunter.apk"
+ui_print "** Installing NetHunter.apk"
 pm install $TMP/data/app/NetHunter.apk &>/dev/null
 
 # NetHunter.apk depends on it
-ui_print "*** Installing NetHunterTerminal.apk"
+ui_print "** Installing NetHunterTerminal.apk"
 pm install $TMP/data/app/NetHunterTerminal.apk &>/dev/null
 
 # NetHunter.apk uses it
-ui_print "*** Installing NetHunter-KeX.apk"
+ui_print "** Installing NetHunterKeX.apk"
 pm install $TMP/data/app/NetHunterKeX.apk &>/dev/null
 
 # We need it
-ui_print "*** Installing NetHunter-Store.apk"
+ui_print "** Installing NetHunterStore.apk"
 pm install -g $TMP/data/app/NetHunterStore.apk &>/dev/null
 
 # NetHunterStore.apk depends on it
-ui_print "*** Installing NetHunterStorePrivilegedExtension.apk"
+ui_print "** Installing NetHunterStorePrivilegedExtension.apk"
 pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
 
 #ui_print "* Done installing apps"

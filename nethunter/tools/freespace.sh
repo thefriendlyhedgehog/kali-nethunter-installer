@@ -65,20 +65,20 @@ else
 
       if [ -d "$SYSTEM_APP/$app/" ]; then
         if [ -d "$DATA_APP/$app/" ] || [ -f "$DATA_APP/$app.apk" ]; then
-          print "--- Removing $SYSTEM_APP/$app/ (extra)"
+          print "-- Removing $SYSTEM_APP/$app/ (extra)"
           rm -rf "$SYSTEM_APP/$app/"
         else
-          print "--- Moving $app/ to $DATA_APP"
+          print "-- Moving $app/ to $DATA_APP"
           mv "$SYSTEM_APP/$app/" "$DATA_APP/"
         fi
       fi
 
       if [ -f "$SYSTEM_APP/$app.apk" ]; then
         if [ -d "$DATA_APP/$app/" ] || [ -f "$DATA_APP/$app.apk" ]; then
-          print "--- Removing $SYSTEM_APP/$app.apk (extra)"
+          print "-- Removing $SYSTEM_APP/$app.apk (extra)"
           rm -f "$SYSTEM_APP/$app.apk"
         else
-          print "--- Moving $app.apk to $DATA_APP"
+          print "-- Moving $app.apk to $DATA_APP"
           mv "$SYSTEM_APP/$app.apk" "$DATA_APP/"
         fi
       fi
