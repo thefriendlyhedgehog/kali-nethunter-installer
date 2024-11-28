@@ -543,7 +543,7 @@ if [ $SDK -ge 26 ]; then
 
   check_freespace ${SYSTEM}/etc/permissions
   print "** Extracting NetHunterStorePrivilegedExtension.apk"
-  mkdir ${SYSTEM}/etc/permissions
+  mkdir -p ${SYSTEM}/etc/permissions
   chmod 0755 ${SYSTEM}/etc/permissions
   [ -f system/etc/permissions/com.offsec.nethunter.store.privileged.xml ] && {
     install "/system/etc/permissions/com.offsec.nethunter.store.privileged.xml" 0755 0644 "${SYSTEM}/etc/permissions/com.offsec.nethunter.store.privileged.xml"

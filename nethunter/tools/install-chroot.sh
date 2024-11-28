@@ -53,7 +53,7 @@ do_install() {
   [ "$NH_ARCH" != "$FS_ARCH" ] && mv "$NHSYS/kali-$FS_ARCH" "$CHROOT"
   ln -sf "$CHROOT" "$ROOTFS"
 
-  mkdir -m 0755 "$CHROOT/dev"
+  mkdir -p -m 0755 "$CHROOT/dev"
   print "- Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
   ## We should remove the rootfs archive to free up device memory or storage space (if not zip install)
