@@ -365,6 +365,7 @@ check_freespace() {
 supersu="auto"
 ## End build generated variables
 
+SYSTEM="/system"
 test "$ANDROID_ROOT" || ANDROID_ROOT="$SYSTEM"
 bootpatcher_tmp=$TMP/boot-patcher
 export home=$bootpatcher_tmp
@@ -421,7 +422,6 @@ install_recovery_bb
 
 print "* Setting environment"
 setup_env # Setup environment for NetHunter installation
-SYSTEM="/system"
 
 progress 0.1
 
