@@ -35,9 +35,9 @@ LiveWallpapersPicker
 
 IFS="
 "
-AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
 SYSTEM_APP=$SYSTEM/app
 DATA_APP=/data/app
+AndroidV=$(grep 'ro.build.version.release=' ${SYSTEM}/build.prop | cut -d'=' -f2) # Alt: ro.build.version.release_or_codename
 
 
 # TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
