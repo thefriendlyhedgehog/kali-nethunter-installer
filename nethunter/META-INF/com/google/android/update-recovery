@@ -533,8 +533,8 @@ if [ $SDK -ge 26 ]; then
       unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/
       mv /tmp/com.offsec.nethunter.kex/lib ${SYSTEM}/app/com.offsec.nethunter.kex/
     }
-    mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm
-    mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64-v8a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64
+    [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ] && mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm
+    [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64-v8a ] && mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64-v8a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm64
   }
 
   check_freespace ${SYSTEM}/etc/permissions
