@@ -35,27 +35,22 @@ LiveWallpapersPicker
 
 IFS="
 "
-MNT=/system
-SA=$MNT/app
-DA=/data/app
 AndroidV=$(grep 'ro.build.version.release' ${SYSTEM}/build.prop | cut -d'=' -f2)
+SYSTEM_APP=$SYSTEM/app
+DATA_APP=/data/app
 
 
 # TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
-FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
+FreeSpace=$($BB df -m $SYSTEM | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 
 if [ -z $FreeSpace ]; then
-  print "! Warning: Could not get free space status, continuing anyway!"
-  exit 0
-fi
-
-print "- $MNT free space: $FreeSpace MB"
-
-if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
-  exit 0
+  print "! Warning: Could not get free space status. Skipping"
+elif [ "$FreeSpace" -gt "$SpaceRequired" ]; then
+  ## We have enough space! Return/exit
+  print "- $SYSTEM free space: $FreeSpace MB"
 else
-  print "- You don't have enough free space in your ${SYSTEM}"
-  print "- Freeing up some space on ${SYSTEM}"
+  print "- You don't have enough free space on ${SYSTEM}: $FreeSpace MB"
+  print "- Trying to free up some space"
 
   if [ "$AndroidV" -gt "7" ]; then
     print "- Android Version: Android $AndroidV"
@@ -68,23 +63,23 @@ else
         break
       fi
 
-      if [ -d "$SA/$app/" ]; then
-        if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
-          print "--- Removing $SA/$app/ (extra)"
-          rm -rf "$SA/$app/"
+      if [ -d "$SYSTEM_APP/$app/" ]; then
+        if [ -d "$DATA_APP/$app/" ] || [ -f "$DATA_APP/$app.apk" ]; then
+          print "--- Removing $SYSTEM_APP/$app/ (extra)"
+          rm -rf "$SYSTEM_APP/$app/"
         else
-          print "--- Moving $app/ to $DA"
-          mv "$SA/$app/" "$DA/"
+          print "--- Moving $app/ to $DATA_APP"
+          mv "$SYSTEM_APP/$app/" "$DATA_APP/"
         fi
       fi
 
-      if [ -f "$SA/$app.apk" ]; then
-        if [ -d "$DA/$app/" ] || [ -f "$DA/$app.apk" ]; then
-          print "--- Removing $SA/$app.apk (extra)"
-          rm -f "$SA/$app.apk"
+      if [ -f "$SYSTEM_APP/$app.apk" ]; then
+        if [ -d "$DATA_APP/$app/" ] || [ -f "$DATA_APP/$app.apk" ]; then
+          print "--- Removing $SYSTEM_APP/$app.apk (extra)"
+          rm -f "$SYSTEM_APP/$app.apk"
         else
-          print "--- Moving $app.apk to $DA"
-          mv "$SA/$app.apk" "$DA/"
+          print "--- Moving $app.apk to $DATA_APP"
+          mv "$SYSTEM_APP/$app.apk" "$DATA_APP/"
         fi
       fi
     done
@@ -92,7 +87,7 @@ else
     print "- Free space (after): $FreeSpace MB"
 
     if [ ! "$FreeSpace" -gt "$SpaceRequired" ]; then
-      print "! Unable to free up $SpaceRequired MB of space on '$MNT'!"
+      print "! Unable to free up $SpaceRequired MB of space on '$SYSTEM'!"
       return 1
     fi
   fi
