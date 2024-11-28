@@ -226,7 +226,7 @@ api_level_arch_detect
 boot_actions
 
 # Extract prop file
-unzip -oj "$ZIPFILE" module.prop -d $TMPDIR >&2
+unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
 MODDIRNAME=modules_update
