@@ -1,0 +1,21 @@
+## TO-DO
+
+- `./build.py` - If `resolution` is set in `./kernels/devices.yml`, only copy those wallpapers
+- `./build.py` - When downloading rootfs add SHA512 retrieval function
+- Use external scripts better in both Magisk & recovery/TWRP
+  - REF: `./nethunter/tools/install-chroot.sh`
+- Reduce the amount of external scripts
+  - REF: `./nethunter/tools/install-su.sh`
+- Sync with upstream with everything
+  - https://github.com/Magisk-Modules-Alt-Repo/magic-flash
+  - https://github.com/jcadduono/lazyflasher
+  - https://github.com/osm0sis/AnyKernel3/
+- Improve `--uninstall`
+  - Remove Bootanimation
+  - Remove Wallpaper
+  - Add Magisk support (https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh // https://github.com/topjohnwu/Magisk/blob/master/scripts/uninstaller.sh)
+- Improve magisk CLI
+  - `$ adb shell 'su -c magisk --install-module /sdcard/Download/nh.zip'`
+- Create Magisk JSON
+  - https://topjohnwu.github.io/Magisk/guides.html
+  - `updateJson=https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/raw/main/magisk.json`
