@@ -15,6 +15,13 @@ abort() {
   exit 1
 }
 
+prepare_sh() {
+  ## Make sure sh exists
+  cat "$(command -v busybox)" > "${1}/system/bin/sh"
+  chmod 0777 "${1}/system/bin/sh"
+  cat /system/build.prop > "${1}/system/build.prop"
+}
+
 make_chroot() {
   command -v busybox &>/dev/null || abort "BusyBox not found"
   [ ! -e "$(command -v busybox)" ] && abort "BusyBox not found"
@@ -60,13 +67,6 @@ make_chroot() {
     ln -s "./magiskpolicy" "$NEWROOT/sbin/supolicy"
    fi
 
-  prepare_sh() {
-    # make sure sh exists
-    cat "$(command -v busybox)" >"$NEWROOT/system/bin/sh"
-    chmod 0777 "$NEWROOT/system/bin/sh"
-    cat /system/build.prop >"$NEWROOT/system/build.prop"
-  }
-
   sysroot_major_minor="$(mountpoint -d /)"
   sysroot_major="${sysroot_major_minor%:*}"
   sysroot_minor="${sysroot_major_minor: ${#sysroot_major}+1}"
@@ -76,7 +76,7 @@ make_chroot() {
     echo "/sysblock/system_root /system_root ext4 ro 0 0" >>"$NEWROOT/etc/fstab"
     mkdir -p "$NEWROOT/system_root/system/bin"
     ln -sf "system_root/system" "$NEWROOT/system"
-    prepare_sh
+    prepare_sh "$NEWROOT"
     if [ "$NOSYSTEM" != 1 ]; then
       mount -o ro "$NEWROOT/sysblock/system_root" "$NEWROOT/system_root"
     fi
@@ -85,7 +85,7 @@ make_chroot() {
     system_major="${system_major_minor%:*}"
     system_minor="${system_major_minor: ${#system_major}+1}"
     mkdir -p "$NEWROOT/system/bin"
-    prepare_sh
+    prepare_sh "$NEWROOT"
     mknod -m 666 "$NEWROOT/sysblock/system" b "$system_major" "$system_minor"
     echo "/sysblock/system /system ext4 ro 0 0" >>"$NEWROOT/etc/fstab"
     if [ "$NOSYSTEM" != 1 ]; then
