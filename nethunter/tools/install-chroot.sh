@@ -50,7 +50,7 @@ do_install() {
 
 # HACK 2/2: Rename to kali-(arm64,armhf,amd64,i386) based on $NH_ARCH for legacy reasons and create a link to be used by apps effective 2020.1
 
-  mv "$NHSYS/kali-$FS_ARCH" "$CHROOT"
+  [ "$NH_ARCH" != "$FS_ARCH" ] && mv "$NHSYS/kali-$FS_ARCH" "$CHROOT"
   ln -sf "$CHROOT" "$ROOTFS"
 
   mkdir -m 0755 "$CHROOT/dev"
