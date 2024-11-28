@@ -369,6 +369,11 @@ test "$ANDROID_ROOT" || ANDROID_ROOT="$SYSTEM"
 bootpatcher_tmp=$TMP/boot-patcher
 export home=$bootpatcher_tmp
 
+#------------------------------------------------------------------------------
+
+[ -d /data/data ] || {
+  abort "Your /data partition appears to be empty. Please complete the Android setup wizard before installing Kali NetHunter!"   # Or reboot?
+}
 
 #------------------------------------------------------------------------------
 
@@ -421,10 +426,6 @@ SYSTEM="/system"
 progress 0.1
 
 #------------------------------------------------------------------------------
-
-[ -d /data/data ] || {
-  abort "Your data partition appears to be empty. Please complete the Android setup wizard before installing Kali NetHunter!"
-}
 
 print "* Running legacy Kali NetHunter version script" # Checking for legacy version of NetHunter
 source "$TMP/tools/previous-install.sh" || abort "Legacy Kali NetHunter failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
