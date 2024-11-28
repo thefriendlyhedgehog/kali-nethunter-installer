@@ -293,7 +293,7 @@ mkdir -p $TMPDIR
 cd $TMPDIR
 
 # Source custom installer functions and configuration
-unzip -jo "$ZIPFILE" module.prop -d $TMPDIR >&2
+#unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 #MODID=$(file_getprop module.prop id) # Alt: MODID=$(grep_prop id $TMPDIR/module.prop)
 
 ## Extract the ZIP
