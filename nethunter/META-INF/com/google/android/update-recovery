@@ -88,20 +88,20 @@ symlink() {
 }
 
 setup_mountpoint() {
-  [ -L $1 ] && $BB mv -f $1 ${1}_link;
+  [ -L $1 ] && $BB mv -f $1 ${1}_link
   if [ ! -d $1 ]; then
-    $BB rm -f $1;
-    $BB mkdir -p $1;
-  fi;
+    $BB rm -f $1
+    $BB mkdir -p $1
+  fi
 }
 
 is_mounted() {
-  $BB mount | $BB grep -q " $1 ";
+  $BB mount | $BB grep -q " $1 "
 }
 
 mount_apex() {
-  [ -d /system_root/system/apex ] || return 1;
-  local apex dest loop minorx num var;
+  [ -d /system_root/system/apex ] || return 1
+  local apex dest loop minorx num var
   setup_mountpoint /apex;
   minorx=1;
   [ -e /dev/block/loop1 ] && minorx=$($BB ls -l /dev/block/loop1 | $BB awk '{ print $6 }');
@@ -143,7 +143,7 @@ mount_apex() {
 }
 
 umount_apex() {
-  [ -d /apex/com.android.runtime ] || return 1;
+  [ -d /apex/com.android.runtime ] || return 1
   local dest loop var;
   for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
     if [ "$(eval echo \$OLD_$var)" ]; then
@@ -240,7 +240,7 @@ umount_all() {
     $BB umount -l /system;
   fi) 2>/dev/null;
 
-  umount_apex;
+  umount_apex
 
   (if [ -e /system_root ]; then
     $BB umount /system_root;
