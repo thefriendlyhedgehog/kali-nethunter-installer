@@ -168,7 +168,7 @@ sysfs /sys sysfs default 0 0
 vmshell() {
   make_chroot
   exec 2>&1
-  $NEWROOT/sbin/busybox unshare -m $NEWROOT/sbin/busybox chroot $NEWROOT /sbin/sh
+  unshare -m $NEWROOT/sbin/busybox chroot $NEWROOT /sbin/sh
   umount -l $NEWROOT
   rm -rf $NEWROOT
 }
@@ -197,11 +197,13 @@ flash_process() {
   ZIP="$NEWROOT/sideload/$ZIP_NAME"
   ZIP_CHROOT="/sideload/$ZIP_NAME"
 
-  busybox unzip -oj "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin" #&>/dev/null
+  unzip -o "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin"
+  mv "$NEWROOT/sbin/META-INF/com/google/android/update-binary" "$NEWROOT/sbin/update-binary"
+
   echo "Flashing \"$ZIP_NAME\""
   chmod +x "$NEWROOT/sbin/update-binary"
 
-  $NEWROOT/sbin/busybox unshare -m $NEWROOT/sbin/busybox chroot $NEWROOT "/sbin/update-binary" 3 1 "$ZIP_CHROOT"
+  unshare -m $NEWROOT/sbin/busybox chroot $NEWROOT "/sbin/update-binary" 3 1 "$ZIP_CHROOT"
 
   echo "Flashing exists with code $?"
 }
@@ -219,7 +221,7 @@ case $(basename "$0") in
       exec "$@";
     else
       test "$(id -u)" == 0 || abort "Root user only"
-      exec busybox unshare -m sh "$0" vmshell "$@";
+      unshare -m sh "$0" vmshell "$@";
     fi
     ;;
   *)
@@ -227,7 +229,7 @@ case $(basename "$0") in
       exec "$@";
     elif [ ! -z "$1" ]; then
       test "$(id -u)" == 0 || abort "Root user only"
-      exec busybox unshare -m sh "$0" flash "$@";
+      unshare -m sh "$0" flash "$@";
     else
       echo "Flash any recovery zip without using Custom Recovery"
       echo "Flashing will be processed in isolated chroot environment"
