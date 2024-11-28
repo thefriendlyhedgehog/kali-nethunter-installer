@@ -67,11 +67,13 @@ f_dir_umount() {
     f_umount_fs "$i"
   done
 
-  # Don't force unmount sdcard
-  # In some devices, it wipes the internal storage
-  if umount -l $PRECHROOT/sdcard; then
-    if ! rm -rf $PRECHROOT/sdcard; then
-      isAllunmounted=1
+  ## Don't force unmount SDcard
+  ##   In some devices, it wipes the internal storage
+  if mount | grep -q "$PRECHROOT/sdcard"; then
+    if umount -l $PRECHROOT/sdcard; then
+        if ! rm -rf $PRECHROOT/sdcard; then
+        isAllunmounted=1
+      fi
     fi
   fi
 }
