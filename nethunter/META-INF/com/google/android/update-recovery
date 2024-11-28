@@ -43,7 +43,7 @@ installapp_user() {
       print "Found app directory: $appdir"
       if [ ! -f /data/data/com.android.vending/databases/localappstate.db ]; then
         print "Could not find Play Store app database!"
-      # This should also catch paid/alternative versions if they are suffixed
+      ## This should also catch paid/alternative versions if they are suffixed
       elif strings /data/data/com.android.vending/databases/localappstate.db | grep -q "^$2"; then
         rm -f "/data/app/$1"
         print "* Found Play Store installed $1"
@@ -317,16 +317,16 @@ get_bb() {
 }
 
 install_recovery_bb() {
-  # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
-  # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
+  ## To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
+  ##   We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
   cd $TMPDIR/tools
 
-  # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
+  ## Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
   cp $recovery_bb busybox_tmp
   setperm 0755 0755 busybox_tmp
 
-  # Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
+  ## Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
   nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
   print "*** Installing $nethunter_bb applets to /sbin"
   cp $nethunter_bb /sbin/busybox_nh
@@ -382,7 +382,7 @@ sutmp=/tmp/supersu
 
 #------------------------------------------------------------------------------
 
-## Disabling as its done in update-binary
+## Disabling as its done in ./update-binary
 ### Unpack the installer (everything but "kalifs-*")
 #[ "$ZIPFILE" ] && {
 #  print "* Unpacking the installer"
@@ -397,7 +397,7 @@ print "* Loading environment"
 . ./env.sh
 
 [ -e /dev/block/mapper ] && {
-  # Not using abort(), as this is more verbose
+  ## Not using abort(), as this is more verbose
   print ""
   print "********** Dynamic Device Detected **********"
   print ""
@@ -469,8 +469,8 @@ progress 0.4
 
 #------------------------------------------------------------------------------
 
-## Starting with Oreo (Android 8) we can no longer install user apps (/data/app/)
-## So we install as system apps (/system)
+## Starting with Android 8 (Oreo) we can no longer install user apps (/data/app/)
+##   So we install as system apps (/system)
 if [ $SDK -ge 26 ]; then
   ## Apps in /system
   check_freespace $TMPDIR/data/app/ "True"
@@ -512,6 +512,8 @@ if [ $SDK -ge 26 ]; then
 
   [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk ] && {
     check_freespace ${SYSTEM}/app/com.offsec.nethunter.kex/
+
+    ## For an alt, see install-chroot.sh
     if [ -n "$ARCH" ]; then
       case $ARCH in
         amd64) x=x86_64;;

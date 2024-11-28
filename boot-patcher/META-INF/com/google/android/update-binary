@@ -61,16 +61,16 @@ get_bb() {
 }
 
 install_recovery_bb() {
-  # To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
-  # We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
+  ## To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
+  ## We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
   cd $tmp/tools
 
-  # Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
+  ## Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
   cp $recovery_bb busybox_tmp
   setperm 0755 0755 busybox_tmp
 
-  # Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
+  ## Now that we picked a reasonably current BusyBox, use that to copy the absolute latest to the recovery partition using "ls -v"
   nethunter_bb=$(./busybox_tmp ls -v busybox_nh-* | tail -n 1)
   print "*** Installing $nethunter_bb applets to /sbin"
   cp $nethunter_bb /sbin/busybox_nh
@@ -86,7 +86,7 @@ generic="arm64"
 if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
-  # Write the location of the console buffer to /tmp/console for other scripts to use
+  ## Write the location of the console buffer to /tmp/console for other scripts to use
   echo "$console" > /tmp/console
   prefix="*"
 else
@@ -157,7 +157,7 @@ else
   print "$prefix Running boot image patcher"
 fi
 sh "META-INF/com/google/android/update-binary-anykernel" || abort
-#print "$prefix Done"
+#print "$prefix Boot patcher done"
 
 print "$prefix Boot image patching complete"
 #cleanup # Don't clean up if not specified in anykernel.sh

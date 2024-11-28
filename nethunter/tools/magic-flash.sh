@@ -16,7 +16,7 @@ make_chroot() {
   command -v busybox &>/dev/null || abort "! Busybox not found"
   [ ! -e "$(command -v busybox)" ] && abort "! Busybox not found"
 
-  # create suitable environment to flash!!
+  ## Create suitable environment to flash
   export NEWROOT="/dev/rootfs_$$"
 
   rm -rf $NEWROOT
@@ -45,7 +45,7 @@ make_chroot() {
     echo "NOSYSTEM: Ignored mount system partition!"
   fi
 
-  # access to magisk bin
+  ## Access to magisk bin
   MAGISKTMP="$(magisk --path)"
   if [ ! -z "$MAGISKTMP" ]; then
     touch "$NEWROOT/sbin"/{magisk,magiskpolicy}
@@ -125,7 +125,7 @@ sysfs /sys sysfs default 0 0
   mount -t sysfs sysfs "$NEWROOT/sys"
   mount -t proc proc "$NEWROOT/proc"
 
-  # selinux stuff
+  ## SELinux stuff
   if [ "$SELINUX" == 1 ]; then
     mount -t selinuxfs selinuxfs "$NEWROOT/sys/fs/selinux"
   else
@@ -157,7 +157,7 @@ sysfs /sys sysfs default 0 0
 
   cp "$(command -v busybox)" $NEWROOT/sbin/busybox
 
-  # install BusyBox into path
+  ## Install BusyBox into path
   $NEWROOT/sbin/busybox --install $NEWROOT/sbin
 
   export TMPDIR=/tmp
@@ -179,7 +179,7 @@ flash() {
     ( flash_process "$zip"; )
   done
 
-  # clean environment
+  ## Clean environment
   umount -l $NEWROOT
   rm -rf $NEWROOT
   rm -rf /data/adb/sideload

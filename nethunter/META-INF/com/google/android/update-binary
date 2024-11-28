@@ -46,15 +46,15 @@ print() {
 [ -z $BOOTMODE ] && ps | grep zygote | grep -qv grep && BOOTMODE=true
 [ -z $BOOTMODE ] && ps -A 2>/dev/null | grep zygote | grep -qv grep && BOOTMODE=true
 [ -z $BOOTMODE ] && BOOTMODE=false
-#<REF: /./scripts/util_functions.sh>
+#</REF: ./scripts/util_functions.sh>
 
 if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
   # Write the location of the console buffer to /tmp/console for other scripts to use
-  [ -d /tmp ] && echo "$console" > /tmp/console
+  [ -d /tmp ] && echo "$console" > /tmp/console        # Magisk doesn't have /tmp
 else
-  [ -f /tmp/console ] && console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)   # Magisk doesn't have /tmp
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
@@ -123,7 +123,7 @@ if $BOOTMODE; then
   [ -f $MODPATH/update-magisk ] && source $MODPATH/update-magisk
 else
   #####################################################
-  ## Install in Recovery/TWRP                        ##
+  ## Install in recovery/TWRP                        ##
   #####################################################
   TMPDIR=/tmp/nethunter
 

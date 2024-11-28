@@ -14,6 +14,7 @@ tmp=${tmp%/*/*}
 cd "$tmp"
 . ./env.sh
 
+## Define wallpaper variables
 wp=/data/system/users/0/wallpaper
 wpinfo=${wp}_info.xml
 

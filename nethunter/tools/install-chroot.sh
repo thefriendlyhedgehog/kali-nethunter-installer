@@ -19,13 +19,13 @@ get_bb() {
 }
 
 verify_fs() {
-  # valid architecture?
+  ## Valid architecture?
   case $FS_ARCH in
     armhf|arm64|i386|amd64) ;;
     *) return 1 ;;
   esac
 
-  # valid build size?
+  ## Valid build size?
   case $FS_SIZE in
     full|minimal|nano) ;;
     *) return 1 ;;
@@ -39,20 +39,19 @@ do_install() {
 
   mkdir -p "$NHSYS"
 
-  # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
-
+  ## HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
   CHROOT="$NHSYS/kali-$NH_ARCH" # Legacy rootfs directory prior to 2020.1
   ROOTFS="$NHSYS/kalifs"  # New symlink allowing to swap chroots via NetHunter app on the fly
   PRECHROOT=$($BB find /data/local/nhsystem -type d -name  "*-*" | head -n 1)  # Generic previous chroot location
 
-  # Remove previous chroot
+  ## Remove previous chroot
   [ -d "$PRECHROOT" ] && {
     print "- Previous chroot detected! Removing"
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
 
-  # Extract new chroot
+  ## Extract new chroot
   print "- Extracting Kali rootfs (This may take up to 25 minutes)"
   if [ "$1" ]; then
     unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
@@ -126,7 +125,7 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
     verify_fs && do_install
   done
 
-  # Check location for kalifs-[size].tar.xz name format (Legacy)
+  ## Check for legacy filename: kalifs-[size].tar.xz
   for KALIFS in "$fsdir"/kalifs-*.tar.xz; do
     [ -f "$KALIFS" ] || continue
     FS_ARCH=armhf

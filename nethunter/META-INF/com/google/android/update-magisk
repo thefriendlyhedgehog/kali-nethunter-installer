@@ -99,10 +99,10 @@ f_kill_pids() {
 }
 
 f_restore_setup() {
-  # Set shmmax to 128mb to free memory
+  ## Set shmmax to 128mb to free memory
   sysctl -w kernel.shmmax=134217728 2>/dev/null
 
-  # Remove all the remaining chroot vnc session pid and log files
+  ## Remove all the remaining chroot vnc session pid and log files
   rm -rf $PRECHROOT/tmp/.X11* $PRECHROOT/tmp/.X*-lock $PRECHROOT/root/.vnc/*.pid $PRECHROOT/root/.vnc/*.log > /dev/null 2>&1
 }
 
@@ -176,13 +176,13 @@ do_umount() {
 }
 
 verify_fs() {
-  # Valid architecture?
+  ## Valid architecture?
   case $FS_ARCH in
     armhf|arm64|i386|amd64);;
     *) return 1;;
   esac
 
-  # Valid build size?
+  ## Valid build size?
   case $FS_SIZE in
     full|minimal|nano);;
     *) return 1;;
@@ -195,12 +195,12 @@ do_install() {
   ui_print "* Found Kali chroot to be installed: $KALIFS"
   mkdir -p "$NHSYS"
 
-  # HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
+  ## HACK 1/2: Rename to kali-(arm64,armhf,amd64,i386) as NetHunter app supports searching these directory after first boot
   CHROOT="$NHSYS/kali-$FS_ARCH" # Legacy rootfs directory prior to 2020.1
   ROOTFS="$NHSYS/kalifs"        # New symlink allowing to swap chroots via NetHunter app on the fly
   PRECHROOT=$( find /data/local/nhsystem -type d -iname kali-* | head -n 1 ) # Previous chroot location
 
-  # Remove previous chroot
+  ## Remove previous chroot
   [ -d "$PRECHROOT" ] && {
     ui_print "* Previous chroot detected!"
     do_umount
@@ -215,7 +215,7 @@ do_install() {
     rm -f "$ROOTFS"
   }
 
-  # Extract new chroot
+  ## Extract new chroot
   ui_print "* Extracting Kali rootfs (This may take up to 25 minutes)"
   unzip -p "$ZIPFILE" "$KALIFS" | tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
 
@@ -225,12 +225,12 @@ do_install() {
     return 1
   }
 
-  # HACK 2/2: Create a link to be used by apps effective 2020.1
+  ## HACK 2/2: Create a link to be used by apps effective 2020.1
   ln -sf "$CHROOT" "$ROOTFS"
   mkdir -pv -m 0755 "$CHROOT/dev"
   ui_print "* Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
-  # We should remove the rootfs archive to free up device memory or storage space (if not zip install)
+  ## We should remove the rootfs archive to free up device memory or storage space (if not zip install)
   [ "$1" ] || rm -f "$KALIFS"
 
   return 0
@@ -243,10 +243,10 @@ do_flash() {
 }
 
 flash_kernel() {
-  # Check zip for kernel-*.zip first
   [ -e "$ZIPFILE" ] && {
+    ## Check zip for kernel-*.zip first
     KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
-    # Check other locations if zip didn't contain a kernel-*.zip
+    ## If zip didn't contain a kernel-*.zip
     [ "$KERNEL" ] || {
       ui_print "* No kernel found. Skipping."
       return
@@ -256,14 +256,14 @@ flash_kernel() {
 }
 
 do_chroot() {
-  # Chroot common path
+  ## Chroot common path
   NHSYS=/data/local/nhsystem
 
-  # do_install [optional zip containing kalifs chroot/rootfs]
-  # Check zip for kalifs-* first
+  ## do_install [optional zip containing kalifs chroot/rootfs]
   [ -e "$ZIPFILE" ] && {
+    ## Check zip for kalifs-* first
     KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
-    # Check other locations if zip didn't contain a kalifs-*
+    ## If zip didn't contain a kalifs-*
     [ "$KALIFS" ] || {
       ui_print "* No Kali rootfs found. Skipping."
       return
@@ -316,7 +316,7 @@ setup_flashable
 mount_partitions
 api_level_arch_detect
 
-# Setup BusyBox and binaries
+## Setup BusyBox and binaries
 boot_actions
 
 # Extract prop file
@@ -330,12 +330,12 @@ MODNAME=$(grep_prop name $TMPDIR/module.prop)
 MODAUTH=$(grep_prop author $TMPDIR/module.prop)
 MODPATH=$MODULEROOT/$MODID
 
-# Create mod paths
+## Create mod paths
 rm -rf $MODPATH
 mkdir -p $MODPATH || abort "! Unable to: mkdir -p $MODPATH"
-#</ REF: ./scripts/util_functions.sh>
+#</REF: ./scripts/util_functions.sh>
 
-# Define several variables
+## Define several variables
 [ -z $TMPDIR ] && TMPDIR=/dev/tmp
 [ ! -z $ZIP ] && { ZIPFILE="$ZIP"; unset ZIP; }
 [ -z $ZIPFILE ] && ZIPFILE="$3"
@@ -353,13 +353,13 @@ if [ -e /data/$ADB/magisk ]; then
   [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH"
 fi
 
-# Define modules target dirs
+## Define modules target dirs
 if [ -e /data/adb/modules ]; then
   MNT=/data/adb/modules_update
   MAGISK=/$MODID/system
 fi
 
-# Set target paths
+## Set target paths
 [ ! -z $MODPTH ] || MODPATH=$MNT/$MODID
 TARGET=$MNT$MAGISK
 ETC=$TARGET/etc
@@ -382,7 +382,7 @@ umask 022
 
 #------------------------------------------------------------------------------
 
-# Ensure zip installer shell is in a working scratch directory
+## Ensure zip installer shell is in a working scratch directory
 mkdir -p $TMPDIR
 cd $TMPDIR
 
@@ -400,8 +400,8 @@ unzip -qq "$ZIPFILE" -x "kalifs-*"
 
 #------------------------------------------------------------------------------
 
-# Setup environment before installations
-# Mount System as r/w just incase we need it
+## Setup environment before installations
+##   Mount System as r/w just incase we need it
 ui_print "* Setting environment"
 DYNAMIC=false
 SAR=false
@@ -416,7 +416,7 @@ fi
 mount -o rw,remount -t auto /system || mount /system
 [ $? != 0 ] && mount -o rw,remount -t auto / && SAR=true
 
-# Additional setup for installing apps via pm
+## Additional setup for installing apps via pm
 [[ "$(getenforce)" == "Enforcing" ]] && ENFORCE=true || ENFORCE=false
 $ENFORCE && setenforce 0
 VERIFY=$(settings get global verifier_verify_adb_installs)
@@ -431,23 +431,23 @@ pm uninstall com.offsec.nethunter.kex &> /dev/null
 pm uninstall com.offsec.nhterm &> /dev/null
 pm uninstall com.offsec.nethunter.store &> /dev/null
 
-# Remove Osmosis BusyBox module
+## Remove Osmosis BusyBox module
 [ -d /data/adb/modules/busybox-ndk ] && {
-  # Follow Magisk way to disable and remove modules
+  ## Follow Magisk way to disable and remove modules
   touch /data/adb/modules/busybox-ndk/disable
   touch /data/adb/modules/busybox-ndk/remove
 }
 
-# Remove Wi-Fi firmware modules
+## Remove Wi-Fi firmware modules
 [ -d /data/adb/modules/wirelessFirmware ] && {
-  # Follow Magisk way to disable and remove modules
+  ## Follow Magisk way to disable and remove modules
   touch /data/adb/modules/wirelessFirmware/disable
   touch /data/adb/modules/wirelessFirmware/remove
 }
 
-# Remove nano modules
+## Remove nano modules
 [ -d /data/adb/modules/nano-ndk ] && {
-  # Follow Magisk way to disable and remove modules
+  ## Follow Magisk way to disable and remove modules
   touch /data/adb/modules/nano-ndk/disable
   touch /data/adb/modules/nano-ndk/remove
 }
@@ -463,8 +463,8 @@ pm uninstall com.offsec.nethunter.store &> /dev/null
 
 #------------------------------------------------------------------------------
 
-# Install all NetHunter apps
-# `/system/bin/pm` is an helper-script for `/system/bin/cmd package`
+## Install all NetHunter apps
+##   `/system/bin/pm` is an helper-script for `/system/bin/cmd package`
 
 ui_print "* Installing apps (via system):"
 
@@ -492,7 +492,7 @@ pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
 
 #------------------------------------------------------------------------------
 
-# Install BusyBox
+## Install BusyBox
 ui_print "* Setting up BusyBox"
 [ -f $TMP/tools/install-busybox-magisk.sh ] && source $TMP/tools/install-busybox-magisk.sh   # Don't use sh over source
 #print "* Done installing BusyBox"
@@ -504,14 +504,14 @@ set_wallpaper || ui_print "[!] Failed to set wallpaper"
 
 #------------------------------------------------------------------------------
 
-# Install NetHunter boot animation
+## Install NetHunter boot animation
 [ -f $TMP/system/media/bootanimation.zip ] && {
   ui_print "* Installing Kali NetHunter boot animation"
   mkdir -p $MEDIA
   cp $TMP/system/media/bootanimation.zip $MEDIA
 }
 
-# Install required firmwares, binaries, lib files for Kali NetHunter
+## Install required firmwares, binaries, lib files for Kali NetHunter
 [ -d $TMP/system/etc/nano ] && {
   ui_print "* Copying nano highlights to /system/etc/nano"
   mkdir -p $ETC
@@ -568,7 +568,7 @@ set_wallpaper || ui_print "[!] Failed to set wallpaper"
   ui_print "* Installing init.d scripts"
   cp -r "$TMP/system/etc/init.d" "$ETC/"
 
-  # Create userinit.d and userinit.sh if they don't already exist
+  ## Create userinit.d and userinit.sh if they don't already exist
   ui_print "* Installing userinit.d scripts"
   rm -rf /data/local/userinit.d # Remove previous one
   mkdir -p "/data/local/userinit.d"
@@ -603,7 +603,7 @@ set_perm_recursive "$BIN" 0 0 0755 0755
 
 #------------------------------------------------------------------------------
 
-# Adding required permissions for NetHunter app
+## Adding required permissions for NetHunter app
 ui_print "* Granting required permissions to NetHunter app"
 pm grant -g com.offsec.nethunter android.permission.INTERNET
 pm grant -g com.offsec.nethunter android.permission.ACCESS_WIFI_STATE
@@ -621,19 +621,19 @@ pm grant -g com.offsec.nethunter android.permission.FOREGROUND_SERVICE
 
 #------------------------------------------------------------------------------
 
-# Install kernel
+## Install kernel
 ui_print "* Flashing kernel"
 flash_kernel || ui_print "[!] Failed to flash kernel"
 
 #------------------------------------------------------------------------------
 
-# Install chroot
+## Install chroot
 ui_print "* Installing chroot"
 do_chroot || ui_print "[!] Failed to install chroot"
 
 #------------------------------------------------------------------------------
 
-# Random important Magisk stuff (Don't remove)
+## Random important Magisk stuff (Don't remove)
 ui_print "* Important Magisk items"
 cp -fp $TMP/module.prop $MNT/$MODID/
 touch $MNT/$MODID/auto_mount
@@ -647,7 +647,7 @@ cp -fp $TMP/module.prop "$IMGMNT/$MODID/"
 ui_print "* Restoring environment"
 cd /
 
-# Restore environment after installations
+## Restore environment after installations
 if [ -d /dev/block/mapper ]; then
   for block in system; do
     for slot in "" _a _b; do
@@ -657,11 +657,11 @@ if [ -d /dev/block/mapper ]; then
 fi
 [ "$SAR" ] && mount -o ro,remount -t auto / || mount -o ro,remount -t auto /system
 
-# Restore also additional settings we did before
+## Restore also additional settings we did before
 settings put global verifier_verify_adb_installs $VERIFY
 $ENFORCE && setenforce 1
 
-# Handle replace folders
+## Handle replace folders
 for TARGET in $REPLACE; do
   ui_print "* Replace target: $TARGET"
   mktouch $MODPATH$TARGET/.replace
@@ -669,30 +669,30 @@ done
 
 #------------------------------------------------------------------------------
 
-# Clean up
+## Clean up
 ui_print "* Cleaning up"
 [ -n "$DEBUG" ] || rm -rf $TMPDIR
 umask $UMASK
 
-# Done
+## Done
 
 #------------------------------------------------------------------------------
 
 #<REF: ./scripts/util_functions.sh>
-# Update info for Magisk manager
+## Update info for Magisk
 print "* Setting Magisk metadata"
 mktouch /data/adb/modules/$MODID/update
 rm -rf /data/adb/modules/$MODID/remove 2>/dev/null
 rm -rf /data/adb/modules/$MODID/disable 2>/dev/null
 cp -af $MODPATH/module.prop /data/adb/modules/$MODID/module.prop
 
-# Copy over custom sepolicy rules
+## Copy over custom sepolicy rules
 if [ -f $MODPATH/sepolicy.rule ]; then
   print "* Installing custom sepolicy rules"
   copy_preinit_files
 fi
 
-# Remove stuff that doesn't belong to modules and clean up any empty directories
+## Remove stuff that doesn't belong to modules and clean up any empty directories
 rm -rf $MODPATH/update-magisk \
        $MODPATH/system/placeholder \
        $MODPATH/customize.sh \
@@ -701,5 +701,5 @@ rm -rf $MODPATH/update-magisk \
 #rmdir -p $MODPATH 2>/dev/null
 
 cd /
-#</ REF: ./scripts/util_functions.sh>
 [ -n "$DEBUG" ] || rm -rf $TMPDIR
+#</REF: ./scripts/util_functions.sh>
