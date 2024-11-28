@@ -26,17 +26,17 @@ cleanup() {
   [ "$ZIPFILE" ] && {
    rm /tmp/console
   }
-  cd $(dirname $tmp)
-  rm -rf $tmp
+  cd $(dirname $TMP)
+  rm -rf $TMP
 }
 
 install() {
-  setperm "$2" "$3" "$tmp$1"
+  setperm "$2" "$3" "$TMP$1"
   if [ "$4" ]; then
-    cp -r "$tmp$1" "$(dirname "$4")/"
+    cp -r "$TMP$1" "$(dirname "$4")/"
     return
   fi
-  cp -r "$tmp$1" "$(dirname "$1")/"
+  cp -r "$TMP$1" "$(dirname "$1")/"
 }
 
 extract() {
@@ -52,9 +52,9 @@ setperm() {
 }
 
 get_bb() {
-  cd $tmp/tools
+  cd $TMP/tools/
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
+  BB=$TMP/tools/$BB_latest # Use NetHunter BusyBox from ./arch/<arch>/tools/
   chmod 0755 $BB # Make BusyBox executable
   echo $BB
   cd - >/dev/null
@@ -63,7 +63,7 @@ get_bb() {
 install_recovery_bb() {
   ## To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
   ## We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
-  cd $tmp/tools
+  cd $TMP/tools
 
   ## Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
@@ -97,7 +97,8 @@ fi
 
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 SYSTEM="/system"
-tmp=/tmp/nethunter/boot-patcher
+TMPDIR=/dev/tmp
+TMP=$TMPDIR/nethunter/boot-patcher # This is fixed path due to ./installer/, as that extracts and needs to know of this path
 
 if [ "$ZIPFILE" ]; then
   print ""
@@ -133,7 +134,7 @@ fi
   #print "$prefix Installer unpacked"
 }
 
-cd "$tmp"
+cd "$TMP"
 
 print "$prefix Loading environment"
 chmod +x env
@@ -144,19 +145,19 @@ setperm 0755 0755 tools
 
 print "$prefix Setting up BusyBox"
 BB=$(get_bb)
-# Install BusyBox applets if they haven't been installed by the NetHunter installer already
-[ -e /tmp/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
 if [ "$ZIPFILE" ]; then
   print "$prefix Running BusyBox installer"
   sh tools/install-busybox.sh #run only
   #print "$prefix Done running BusyBox installer"
+## Install BusyBox applets if they haven't been installed by the NetHunter already
+[ -e $TMPDIR/nethunter/tools/busybox_tmp ] || install_recovery_bb
 
   print "$prefix Running kernel installer"
 else
   print "$prefix Running boot image patcher"
 fi
-sh "META-INF/com/google/android/update-binary-anykernel" || abort
+sh "META-INF/com/google/android/update-binary-anykernel" || abort "boot patcher failed"
 #print "$prefix Boot patcher done"
 
 print "$prefix Boot image patching complete"

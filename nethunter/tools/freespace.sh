@@ -1,33 +1,8 @@
-#!/sbin/sh
-# Move safe apps from system to data partition to free up space for installation
-
-print() {
-  echo "${1:- }" \
-    | while read -r line; do
-       echo -e "ui_print $line" > "$console"
-       echo -e "ui_print \n" > "$console"
-    done
-}
-
-get_bb() {
-  cd $tmp/tools
-  BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
-  chmod 0755 $BB # Make BusyBox executable
-  echo $BB
-  cd - >/dev/null
-}
-
-tmp=$(readlink -f "$0")
-tmp=${tmp%/*/*}
-. "$tmp/env.sh"
-
-[ -f /tmp/console ] && console=$(cat /tmp/console)
-[ "$console" ] || console=/proc/$$/fd/1
+## [Recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
+## Move safe apps from system to data partition to free up space for installation
 
 # Free space we require on /system (in Megabytes)
 SpaceRequired=50
-SYSTEM="/system"
 
 MoveableApps="
 QuickOffice
@@ -77,7 +52,6 @@ case $AndroidV in
 esac
 
 # TWRP's df from /sbin doesn't has -m flag so we use BusyBox instead and use df from it
-BB=$(get_bb)
 FreeSpace=$($BB df -m $MNT | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 
 if [ -z $FreeSpace ]; then
@@ -97,7 +71,7 @@ else
     print "- Android Version: $android_ver (Android $AndroidV)"
     print "- Starting from Oreo (Android 8), we can't move apps from /system to /data"
     print "! Aborting installation"
-    exit 1
+    return 1
   else
     for app in $MoveableApps; do
       if [ "$FreeSpace" -gt "$SpaceRequired" ]; then
@@ -129,7 +103,7 @@ else
 
     if [ ! "$FreeSpace" -gt "$SpaceRequired" ]; then
       print "! Unable to free up $SpaceRequired MB of space on '$MNT'!"
-      exit 1
+      return 1
     fi
   fi
 fi

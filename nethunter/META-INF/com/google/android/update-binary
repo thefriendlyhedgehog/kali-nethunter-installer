@@ -59,6 +59,8 @@ else
 fi
 
 DEBUG=
+TMPDIR=/dev/tmp
+export TMP=$TMPDIR/nethunter # Doesn't matter if sh / source
 
 #------------------------------------------------------------------------------
 
@@ -80,7 +82,8 @@ print "* NetHunter (BOOTMODE: $BOOTMODE)"
 [ -n "$DEBUG" ] && print "* Debug Mode: Enabled"
 print ""
 
-#------------------------------------------------------------------------------
+rm -rf "$TMP"
+mkdir -p "$TMP"
 
 if $BOOTMODE; then
   #####################################################
@@ -105,36 +108,41 @@ if $BOOTMODE; then
     done
   }
 
-  ## grep_prop()
-  [ -f /data/adb/magisk/util_functions.sh ] && source /data/adb/magisk/util_functions.sh
+  require_new_magisk() {
+    echo "*******************************"
+    echo " Please install Magisk v20.4+! "
+    echo "*******************************"
+    exit 1
+  }
 
-  TMPDIR=/dev/tmp
+  ## REF: ./scripts/module_installer.sh
+  [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+  source /data/adb/magisk/util_functions.sh || print "! Issue with util_functions.sh"
+  [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
-  MODDIRNAME=modules_update
-  MODULEROOT=/data/adb/$MODDIRNAME
-  MODID=$(grep_prop id $TMPDIR/module.prop)
-  MODPATH=$MODULEROOT/$MODID
+  umask 022
 
-  ## Install NetHunter
-  unzip -oj "$ZIPFILE" META-INF/com/google/android/update-magisk -d $MODPATH >&2
+  ## make setup_flashable() happy
+  OUTFD=$2
+
+  print "* Unpacking script"
+  unzip -o "$ZIPFILE" META-INF/com/google/android/update-magisk -d $TMP >&2
+  #print "* Script unpacked"
+
   # Default permissions
-  set_perm_recursive $MODPATH 0 0 0755 0644
+  set_perm_recursive $TMP 0 0 0755 0644
   ## Run magisk script (Load customization script)
-  [ -f $MODPATH/update-magisk ] && source $MODPATH/update-magisk
+  [ -f $TMP/META-INF/com/google/android/update-magisk ] && source $TMP/META-INF/com/google/android/update-magisk    # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 else
   #####################################################
   ## Install in recovery/TWRP                        ##
   #####################################################
-  TMPDIR=/tmp/nethunter
+  ## Unpack the ZIP (everything but "kalifs-*")
+  print "* Unpacking ZIP"
+  unzip -o "$ZIPFILE" -d "$TMP" -x "kalifs-*"
+  #print "* ZIP unpacked"
 
-  print "* Unpacking the installer"
-  rm -rf "$TMPDIR"
-  mkdir -p "$TMPDIR"
-  # Unpack the installer (everything but "kalifs-*")
-  unzip -o "$ZIPFILE" -d "$TMPDIR" -x "kalifs-*"
-  #print "* Installer unpacked"
-
-  [ -f $TMPDIR/META-INF/com/google/android/update-recovery ] && source $TMPDIR/META-INF/com/google/android/update-recovery
+  [ -f $TMP/META-INF/com/google/android/update-recovery ] && source $TMP/META-INF/com/google/android/update-recovery   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 fi
 
 print ""

@@ -1,28 +1,7 @@
-## Kali NetHunter installation script for Magisk (BOOTMODE=true)
+## [Magisk] [nethunter] [This is sourced, not a standalone script]
+## Kali NetHunter installation script for Magisk
 ## REF: https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh
 ##      https://github.com/topjohnwu/Magisk/blob/master/scripts/util_functions.sh
-
-file_getprop() {
-  grep "^$2" "$1" | head -n1 | cut -d= -f2-
-}
-
-set_perm() {
-  chown $2:$3 $1 || return 1
-  chmod $4 $1 || return 1
-  CON=$5
-  [ -z $CON ] && CON=u:object_r:system_file:s0
-  chcon $CON $1 || return 1
-}
-
-set_perm_recursive() {
-  find $1 -type d 2>/dev/null | while read dir; do
-    set_perm $dir $2 $3 $4 $6
-  done
-
-  find $1 -type f -o -type l 2>/dev/null | while read file; do
-    set_perm $file $2 $3 $5 $6
-  done
-}
 
 symlink() {
   ln -sf "$1" "$2" 2>/dev/null
@@ -239,7 +218,10 @@ do_install() {
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
-  $MAGISKBB sh $TMP/tools/magic-flash.sh $KERNEL | awk '!/    ui_print/ && !/inflating/ && gsub(/ui_print/,"")'   # Don't use sh over source
+  out=$(sh $TMP/tools/magic-flash.sh $KERNEL)    # Spawn a new session (aka using sh), don't in current session (able to pass variables/functions)
+  ret=$?   # We want magic-flash.sh exit code, not awk!
+  echo "$out" | awk 'gsub(/ui_print /," ") && !/^ $/' # Replace ui_print, to indent output (to signal its a script), remove empty lines and banner
+  [ "$ret" -eq 0 ] || abort "! magic-flash.sh failed"
 }
 
 flash_kernel() {
@@ -275,33 +257,7 @@ do_chroot() {
   }
 }
 
-require_new_magisk() {
-  echo "*******************************"
-  echo " Please install Magisk v20.4+! "
-  echo "*******************************"
-  exit 1
-}
-
 #------------------------------------------------------------------------------
-
-#<REF: ./scripts/module_installer.sh>
-#################
-# Initialization
-#################
-umask 022
-
-#########################
-# Load util_functions.sh
-#########################
-OUTFD=$2
-ZIPFILE=$3
-
-mount /data 2>/dev/null
-
-[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
-source /data/adb/magisk/util_functions.sh
-[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
-#</ REF: ./scripts/module_installer.sh>
 
 #<REF: ./scripts/util_functions.sh>
 #########################
@@ -388,7 +344,7 @@ cd $TMPDIR
 
 # Source custom installer functions and configuration
 unzip -jo "$ZIPFILE" module.prop -d $TMPDIR >&2
-MODID=$(file_getprop module.prop id)
+#MODID=$(file_getprop module.prop id) # Alt: MODID=$(grep_prop id $TMPDIR/module.prop)
 
 ## Extract the ZIP
 ui_print "* Unpacking ZIP"
@@ -494,7 +450,7 @@ pm install -g $TMP/data/app/NetHunterStorePrivilegedExtension.apk &>/dev/null
 
 ## Install BusyBox
 ui_print "* Setting up BusyBox"
-[ -f $TMP/tools/install-busybox-magisk.sh ] && source $TMP/tools/install-busybox-magisk.sh   # Don't use sh over source
+source $TMP/tools/install-busybox.sh || abort "! install-busybox.sh"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 #print "* Done installing BusyBox"
 
 #------------------------------------------------------------------------------

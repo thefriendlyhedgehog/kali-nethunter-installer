@@ -1,4 +1,5 @@
-## Kali NetHunter installation script for recovery/TWRP (BOOTMODE=false)
+## [Recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
+## Kali NetHunter installation script for recovery/TWRP
 ##
 ## Troubleshoot: $ adb shell 'tail -f /tmp/recovery.log'
 
@@ -20,17 +21,17 @@ cleanup() {
   [ "$ZIPFILE" ] && {
    rm /tmp/console
   }
-  cd $(dirname $TMPDIR)
-  rm -rf $TMPDIR
+  cd $(dirname $TMP)
+  rm -rf $TMP
 }
 
 install() {
-  setperm "$2" "$3" "$TMPDIR$1"
+  setperm "$2" "$3" "$TMP$1"
   if [ "$4" ]; then
-    cp -r "$TMPDIR$1" "$(dirname "$4")/"
+    cp -r "$TMP$1" "$(dirname "$4")/"
     return
   fi
-  cp -r "$TMPDIR$1" "$(dirname "$1")/"
+  cp -r "$TMP$1" "$(dirname "$1")/"
 }
 
 # installapp_user "App Name" "appfile.apk" "play.store.package.name"
@@ -57,15 +58,15 @@ installapp_user() {
 
   #print "* Installing $1 to $installto"
   print "*** Installing $1"
-  cp -f "$TMPDIR/data/app/$1" "$installto" && return 0
+  cp -f "$TMP/data/app/$1" "$installto" && return 0
   print "* Failed to install $1!" && return 1
 }
 
 installapp_system() {
-  check_freespace $TMPDIR/data/app/
+  check_freespace $TMP/data/app/
   print "*** Installing $1"
   mkdir -p ${SYSTEM}/${3:-app}/$2/
-  cp -f $TMPDIR/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
+  cp -f $TMP/data/app/$1 ${SYSTEM}/${3:-app}/$2/ && return 0
   print "* Failed to install $1!" && return 1
 }
 
@@ -308,9 +309,9 @@ restore_env() {
 }
 
 get_bb() {
-  cd $TMPDIR/tools
+  cd $TMP/tools/
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  BB=$TMPDIR/tools/$BB_latest # Use NetHunter BusyBox from tools
+  BB=$TMP/tools/$BB_latest # Use NetHunter BusyBox from ./arch/<arch>/tools/
   chmod 0755 $BB # Make BusyBox executable
   echo $BB
   cd - >/dev/null
@@ -319,7 +320,7 @@ get_bb() {
 install_recovery_bb() {
   ## To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
   ##   We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
-  cd $TMPDIR/tools
+  cd $TMP/tools/
 
   ## Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
@@ -364,21 +365,10 @@ check_freespace() {
 supersu="auto"
 ## End build generated variables
 
-if [ "$3" ]; then
-  ZIPFILE=$3
-  console=/proc/$$/fd/$2
-  # Write the location of the console buffer to /tmp/console for other scripts to use
-  echo "$console" > /tmp/console
-else
-  [ -f /tmp/console ] && console=$(cat /tmp/console)
-  [ "$console" ] || console=/proc/$$/fd/1
-fi
+test "$ANDROID_ROOT" || ANDROID_ROOT="$SYSTEM"
+bootpatcher_tmp=$TMP/boot-patcher
+export home=$bootpatcher_tmp
 
-test "$ANDROID_ROOT" || ANDROID_ROOT=/system
-tmp=/tmp/nethunter
-patchtmp=$TMPDIR/boot-patcher
-export home=$patchtmp
-sutmp=/tmp/supersu
 
 #------------------------------------------------------------------------------
 
@@ -386,11 +376,11 @@ sutmp=/tmp/supersu
 ### Unpack the installer (everything but "kalifs-*")
 #[ "$ZIPFILE" ] && {
 #  print "* Unpacking the installer"
-#  extract "$ZIPFILE" "$TMPDIR" "kalifs-*"
+#  extract "$ZIPFILE" "$TMP" "kalifs-*"
 #  #print "* Installer unpacked"
 #}
 
-cd "$TMPDIR"
+cd "$TMP"
 
 print "* Loading environment"
 #chmod +x env
@@ -437,7 +427,7 @@ progress 0.1
 }
 
 print "* Running legacy Kali NetHunter version script" # Checking for previous versions of Kali NetHunter
-sh tools/previous-install.sh
+source "$TMP/tools/previous-install.sh" || abort "Legacy Kali NetHunter failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 #print "* Done checking for previous versions"
 
 progress 0.2
@@ -453,7 +443,7 @@ print "*** SDK Version: $SDK"
 
 [ -f supersu.zip ] && {
   print "* Extracting SuperSU.zip"
-  extract supersu.zip "$sutmp"
+  extract supersu.zip "$supersu_tmp"
 
   progress 0.3
 
@@ -461,7 +451,7 @@ print "*** SDK Version: $SDK"
   if [ $SDK -ge 29 ]; then
     print "Warning: Warning: SuperSU is EOL and only really works on Android Pie (9) or lower"
   fi
-  sh tools/install-su.sh "$sutmp" "$supersu"
+  source "$TMP/tools/install-su.sh" || abort "SuperSU failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done installing SuperSU"
 }
 
@@ -473,7 +463,7 @@ progress 0.4
 ##   So we install as system apps (/system)
 if [ $SDK -ge 26 ]; then
   ## Apps in /system
-  check_freespace $TMPDIR/data/app/ "True"
+  check_freespace $TMP/data/app/ "True"
   print "* Installing apps (via system):"
   installapp_system "NetHunter.apk" "com.offsec.nethunter"
   installapp_system "NetHunterTerminal.apk" "com.offsec.nhterm"       # NetHunter.apk depends on it
@@ -556,12 +546,12 @@ progress 0.5
 [ -f tools/freespace.sh ] && {
   print "* Running freespace script" # Check for freespace
   # This actually runs twice when the NetHunter kernel zip is included
-  sh tools/freespace.sh || abort "Not enough free space on ${SYSTEM} to continue!"
+  source "$TMP/tools/freespace.sh" || abort "Not enough free space on ${SYSTEM} to continue!"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done checking freespace"
 }
 
 print "* Running BusyBox installer script"
-sh tools/install-busybox.sh
+source "$TMP/tools/install-busybox.sh" || abort "BusyBox failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 #print "* Done running BusyBox installer"
 
 progress 0.6
@@ -570,7 +560,7 @@ progress 0.6
 
 [ -d wallpaper ] && {
   print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpaper
-  sh tools/setwallpaper.sh
+  source "$TMP/tools/set-wallpaper.sh" || abort "Set wallpaper failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done installing wallpaper"
 }
 
@@ -647,10 +637,10 @@ progress 0.8
 
 #------------------------------------------------------------------------------
 
-[ -d "$patchtmp" ] && {
-  print "* Running kernel installer script"
-  sh "$patchtmp/META-INF/com/google/android/update-binary"
-  #print "* Done running kernel installer"
+[ -d "$bootpatcher_tmp" ] && {
+  print "* Running boot-patcher script"
+  sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" || abort "Boot-Patcher script failed"   # As it can be its own item, not using source
+  #print "* Done running boot-patcher"
 
   print "* Setting environment"
   # Setup environment again (all are restored by boot-patcher)
@@ -662,7 +652,7 @@ progress 0.9
 #------------------------------------------------------------------------------
 
 print "* Running Kali chroot installer script"
-sh "$TMPDIR/tools/install-chroot.sh" "$ZIPFILE"
+source "$TMP/tools/install-chroot.sh" || abort "Chroot script failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 #print "* Done running Kali chroot installer"
 
 print "* Restoring environment"

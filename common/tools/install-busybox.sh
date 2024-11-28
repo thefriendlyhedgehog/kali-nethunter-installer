@@ -1,5 +1,5 @@
-#!/sbin/sh
-# Install NetHunter's BusyBox
+## [Recovery/TWRP] [boot-patcher & nethunter] [This is sourced, not a standalone script]
+## Install NetHunter's BusyBox
 
 print() {
   echo "${1:- }" \

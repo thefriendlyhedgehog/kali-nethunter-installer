@@ -1,22 +1,5 @@
-#!/sbin/sh
-# Install Kali chroot
-
-print() {
-  echo "${1:- }" \
-    | while read -r line; do
-       echo -e "ui_print $line" > "$console"
-       echo -e "ui_print \n" > "$console"
-    done
-}
-
-get_bb() {
-  cd $tmp/tools
-  BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
-  BB=$tmp/tools/$BB_latest # Use NetHunter BusyBox from tools
-  chmod 0755 $BB # make BusyBox executable
-  echo $BB
-  cd - >/dev/null
-}
+## [Recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
+## Install Kali chroot/rootfs
 
 verify_fs() {
   ## Valid architecture?
@@ -62,7 +45,7 @@ do_install() {
   [ $? = 0 ] || {
     print "! Error: Kali $FS_ARCH $FS_SIZE chroot failed to install!"
     print "- Maybe you ran out of space on your data partition?"
-    exit 1
+    return 1
   }
 
 # HACK 2/2: Rename to kali-(arm64,armhf,amd64,i386) based on $NH_ARCH for legacy reasons and create a link to be used by apps effective 2020.1
@@ -76,53 +59,49 @@ do_install() {
   # We should remove the rootfs archive to free up device memory or storage space (if not zip install)
   [ "$1" ] || rm -f "$KALIFS"
 
-  exit 0
 }
-
-tmp=$(readlink -f "$0")
-tmp=${tmp%/*/*}
-. "$tmp/env.sh"
-
-zip=$1
 
 NHSYS=/data/local/nhsystem
 
-[ -f /tmp/console ] && console=$(cat /tmp/console)
-[ "$console" ] || console=/proc/$$/fd/1
+## Get best possible ARCH
+NH_ARCH=$ARCH
+for x in system system_root/system system_root; do
+  if [ -e /$x/build.prop ]; then
+    NH_ARCH=$(cat /$x/build.prop | $BB dos2unix | $BB sed -n "s/^ro.product.cpu.abi=//p" | head -n 1)
+    break
+  fi
+done
 
-BB=$(get_bb)
-
-# Get Best Possible ARCH
-ARCH=$(cat /system/build.prop | $BB dos2unix | $BB sed -n "s/^ro.product.cpu.abi=//p" 2>/dev/null | head -n 1)
-
-case $ARCH in
+case $NH_ARCH in
   arm64*) NH_ARCH=arm64 ;;
   arm*) NH_ARCH=armhf ;;
   armeabi-v7a) NH_ARCH=armhf ;;
   x86_64) NH_ARCH=amd64 ;;
   x86*) NH_ARCH=i386 ;;
-  *) print "! Unknown architecture detected. Aborting chroot installation" && exit 1 ;;
+  *) print "! Unknown architecture detected ($NH_ARCH). Aborting chroot installation" && return 1 ;;
 esac
 
-# Check zip for kalifs-*.tar.xz first
-[ -f "$zip" ] && {
-  KALIFS=$(unzip -lqq "$zip" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
-  # Check other locations if zip didn't contain a kalifs-*.tar.xz
-  [ "$KALIFS" ] || return
+## Check zip for kalifs-*.tar.xz first
+[ -f "$ZIPFILE" ] && {
+  KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
 
-  FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
-  FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
-  verify_fs && do_install "$zip"
+  ## If zip contains a chroot/rootfs (kalifs-*.tar.xz)
+  if [ -n "$KALIFS" ]; then
+    FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
+    FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
+    ## Return if we have installed something - winning (Quitting while we're ahead!)
+    verify_fs && do_install "$ZIPFILE" && return
+  fi
 }
 
-# Check these locations in priority order
-for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
-  # Check location for kalifs-[size]-[arch].tar.xz first name format
+## Zip doesn't container chroot/rootfs, so going check other locations (in priority order)
+for fsdir in "$TMP" "/data/local" "/sdcard" "/external_sd"; do
+  ## Check for: kalifs-[size]-[arch].tar.xz
   for KALIFS in "$fsdir"/kalifs-*-*.tar.xz; do
     [ -s "$KALIFS" ] || continue
     FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
     FS_ARCH=$(basename "$KALIFS" | awk -F[-.] '{print $3}')
-    verify_fs && do_install
+    verify_fs && do_install && return
   done
 
   ## Check for legacy filename: kalifs-[size].tar.xz
@@ -130,7 +109,7 @@ for fsdir in "$tmp" "/data/local" "/sdcard" "/external_sd"; do
     [ -f "$KALIFS" ] || continue
     FS_ARCH=armhf
     FS_SIZE=$(basename "$KALIFS" | awk -F[-.] '{print $2}')
-    verify_fs && do_install
+    verify_fs && do_install && return
   done
 done
 

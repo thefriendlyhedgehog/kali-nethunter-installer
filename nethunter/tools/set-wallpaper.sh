@@ -1,25 +1,10 @@
-#!/sbin/sh
-# Set the wallpaper based on device screen resolution
-
-print() {
-  echo "${1:- }" \
-    | while read -r line; do
-       echo -e "ui_print $line" > "$console"
-       echo -e "ui_print \n" > "$console"
-    done
-}
-
-tmp=$(readlink -f "$0")
-tmp=${tmp%/*/*}
-cd "$tmp"
-. ./env.sh
+## [Magisk & recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
+## Set the wallpaper based on device screen resolution
 
 ## Define wallpaper variables
 wp=/data/system/users/0/wallpaper
 wpinfo=${wp}_info.xml
 
-[ -f /tmp/console ] && console=$(cat /tmp/console)
-[ "$console" ] || console=/proc/$$/fd/1
 
 #Try to Grab the Wallpaper Height and Width from /sys 
 res_w=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f1 -dx)
@@ -52,7 +37,7 @@ print "- Found screen resolution: $res"
 
 if [ ! -f "wallpaper/$res.png" ]; then
   print "! No wallpaper found for your screen resolution. Skipping"
-  exit 1
+  return 1
 fi
 
 [ -f "$wp" ] && [ -f "$wpinfo" ] || setup_wp=1

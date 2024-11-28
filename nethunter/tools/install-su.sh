@@ -1,23 +1,7 @@
-#!/sbin/sh
-# Install SuperSU in the specified mode
+## [Recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
+## Install SuperSU in the specified mode
 
-print() {
-  echo "${1:- }" \
-    | while read -r line; do
-       echo -e "ui_print $line" > "$console"
-       echo -e "ui_print \n" > "$console"
-    done
-}
-
-tmp=$(readlink -f "$0")
-tmp=${tmp%/*/*}
-. "$tmp/env.sh"
-
-[ -f /tmp/console ] && console=$(cat /tmp/console)
-[ "$console" ] || console=/proc/$$/fd/1
-
-sutmp=$1
-supersu=$2
+supersu_tmp=/tmp/supersu
 
 if [ "$supersu" = "systemless" ]; then
   print "- Installing SuperSU in systemless mode"
@@ -36,4 +20,4 @@ SYSTEMLESS=detect
 EOF
 fi
 
-sh "$sutmp/META-INF/com/google/android/update-binary" dummy 1 "$tmp/supersu.zip"
+sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" || print "update-binary/supersu.zip failed"

@@ -20,6 +20,7 @@ DIR=/sdcard;
 $BOOTMODE || DIR=$(dirname "$ZIPFILE");
 
 [ "$AKHOME" ] || AKHOME=/tmp/nethunter/boot-patcher;
+TMPDIR=/dev/tmp
 [ "$ANDROID_ROOT" ] || ANDROID_ROOT=/system;
 
 ui_print() {

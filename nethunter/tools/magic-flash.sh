@@ -1,4 +1,7 @@
 #!/system/bin/sh
+## [Magisk] [nethunter] [This is standalone script, not sourced]
+## Flash without custom recoveries
+##
 ## CREDITS to HuskyDG
 ##   REF: https://github.com/Magisk-Modules-Alt-Repo/magic-flash/blob/1b1092d88e1172a86f1470744320718dc6117754/system/bin/magic-flash
 

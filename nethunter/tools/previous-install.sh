@@ -1,37 +1,20 @@
-#!/sbin/sh
-# Check for previous install of Kali Chroot
+## [Recovery/TWRP] [nethunter] [This is sourced, not a standalone script]
+## Check for previous install of Kali apps & chroot/rootfs
 
-print() {
-  echo "${1:- }" \
-    | while read -r line; do
-       echo -e "ui_print $line" > "$console"
-       echo -e "ui_print \n" > "$console"
-    done
-}
-
-tmp=$(readlink -f "$0")
-tmp=${tmp%/*/*}
-. "$tmp/env.sh"
-
-# HACK: Old installations only exist as armhf anyways
-ARCH=armhf
-
-[ -f /tmp/console ] && console=$(cat /tmp/console)
-[ "$console" ] || console=/proc/$$/fd/1
-
-NH=/data/local/kali-$ARCH
-NHAPP=/data/data/com.offsec.nethunter/files/chroot/kali-$ARCH
-NHSYS=/data/local/nhsystem/kali-$ARCH
+ARCH_TMP=armhf # HACK: Old installations only exist as armhf anyways
+NH=/data/local/kali-$ARCH_TMP
+NHAPP=/data/data/com.offsec.nethunter/files/chroot/kali-$ARCH_TMP
+NHSYS=/data/local/nhsystem/kali-$ARCH_TMP
 
 ## Fix for TWRP chasing symbolic links (mentioned by triryland)
 rm -rf "$NHSYS/dev/"* "$NHAPP/dev/"* "$NH/dev/"*
 
 ## We probably don't want two old chroots in the same folder, so pick newer location in /data/local first
 if [ -d "$NH" ]; then
-  print "- Detected outdated previous install of Kali $ARCH, moving chroot"
+  print "- Detected outdated previous install of Kali $ARCH_TMP, moving chroot"
   mv "$NH" "$NHSYS"
 elif [ -d "$NHAPP" ]; then
-  print "- Detected outdated previous install of Kali $ARCH, moving chroot"
+  print "- Detected outdated previous install of Kali $ARCH_TMP, moving chroot"
   mv "$NHAPP" "$NHSYS"
 fi
 
