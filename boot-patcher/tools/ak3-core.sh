@@ -1,6 +1,8 @@
-### AnyKernel methods (DO NOT CHANGE)
-## osm0sis @ xda-developers
-## Modified for NetHunter
+## AnyKernel methods
+##   Modified for NetHunter
+##
+## CREDITS to osm0sis @ xda-developers
+##   REF: https://github.com/osm0sis/AnyKernel3/blob/49049132957f0850eef82eff6c7e85ad038ce174/tools/ak3-core.sh
 
 # NetHunter additions
 OUTFD=$(cat /tmp/console);

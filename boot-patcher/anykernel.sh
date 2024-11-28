@@ -1,7 +1,8 @@
-# AnyKernel3 Ramdisk Mod Script
-# osm0sis @ xda-developers
-
-# Customized for NetHunter
+## AnyKernel3 Ramdisk Mod Script
+##   Modified for NetHunter
+##
+## CREDITS to osm0sis @ xda-developers
+##   REF: https://github.com/osm0sis/AnyKernel3/blob/ad53675d2e13e2b52adc706fb8492bfe5b76440b/anykernel.sh
 
 ## AnyKernel setup
 # begin properties
