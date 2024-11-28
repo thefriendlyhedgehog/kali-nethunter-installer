@@ -130,7 +130,6 @@ fi
 cd "$TMP"
 
 print "$prefix Loading environment"
-chmod +x env
 source "$TMP/env.sh"
 
 print "$prefix Setting permissions"

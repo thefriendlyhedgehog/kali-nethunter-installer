@@ -389,7 +389,6 @@ export home=$bootpatcher_tmp
 cd "$TMP"
 
 print "* Loading environment"
-#chmod +x env
 source "$TMP/env.sh"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 
 [ -e /dev/block/mapper ] && {
