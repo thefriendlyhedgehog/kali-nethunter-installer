@@ -8,58 +8,6 @@ symlink() {
   chmod 0755 $2 2>/dev/null
 }
 
-set_wallpaper() {
-  [ -d $TMP/wallpaper ] || return 1
-  ui_print "* Installing NetHunter wallpaper"
-
-  # Define wallpaper variables
-  wp=/data/system/users/0/wallpaper
-  wpinfo=${wp}_info.xml
-
-  # Get screen resolution using wm size
-  res=$(wm size | grep "Physical size:" | cut -d' ' -f3 2>/dev/null)
-  res_w=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f1 2>/dev/null)
-  res_h=$(wm size | grep "Physical size:" | cut -d' ' -f3 | cut -dx -f2 2>/dev/null)
-
-  # Check if we grabbed resolution from wm or not
-  ([ -z $res_h ] || [ -z $res_w ]) && {
-    unset res res_h res_w
-
-    # Try to grab the wallpaper height and width from sysfs
-    res_w=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f1 -dx)
-    res_h=$(cat /sys/class/drm/*/modes | head -n 1 | cut -f2 -dx)
-
-    res="$res_w"x"$res_h" # Resolution size
-  }
-
-  [ ! "$res" ] && {
-    ui_print "! Can't get screen resolution of device! Skipping."
-    return 1
-  }
-
-  ui_print "* Found screen resolution: $res"
-
-  [ ! -f "$TMP/wallpaper/$res.png" ] && {
-    ui_print "! No wallpaper found for your screen resolution. Skipping."
-    return 1
-  }
-
-  [ -f "$wp" ] && [ -f "$wpinfo" ] || setup_wp=1
-
-  cat "$TMP/wallpaper/$res.png" > "$wp"
-  echo "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>" > "$wpinfo"
-  echo "<wp width=\"$res_w\" height=\"$res_h\" name=\"nethunter.png\" />" >> "$wpinfo"
-
-  if [ "$setup_wp" ]; then
-    chown system:system "$wp" "$wpinfo"
-    chmod 0600 "$wp" "$wpinfo"
-    chcon "u:object_r:wallpaper_file:s0" "$wp"
-    chcon "u:object_r:system_data_file:s0" "$wpinfo"
-  fi
-
-  ui_print "* NetHunter wallpaper applied successfully"
-}
-
 f_kill_pids() {
   local lsof_full=$(lsof | awk '{print $1}' | grep -c '^lsof')
 
@@ -455,8 +403,13 @@ source $TMP/tools/install-busybox.sh || abort "! install-busybox.sh"   # Don't s
 
 #------------------------------------------------------------------------------
 
-# Setup Kali NetHunter wallpaper of correct resolution if there is one available
-set_wallpaper || ui_print "[!] Failed to set wallpaper"
+## Setup Kali NetHunter wallpaper of correct resolution if there is one available
+if [ -d $TMP/wallpaper ]; then
+  ui_print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpaper
+  source $TMP/tools/set-wallpaper.sh || abort "! set-wallpaper.sh"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
+else
+  ui_print "- Skipping wallpaper"
+fi
 
 #------------------------------------------------------------------------------
 
