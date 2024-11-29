@@ -2,8 +2,6 @@
 
 - `./build.py` - If `resolution` is set in `./kernels/devices.yml`, only copy those wallpapers
 - `./build.py` - When downloading rootfs add SHA512 retrieval function
-- Use external scripts better in both Magisk & recovery/TWRP
-  - REF: `./nethunter/tools/install-chroot.sh`
 - Sync with upstream with everything
   - https://github.com/Magisk-Modules-Alt-Repo/magic-flash
   - https://github.com/jcadduono/lazyflasher
