@@ -1055,7 +1055,7 @@ def main():
 
     # Don't include free space script if --no-freespace-check is specified
     if args.no_freespace_check:
-        IgnoredFiles.append("freespace.sh")
+        IgnoredFiles.append("make-freespace.sh")
 
     # Don't include SuperSU unless --supersu is specified
     if not args.supersu:

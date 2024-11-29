@@ -359,7 +359,7 @@ check_freespace() {
     print "Warning: Could not get free space status for $1, continuing anyway!"
   elif [ "$mntspace" -lt "$checkspace" ]; then
     ## Disabling, as if you run this twice, the first time will be happy as no apps - afterwards, could be limited on space, but able to replace!
-    ## May also want to check for [ -f tools/freespace.sh ], as the end-user may want this disabled
+    ## May also want to check for [ -f tools/make-freespace.sh ], as the end-user may want this disabled
     #if [ -n "$2" ]; then
     #  abort "Didn't have enough space on $ANDROID_ROOT ($mntspace MB free, need $checkspace MB)"
     #else
@@ -599,9 +599,9 @@ progress 0.5
 
 #------------------------------------------------------------------------------
 
-[ -f tools/freespace.sh ] && {
+[ -f tools/make-freespace.sh ] && {
   print "* Running freespace script"   # Check for freespace different to check_freespace()
-  source "$TMP/tools/freespace.sh" || abort "Not enough free space on ${SYSTEM} to continue!"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
+  source "$TMP/tools/make-freespace.sh" || abort "Not enough free space on ${SYSTEM} to continue!"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done checking freespace"
 }
 
