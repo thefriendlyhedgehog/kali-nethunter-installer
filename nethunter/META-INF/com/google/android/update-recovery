@@ -370,6 +370,34 @@ check_freespace() {
   fi
 }
 
+previous_install() {
+  ARCH_TMP=armhf # HACK: Old installations only exist as armhf anyways
+  NH=/data/local/kali-$ARCH_TMP
+  NHAPP=/data/data/com.offsec.nethunter/files/chroot/kali-$ARCH_TMP
+  NHSYS=/data/local/nhsystem/kali-$ARCH_TMP
+
+  ## Fix for TWRP chasing symbolic links (mentioned by triryland)
+  rm -rf "$NHSYS/dev/"* "$NHAPP/dev/"* "$NH/dev/"*
+
+  ## We probably don't want two old chroots in the same folder, so pick newer location in /data/local first
+  if [ -d "$NH" ]; then
+    print "* Detected outdated previous install of Kali $ARCH_TMP, moving chroot"
+    mv "$NH" "$NHSYS"
+  elif [ -d "$NHAPP" ]; then
+    print "* Detected outdated previous install of Kali $ARCH_TMP, moving chroot"
+    mv "$NHAPP" "$NHSYS"
+  fi
+
+  ## Just to be safe lets remove old version of NetHunter app
+  rm -rf /data/data/com.offsec.nethunter
+  rm -rf /data/app/com.offsec.nethunter
+  rm -f  /data/app/NetHunter.apk
+  rm -f  /data/app/nethunter.apk
+  rm -rf /system/app/NetHunter
+
+  print "* Cleaned up from previous install"
+}
+
 #------------------------------------------------------------------------------
 
 ## Start build generated variables
@@ -437,8 +465,7 @@ progress 0.1
 #------------------------------------------------------------------------------
 
 print "* Running legacy Kali NetHunter version script" # Checking for legacy version of NetHunter
-source "$TMP/tools/previous-install.sh" || abort "Legacy Kali NetHunter failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
-#print "* Done checking for previous versions"
+previous_install || abort "Legacy Kali NetHunter failed"
 
 progress 0.2
 
