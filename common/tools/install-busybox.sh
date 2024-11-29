@@ -8,7 +8,30 @@ ls $TMP/tools/busybox_nh-* 1> /dev/null 2>&1 || {
   return 1
 }
 
-[ -z $XBIN ] && XBIN=/system/xbin
+if $BOOTIMAGE; then
+  ## util_functions.sh to get grep_prop() working
+  ##   boot-patcher doesn't (yet?) support Magisk, but Magisk's file should be there due to nethunter pre-extracting/setting up
+  source /data/adb/magisk/util_functions.sh || print "! Issue with util_functions.sh"
+
+  [ -z $TMPDIR ] && TMPDIR=/dev/tmp
+
+  MODID=$(grep_prop id $TMPDIR/module.prop)
+
+  ## Define modules target dirs
+  if [ -e /data/adb/modules ]; then
+    MNT=/data/adb/modules_update
+    MAGISK=/$MODID/system
+  fi
+
+  TARGET=$MNT$MAGISK
+  if [ -d /system/xbin ]; then
+    XBIN=$TARGET/xbin
+  else
+    XBIN=$TARGET/bin
+  fi
+else
+  [ -z $XBIN ] && XBIN=/system/xbin
+fi
 [ -d $XBIN ] || mkdir -p $XBIN
 
 print "- Installing NetHunter BusyBox"
