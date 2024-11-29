@@ -8,4 +8,4 @@ echo "* Unpacking nethunter script"
 unzip -o "$ZIPFILE" META-INF/com/google/android/update-binary -d $TMPDIR
 
 echo "* Running nethunter script"
-[ -f $TMPDIR/META-INF/com/google/android/update-binary ] && sh $TMPDIR/META-INF/com/google/android/update-binary   # Spawn a new session (aka using sh), don't do it in the current session (able to pass variables/functions)
+[ -f $TMPDIR/META-INF/com/google/android/update-binary ] && sh $TMPDIR/META-INF/com/google/android/update-binary   # Spawn a new session (aka using sh), don't do it in the current session

@@ -15,7 +15,7 @@ symlink() {
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
-  out=$(sh $TMP/tools/magic-flash.sh $KERNEL)    # Spawn a new session (aka using sh), don't in current session (able to pass variables/functions)
+  out=$(sh $TMP/tools/magic-flash.sh $KERNEL)    # Spawn a new session (aka using sh), don't do it in the current session
   ret=$?   # We want magic-flash.sh exit code, not awk!
   echo "$out" | awk 'gsub(/ui_print /," ") && !/^ $/' # Replace ui_print, to indent output (to signal its a script), remove empty lines and banner
   [ "$ret" -eq 0 ] || abort "! magic-flash.sh failed"
