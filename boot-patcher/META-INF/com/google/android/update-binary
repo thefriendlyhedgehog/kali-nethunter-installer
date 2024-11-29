@@ -1,6 +1,5 @@
 #!/sbin/sh
 ## Kali NetHunter kernel installer
-## This can be called direct (aka "--installer" which would mean ZIPFILE=true) or via ./nethunter/META-INF/com/google/android/update-binary
 
 #------------------------------------------------------------------------------
 
