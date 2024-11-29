@@ -320,6 +320,7 @@ restore_env() {
 get_bb() {
   cd $TMP/tools/
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
+  [ -z $BB_latest ] && abort "Failed to find a NetHunter's BusyBox: $TMP/tools/busybox_nh-*"
   BB=$TMP/tools/$BB_latest # Use NetHunter BusyBox from ./arch/<arch>/tools/
   chmod 0755 $BB # Make BusyBox executable
   echo $BB
@@ -333,6 +334,7 @@ install_recovery_bb() {
 
   ## Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
+  [ -z $recovery_bb ] && abort "Failed to find a recovery BusyBox: $TMP/tools/busybox_nh-*"
   cp $recovery_bb busybox_tmp
   setperm 0755 0755 busybox_tmp
 
@@ -472,7 +474,7 @@ setperm 0755 0755 tools
 
 print "* Setting up BusyBox"
 BB=$(get_bb) # Get latest BusyBox
-install_recovery_bb
+[ -e $TMP/tools/busybox_tmp ] || install_recovery_bb
 
 print "* Setting environment"
 setup_env # Setup environment for NetHunter installation

@@ -53,6 +53,7 @@ setperm() {
 get_bb() {
   cd $TMP/tools/
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
+  [ -z $BB_latest ] && abort "Failed to find a NetHunter's BusyBox: $TMP/tools/busybox_nh-*"
   BB=$TMP/tools/$BB_latest # Use NetHunter BusyBox from ./arch/<arch>/tools/
   chmod 0755 $BB # Make BusyBox executable
   echo $BB
@@ -61,11 +62,12 @@ get_bb() {
 
 install_recovery_bb() {
   ## To identify the latest BusyBox version, we need the command "ls -v" which is not supported by all TWRP versions
-  ## We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
-  cd $TMP/tools
+  ##   We will pick the best available BusyBox version and use that to run "ls -v" to pick the latest version for the recovery partition
+  cd $TMP/tools/
 
   ## Try to pick the latest version of BusyBox, if "ls -v" is not supported by the recovery then make an educated guess for a later version
   recovery_bb=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1 )
+  [ -z $recovery_bb ] && abort "Failed to find a recovery BusyBox: $TMP/tools/busybox_nh-*"
   cp $recovery_bb busybox_tmp
   setperm 0755 0755 busybox_tmp
 
@@ -146,8 +148,8 @@ setperm 0755 0755 tools
 
 print "$prefix Setting up BusyBox"
 BB=$(get_bb)
-## Install BusyBox applets if they haven't been installed by the NetHunter already
-[ -e $TMPDIR/nethunter/tools/busybox_tmp ] || install_recovery_bb
+## Install BusyBox applets if they haven't been installed by nethunter already
+[ -e $TMP/tools/busybox_tmp ] || install_recovery_bb
 
 print "$prefix Running boot patcher"
 sh "META-INF/com/google/android/update-binary-anykernel" || abort "boot patcher failed"
