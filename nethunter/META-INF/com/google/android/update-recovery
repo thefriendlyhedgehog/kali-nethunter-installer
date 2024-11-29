@@ -606,7 +606,7 @@ progress 0.5
 }
 
 print "* Running BusyBox installer script"
-source "$TMP/tools/install-busybox.sh" || abort "BusyBox failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
+source "$TMP/tools/install-busybox.sh" || abort "install-busybox.sh failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 #print "* Done running BusyBox installer"
 
 progress 0.6

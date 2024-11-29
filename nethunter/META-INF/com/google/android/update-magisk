@@ -30,7 +30,7 @@ flash_kernel() {
       ui_print "* No kernel found. Skipping"
       return
     }
-    do_flash
+    do_flash || abort "! flash_kernel failed"
   }
 }
 
