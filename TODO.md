@@ -13,3 +13,32 @@
 - Create Magisk JSON
   - https://topjohnwu.github.io/Magisk/guides.html
   - `updateJson=https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/raw/main/magisk.json`
+- Create a "core" or "functions" file in `./common/tools/`:
+  - `print() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:print() {
+    - ./nethunter/META-INF/com/google/android/update-binary:print() {
+    - ./uninstaller/META-INF/com/google/android/update-binary:print() {
+  - `setperm() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:setperm() {
+    - ./nethunter/META-INF/com/google/android/update-recovery:setperm() {
+  - `cleanup() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:cleanup() {
+    - ./nethunter/META-INF/com/google/android/update-recovery:cleanup() {
+    - ./uninstaller/META-INF/com/google/android/update-binary:cleanup() {
+  - `install() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:install() {
+    - ./nethunter/META-INF/com/google/android/update-recovery:install() {
+  - `symlink() {[...]}`
+    - ./nethunter/META-INF/com/google/android/update-magisk:symlink() {
+    - ./nethunter/META-INF/com/google/android/update-recovery:symlink() {
+  - `install_recovery_bb() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:install_recovery_bb() {
+    - ./nethunter/META-INF/com/google/android/update-recovery:install_recovery_bb() {
+  - `get_bb() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:get_bb() {
+    - ./common/tools/install-busybox.sh:## REF: ./update-recovery:get_bb()
+    - ./nethunter/META-INF/com/google/android/update-recovery:get_bb() {
+    - ./nethunter/tools/magic-flash.sh:[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
+  - `extract() {[...]}`
+    - ./boot-patcher/META-INF/com/google/android/update-binary:extract() {
+    - ./nethunter/META-INF/com/google/android/update-recovery:extract() {
