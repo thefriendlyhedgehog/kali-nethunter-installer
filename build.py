@@ -290,7 +290,7 @@ def download_rootfs(fs_size):
 def zip_rootfs(fs_size, dst):
     global arch
 
-    print("[i] Adding Kali rootfs archive to the installer zip")
+    print("[i] Adding Kali rootfs archive to the nethunter zip")
 
     try:
         fs_arch = arch
@@ -427,8 +427,7 @@ def setup_installer():
 
     if flasher == "anykernel":
         # Replace LazyFlasher with AnyKernel3
-        x = "update-binary-anykernel_only" if not args.no_installer else "update-binary-anykernel"
-        print("[i] Replacing LazyFlasher with AnyKernel3: " + x)
+        print("[i] Replacing LazyFlasher with AnyKernel3")
         shutil.move(
             os.path.join(
                 out_path,
@@ -436,7 +435,7 @@ def setup_installer():
                 "com",
                 "google",
                 "android",
-                x,
+                "update-binary-anykernel",
             ),
             os.path.join(
                 out_path, "META-INF", "com", "google", "android", "update-binary"
@@ -473,6 +472,7 @@ def setup_installer():
             True,
         )
     else:
+        print("[i] Using LazyFlasher")
         # Set up variables in the kernel installer script
         update_config(
             os.path.join(
@@ -1055,7 +1055,7 @@ def main():
 
     # Don't include free space script if --no-freespace-check is specified
     if args.no_freespace_check:
-        IgnoredFiles.append("freespace.sh")
+        IgnoredFiles.append("make-freespace.sh")
 
     # Don't include SuperSU unless --supersu is specified
     if not args.supersu:
@@ -1091,7 +1091,7 @@ def main():
         zip(out_path, file_tag)
 
         print("[+] Created uninstaller: " + file_tag)
-    # Only build a kernel installer zip and exit if --installer is specified
+    # Only build a boot-patch/kernel installer zip and exit if --installer is specified
     elif args.installer:
         setup_installer()
 
