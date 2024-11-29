@@ -370,6 +370,23 @@ check_freespace() {
   fi
 }
 
+install_supersu() {
+  if [ "$supersu" = "systemless" ]; then
+    print "* Installing SuperSU in systemless mode"
+    echo "SYSTEMLESS=true" > "/system/.supersu"
+  elif [ "$supersu" = "system" ]; then
+    print "* Installing SuperSU in system mode"
+    echo "SYSTEMLESS=false" > "/system/.supersu"
+  else
+    print "* Installing SuperSU in automatic mode"
+    echo "SYSTEMLESS=detect" > "/system/.supersu"
+  fi
+
+  sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" || print "update-binary/supersu.zip failed"
+
+  print "* SuperSU successfully installed"
+}
+
 previous_install() {
   ARCH_TMP=armhf # HACK: Old installations only exist as armhf anyways
   NH=/data/local/kali-$ARCH_TMP
@@ -479,6 +496,8 @@ SDK="$(grep 'ro.build.version.sdk' ${SYSTEM}/build.prop | cut -d'=' -f2)"
 print "** SDK Version: $SDK"
 
 [ -f supersu.zip ] && {
+  supersu_tmp=/tmp/supersu
+
   print "* Extracting SuperSU.zip"
   extract supersu.zip "$supersu_tmp"
 
@@ -488,8 +507,7 @@ print "** SDK Version: $SDK"
   if [ $SDK -ge 29 ]; then
     print "Warning: Warning: SuperSU is EOL and only really works on Android Pie (9) or lower"
   fi
-  source "$TMP/tools/install-su.sh" || abort "SuperSU failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
-  #print "* Done installing SuperSU"
+  install_supersu || abort "SuperSU failed"
 }
 
 progress 0.4
