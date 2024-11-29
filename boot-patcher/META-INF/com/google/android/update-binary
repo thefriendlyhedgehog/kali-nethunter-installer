@@ -84,12 +84,10 @@ if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
   ## Write the location of the console buffer to /tmp/console for other scripts to use
-  echo "$console" > /tmp/console
-  prefix="*"
+  [ -d /tmp ] && echo "$console" > /tmp/console        # Magisk doesn't have /tmp
 else
-  [ -f /tmp/console ] && console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)   # Magisk doesn't have /tmp
   [ "$console" ] || console=/proc/$$/fd/1
-  prefix="-"
 fi
 
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system
@@ -101,6 +99,7 @@ TMP=$TMPDIR/nethunter/boot-patcher # This is fixed path due to ./installer/, as 
 
 ## How has this script been called? (Sourced vs Standalone)
 if [ "$ZIPFILE" ] && [ ! -d "$TMP" ]; then
+  prefix="*"   # Being called direct (first script being ran)
   print ""
   print "################################################"
   print "#                                              #"
@@ -118,6 +117,7 @@ if [ "$ZIPFILE" ] && [ ! -d "$TMP" ]; then
   print "$prefix Boot-Patcher (A/B and A devices)"
   print ""
 else
+  prefix="-"   # Being called indirect
   print "################################################"
   print "#       Boot-Patcher (A/B and A devices)       #"
   print "################################################"

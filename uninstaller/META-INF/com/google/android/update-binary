@@ -54,10 +54,10 @@ remove_app() {
 if [ "$3" ]; then
   ZIPFILE=$3
   console=/proc/$$/fd/$2
-  # Write the location of the console buffer to /tmp/console for other scripts to use
-  echo "$console" > /tmp/console
+  ## Write the location of the console buffer to /tmp/console for other scripts to use
+  [ -d /tmp ] && echo "$console" > /tmp/console        # Magisk doesn't have /tmp
 else
-  [ -f /tmp/console ] && console=$(cat /tmp/console)
+  [ -f /tmp/console ] && console=$(cat /tmp/console)   # Magisk doesn't have /tmp
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
