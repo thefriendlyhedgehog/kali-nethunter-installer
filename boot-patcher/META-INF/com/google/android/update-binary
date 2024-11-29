@@ -91,10 +91,10 @@ else
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
-test "$ANDROID_ROOT" || ANDROID_ROOT=/system
 SYSTEM="/system"
 TMPDIR=/dev/tmp
 TMP=$TMPDIR/nethunter/boot-patcher # This is fixed path due to ./installer/, as that extracts and needs to know of this path
+test "$ANDROID_ROOT" || ANDROID_ROOT="$SYSTEM" # Alt: [ "$ANDROID_ROOT" ] || ANDROID_ROOT=$SYSTEM
 
 #------------------------------------------------------------------------------
 

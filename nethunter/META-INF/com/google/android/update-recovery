@@ -424,7 +424,7 @@ supersu="auto"
 ## End build generated variables
 
 SYSTEM="/system"
-test "$ANDROID_ROOT" || ANDROID_ROOT="$SYSTEM"
+test "$ANDROID_ROOT" || ANDROID_ROOT="$SYSTEM" # Alt: [ "$ANDROID_ROOT" ] || ANDROID_ROOT=$SYSTEM
 bootpatcher_tmp=$TMP/boot-patcher
 export home=$bootpatcher_tmp
 
