@@ -507,7 +507,7 @@ print "** SDK Version: $SDK"
   if [ $SDK -ge 29 ]; then
     print "Warning: Warning: SuperSU is EOL and only really works on Android Pie (9) or lower"
   fi
-  install_supersu || abort "SuperSU failed"
+  install_supersu || print "! SuperSU failed"
 }
 
 progress 0.4
