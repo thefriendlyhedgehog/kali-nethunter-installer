@@ -129,7 +129,7 @@ if $BOOTMODE; then
   umask 022
 
   ## make setup_flashable() happy
-  OUTFD=$2
+  OUTFD=${OUTFD:- $2} # May already be defined ($ adb shell 'su -c magisk --install-module [...]')
 
   print "* Unpacking script"
   unzip -o "$ZIPFILE" META-INF/com/google/android/update-magisk -d $TMP >&2

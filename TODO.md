@@ -10,8 +10,6 @@
   - Remove our Bootanimation & restore defaults
   - Remove our wallpaper & restore defaults
   - Add Magisk support (https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh // https://github.com/topjohnwu/Magisk/blob/master/scripts/uninstaller.sh)
-- Improve magisk CLI
-  - `$ adb shell 'su -c magisk --install-module /sdcard/Download/nh.zip'`
 - Create Magisk JSON
   - https://topjohnwu.github.io/Magisk/guides.html
   - `updateJson=https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/raw/main/magisk.json`
