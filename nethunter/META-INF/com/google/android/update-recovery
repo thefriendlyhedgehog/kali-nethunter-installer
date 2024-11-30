@@ -317,6 +317,8 @@ restore_env() {
   cleanup
 }
 
+## This gets the latest NetHunter BusyBox
+##   Magisk may have BusyBox ($MAGISKBB)
 get_bb() {
   cd $TMP/tools/
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)

@@ -128,16 +128,16 @@ if $BOOTMODE; then
 
   umask 022
 
-  ## make setup_flashable() happy
+  ## Make setup_flashable() happy
   OUTFD=${OUTFD:- $2} # May already be defined ($ adb shell 'su -c magisk --install-module [...]')
 
   print "* Unpacking script"
   unzip -o "$ZIPFILE" META-INF/com/google/android/update-magisk -d $TMP >&2
   #print "* Script unpacked"
 
-  # Default permissions
+  ## Default permissions
   set_perm_recursive $TMP 0 0 0755 0644
-  ## Run magisk script (Load customization script)
+  ## Run Magisk script (aka what would load customization script - ./nethunter/customize.sh)
   [ -f $TMP/META-INF/com/google/android/update-magisk ] && source $TMP/META-INF/com/google/android/update-magisk    # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
 else
   #####################################################

@@ -181,11 +181,11 @@ do_install() {
 ## Chroot common path
 NHSYS=/data/local/nhsystem
 
-## Check zip for kalifs-*.tar.xz first
+## Check inside zip for kalifs-*-*.tar.xz first
 [ -f "$ZIPFILE" ] && {
   KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
 
-  ## If zip contains a chroot/rootfs (kalifs-*.tar.xz)
+  ## If zip contains a chroot/rootfs (kalifs-*-*.tar.xz)
   if [ -n "$KALIFS" ]; then
     FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
     FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $3}')
