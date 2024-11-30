@@ -386,7 +386,7 @@ install_supersu() {
     echo "SYSTEMLESS=detect" > "/system/.supersu"
   fi
 
-  sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" || print "update-binary/supersu.zip failed"
+  sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" 2>&1 || print "update-binary/supersu.zip failed" # Spawn a new session (aka using sh), don't do it in the current session
 
   print "* SuperSU successfully installed"
 }
@@ -709,7 +709,7 @@ progress 0.8
 
 [ -d "$bootpatcher_tmp" ] && {
   print "* Running boot-patcher script"
-  sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" || abort "Boot-Patcher script failed"   # As it can be its own item, not using source
+  sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" 2>&1 || abort "Boot-Patcher script failed"   # Spawn a new session (aka using sh), don't do it in the current session
   #print "* Done running boot-patcher"
 
   ## Setup environment again due to boot-patcher (possibly) altering

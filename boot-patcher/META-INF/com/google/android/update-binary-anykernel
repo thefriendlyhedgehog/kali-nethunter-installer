@@ -501,7 +501,7 @@ do_levelcheck;
 ui_print "- Installing...";
 CORE=$($BB grep -oE 'ak.*core.sh' anykernel.sh);
 [ -f tools/$CORE ] || $BB ln -s $AKHOME/tools/ak*-core.sh $AKHOME/tools/$CORE;
-PATH="$AKHOME/bin:$PATH" home=$AKHOME $BB ash anykernel.sh $2;
+PATH="$AKHOME/bin:$PATH" home=$AKHOME $BB ash anykernel.sh $2 2>&1; # Spawn a new session (aka using sh), don't do it in the current session
 if [ $? != 0 ]; then
   abort;
 fi;

@@ -152,7 +152,7 @@ BB=$(get_bb)
 [ -e $TMP/tools/busybox_tmp ] || install_recovery_bb
 
 print "$prefix Running boot patcher"
-sh "META-INF/com/google/android/update-binary-anykernel" || abort "boot patcher failed"
+sh "META-INF/com/google/android/update-binary-anykernel" 2>&1 || abort "boot patcher failed" # Spawn a new session (aka using sh), don't do it in the current session
 #print "$prefix Boot patcher done"
 
 print "$prefix Boot image patching complete"

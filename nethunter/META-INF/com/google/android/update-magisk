@@ -16,7 +16,7 @@ do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
   ## Replace ui_print, indent output (to signal its a script) and remove empty lines
-  sh $TMP/tools/magic-flash.sh $KERNEL | awk 'gsub(/ui_print /," ") && !/^ $/'   # Spawn a new session (aka using sh), don't do it in the current session
+  sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 | awk 'gsub(/ui_print /," ") && !/^ $/'   # Spawn a new session (aka using sh), don't do it in the current session
   ret=${PIPESTATUS[0]}   # We want magic-flash.sh exit code, not awk!
   [ "$ret" -eq 0 ] || abort "! magic-flash.sh failed: $ret"
 }

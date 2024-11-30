@@ -194,7 +194,7 @@ patch_ramdisk() {
 	find patch.d/ -type f | sort > patchfiles
 	while read -r patchfile; do
 		print "- Executing: $(basename "$patchfile")"
-		env="$tmp/patch.d-env" sh "$patchfile" ||
+		env="$tmp/patch.d-env" sh "$patchfile" 2>&1 ||
 			abort "Script failed: $(basename "$patchfile")"
 	done < patchfiles
 }
