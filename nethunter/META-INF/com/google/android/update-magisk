@@ -14,7 +14,7 @@ symlink() {
 
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
-  unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
+  unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL" || print "! Failed to extract"
   ## Replace ui_print, indent output (to signal its a script) and remove empty lines
   sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 | awk 'gsub(/ui_print /," ") && !/^ $/'   # Spawn a new session (aka using sh), don't do it in the current session
   ret=${PIPESTATUS[0]}   # We want magic-flash.sh exit code, not awk!
@@ -53,7 +53,7 @@ api_level_arch_detect
 boot_actions
 
 ## Extract prop file
-unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
+unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2 || print "! Failed to extract"
 [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
 MODDIRNAME=modules_update
@@ -120,7 +120,7 @@ mkdir -p $TMPDIR
 cd $TMPDIR
 
 ## Source custom installer functions and configuration
-#unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
+#unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2 || print "! Failed to extract"
 #MODID=$(file_getprop module.prop id) # Alt: MODID=$(grep_prop id $TMPDIR/module.prop)
 
 ## Extract the ZIP
@@ -128,7 +128,7 @@ ui_print "* Unpacking ZIP"
 mkdir -p $TMPDIR/$MODID
 cd $TMPDIR/$MODID
 ## Unpack the ZIP (everything but "kalifs-*")
-unzip -qq "$ZIPFILE" -x "kalifs-*"
+unzip -qq "$ZIPFILE" -x "kalifs-*" || print "! Failed to extract"
 #ui_print "* ZIP unpacked"
 
 #------------------------------------------------------------------------------

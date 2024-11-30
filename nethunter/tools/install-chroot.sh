@@ -150,9 +150,9 @@ do_install() {
   ## Extract new chroot
   print "- Extracting Kali rootfs (This may take up to 25 minutes)"
   if [ "$1" ]; then
-    unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+    unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "! Failed to extract"
   else
-    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "! Failed to extract"
   fi
 
   [ $? = 0 ] || {

@@ -197,7 +197,7 @@ flash_process() {
   ZIP="$NEWROOT/sideload/$ZIP_NAME"
   ZIP_CHROOT="/sideload/$ZIP_NAME"
 
-  unzip -o "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin"
+  unzip -o "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin" || print "! Failed to extract"
   mv "$NEWROOT/sbin/META-INF/com/google/android/update-binary" "$NEWROOT/sbin/update-binary"
 
   echo "Flashing \"$ZIP_NAME\""

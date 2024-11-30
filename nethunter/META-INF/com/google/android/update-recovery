@@ -548,12 +548,12 @@ if [ $SDK -ge 26 ]; then
     check_freespace ${SYSTEM}/app/com.offsec.nhterm/
 
     print "** Extracting NetHunterTerminal.apk"
-    unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/
+    unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/ || print "! Failed to extract"
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nhterm/lib ] || {
       print "** Extracting NetHunterTerminal.apk #2"
       mkdir -p /tmp/NetHunter-Terminal/
-      unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
+      unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/ || print "! Failed to extract"
       mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/com.offsec.nhterm/
     }
     mv ${SYSTEM}/app/com.offsec.nhterm/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nhterm/lib/arm
@@ -574,16 +574,16 @@ if [ $SDK -ge 26 ]; then
         ;;
       esac;
       print "** Extracting NetHunterKeX.apk ($ARCH / $x)"
-      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/$x/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/$x/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/ || print "! Failed to extract"
     else
       print "** Extracting NetHunterKeX.apk"
-      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/ || print "! Failed to extract"
     fi
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nethunter.kex/lib ] || {
       print "** Extracting NetHunterKeX.apk #2"
       mkdir -p /tmp/com.offsec.nethunter.kex/
-      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/ || print "! Failed to extract"
       mv /tmp/com.offsec.nethunter.kex/lib ${SYSTEM}/app/com.offsec.nethunter.kex/
     }
     [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ] && mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm

@@ -145,7 +145,7 @@ else
   #####################################################
   ## Unpack the ZIP (everything but "kalifs-*")
   print "* Unpacking ZIP"
-  unzip -o "$ZIPFILE" -d "$TMP" -x "kalifs-*"
+  unzip -o "$ZIPFILE" -d "$TMP" -x "kalifs-*" || print "! Failed to extract"
   #print "* ZIP unpacked"
 
   [ -f $TMP/META-INF/com/google/android/update-recovery ] && source $TMP/META-INF/com/google/android/update-recovery   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
