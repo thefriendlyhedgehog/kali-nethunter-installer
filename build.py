@@ -336,7 +336,7 @@ def zip_rootfs(fs_size, dst):
 
 
 def zip(src, dst):
-    print("[i] Creating ZIP file: " + dst)
+    print("[i] Creating zip file: " + dst)
 
     try:
         zf = zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED)
@@ -350,7 +350,7 @@ def zip(src, dst):
         zf.close()
     except IOError as e:
         print("[-] IOError = " + e.reason, file=sys.stderr)
-        abort('Unable to create the ZIP file')
+        abort('Unable to create the zip file')
 
     print("[+] Finished creating zip")
 
@@ -770,7 +770,7 @@ def main():
         help_device += "    %s\n" % kernel
 
     parser = argparse.ArgumentParser(
-        description="Kali NetHunter Installer (Recovery flashable ZIP script builder)"
+        description="Kali NetHunter Installer (flashable zip script builder)"
     )
     parser.add_argument(
         "--generic",

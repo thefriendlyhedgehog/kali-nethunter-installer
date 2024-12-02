@@ -38,8 +38,8 @@ cleanup() {
 }
 
 mount() {
-  mountpoint -q "$1" || /sbin/busybox mount -o rw "$1" || abort "Unable to mount $1 as rw!"
-  >> "$1/.rw" && return || /sbin/busybox mount -o remount,rw "$1" || abort "Unable to write to $1!"
+  mountpoint -q "$1" || /sbin/busybox mount -o rw "$1" || abort "Failed to mount $1 as rw!"
+  >> "$1/.rw" && return || /sbin/busybox mount -o remount,rw "$1" || abort "Failed to write to $1!"
 }
 
 remove_app() {
