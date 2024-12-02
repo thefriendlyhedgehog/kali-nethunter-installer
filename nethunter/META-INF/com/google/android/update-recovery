@@ -70,13 +70,6 @@ installapp_system() {
   print "* Failed to install $1!" && return 1
 }
 
-extract() {
-  rm -rf "$2"
-  mkdir -p "$2"
-  unzip -o "$1" -d "$2" -x "$3" ||
-    abort "Unable to extract! The zip may be corrupt or your device may not have enough RAM to proceed. Consider using a smaller installer if it is available"
-}
-
 setperm() {
   find "$3" -type d -exec chmod "$1" {} \;
   find "$3" -type f -exec chmod "$2" {} \;

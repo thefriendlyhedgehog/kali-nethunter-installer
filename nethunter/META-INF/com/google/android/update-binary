@@ -40,6 +40,22 @@ print() {
   fi
 }
 
+# extract <ZIP FILE> <OUT DIR> [<SKIP>]
+extract() {
+  rm -rf "$2"
+  mkdir -p "$2"
+  unzip -o "$1" -d "$2" -x "$3" >&2 ||
+    abort "Failed to extract! The zip may be corrupt or your device may not have enough RAM to proceed. Consider using a smaller installer if it is available" # Or ARM 32 device doing a too big ZIP file
+}
+
+# extract_file <ZIP FILE> <FILE TO EXTRACT> <OUT DIR>
+extract_file() {
+  rm -rf "$3"
+  mkdir -p "$3"
+  unzip -o "$1" "$2" -d "$3" >&2 ||
+    abort "Failed to extract! The zip may be corrupt or your device may not have enough RAM to proceed. Consider using a smaller installer if it is available" # Or ARM 32 device doing a too big ZIP file
+}
+
 #------------------------------------------------------------------------------
 
 #<REF: ./scripts/util_functions.sh>
@@ -88,9 +104,6 @@ print ""
 
 mount /data || true # May fail, if we don't have /etc/fstab
 
-rm -rf "$TMP"
-mkdir -p "$TMP"
-
 if $BOOTMODE; then
   #####################################################
   ## Install in Magisk                               ##
@@ -132,7 +145,7 @@ if $BOOTMODE; then
   OUTFD=${OUTFD:- $2} # May already be defined ($ adb shell 'su -c magisk --install-module [...]')
 
   print "* Unpacking script"
-  unzip -o "$ZIPFILE" META-INF/com/google/android/update-magisk -d $TMP >&2
+  extract_file "$ZIPFILE" META-INF/com/google/android/update-magisk $TMP
   #print "* Script unpacked"
 
   ## Default permissions
@@ -145,7 +158,7 @@ else
   #####################################################
   ## Unpack the ZIP (everything but "kalifs-*")
   print "* Unpacking ZIP"
-  unzip -o "$ZIPFILE" -d "$TMP" -x "kalifs-*" || print "! Failed to extract"
+  extract "$ZIPFILE" "$TMP" "kalifs-*"
   #print "* ZIP unpacked"
 
   [ -f $TMP/META-INF/com/google/android/update-recovery ] && source $TMP/META-INF/com/google/android/update-recovery   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
