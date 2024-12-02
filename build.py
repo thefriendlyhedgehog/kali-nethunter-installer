@@ -286,6 +286,33 @@ def download_rootfs(fs_size):
 
     print("[+] Finished downloading Kali rootfs")
 
+def check_rootfs(fs_size, dst):
+    global args
+
+    try:
+        fs_arch = arch
+        fs_file = "kalifs-{}-{}.tar.xz".format(fs_size, fs_arch)
+        fs_localpath = os.path.join("data", "rootfs", fs_file)
+        fs_size =  os.path.getsize(fs_localpath)
+        zip_size =  os.path.getsize(dst)
+        max_size = 2147483648
+
+        if fs_size + zip_size >= max_size:
+            print ("[-] Warning: output ZIP is larger than 2 GB for a ARM 32-bit device. The device may fail when extracting.")
+
+            if args.force:
+                print ("[i]   Forcing creation")
+            else:
+                rootfs_replacement = "minimal"
+
+                print ("[i]   Switching rootfs: minimal (use --force to overwrite)")
+                dst = dst.replace("-kalifs_" + args.rootfs, "-kalifs_" + rootfs_replacement)
+                args.rootfs = rootfs_replacement
+                download_rootfs(rootfs_replacement)
+        return dst, args
+    except Exception as e:
+        print("[-] IOError = " + e.reason, file=sys.stderr)
+        abort('Unable to read rootfs file')
 
 def zip_rootfs(fs_size, dst):
     global arch
@@ -774,6 +801,9 @@ def main():
         help="Build with Kali rootfs (full, minimal or nano)",
     )
     parser.add_argument(
+        "--force", action="store_true", help="Force creation of the zip, even if not recommended"
+    )
+    parser.add_argument(
         "--force-download", "-f", action="store_true", help="Force re-downloading external resources"
     )
     parser.add_argument(
@@ -810,6 +840,10 @@ def main():
         metavar="VERSION",
         help="Specify NetHunter release version",
     )
+
+    #
+    # Check input
+    #
 
     args = parser.parse_args()
 
@@ -939,6 +973,9 @@ def main():
 
     print("[i] Android version: " + android) # Will be empty if --generic
 
+    if args.force:
+        print("[i] Force creation: true")
+
     if args.force_download:
         print("[i] Force downloading external resources: true")
 
@@ -1028,6 +1065,7 @@ def main():
                 file_tag += "-rooted"
 
             if args.rootfs:
+                # This may be replaced with check_rootfs()
                 file_tag += "-kalifs_" + args.rootfs
 
     file_tag += ".zip"
@@ -1115,6 +1153,8 @@ def main():
 
         # Add the Kali rootfs archive if --rootfs is specified
         if args.rootfs:
+            if arch == "armhf":
+                file_tag, args = check_rootfs(args.rootfs, file_tag)
             zip_rootfs(args.rootfs, file_tag)
 
         # Device model specific (post zip)
