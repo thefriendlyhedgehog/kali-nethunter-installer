@@ -56,6 +56,10 @@ boot_actions
 unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
+## Extract post-fd-data script
+unzip -o "$ZIPFILE" post-fd-data.sh -d $TMPDIR >&2
+[ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
+
 MODDIRNAME=modules_update
 MODULEROOT=/data/adb/$MODDIRNAME
 MODID=$(grep_prop id $TMPDIR/module.prop)
@@ -372,6 +376,7 @@ source $TMP/tools/install-chroot.sh || abort "! install-chroot.sh"   # Don't spa
 ## Random important Magisk stuff (Don't remove)
 ui_print "* Important Magisk items"
 cp -fp $TMP/module.prop $MNT/$MODID/
+cp -fp $TMP/post-fs-data.sh $MNT/$MODID/
 touch $MNT/$MODID/auto_mount
 [ -e /data/adb/modules ] && IMGMNT=/data/adb/modules
 mkdir -p "$IMGMNT/$MODID"
