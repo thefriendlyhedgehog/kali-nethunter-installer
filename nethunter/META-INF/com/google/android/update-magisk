@@ -106,6 +106,13 @@ if [ -e /data/$ADB/magisk ]; then
   [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox
   [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox)
   [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH"
+  if [ -n "$DEBUG" ]; then
+    [ "$MAGISKBB" ] \
+      && ui_print "@ MAGISKBB: $MAGISKBB" \
+      || ui_print "@ Inside of Magisk without BusyBox"
+  fi
+elif [ -n "$DEBUG" ]; then
+  ui_print "@ Not inside of Magisk"
 fi
 
 ## Define modules target dirs
