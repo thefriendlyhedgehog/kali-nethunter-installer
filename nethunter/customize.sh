@@ -4,6 +4,9 @@ TMPDIR=/dev/tmp
 mkdir -p $TMPDIR
 cd $TMPDIR/
 
+## If your using CLI, more of a chance you want to be more verbose!
+DEBUG=1
+
 echo "* Unpacking nethunter script"
 unzip -o "$ZIPFILE" META-INF/com/google/android/update-binary -d $TMPDIR || print "! Failed to extract"
 

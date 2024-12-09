@@ -74,7 +74,7 @@ else
   [ "$console" ] || console=/proc/$$/fd/1
 fi
 
-DEBUG=
+DEBUG=${DEBUG:-}
 TMPDIR=/dev/tmp
 export TMP=$TMPDIR/nethunter # Doesn't matter if sh / source
 
