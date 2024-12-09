@@ -4,7 +4,7 @@ GIT_ACCOUNT=kalilinux
 GIT_REPOSITORY=nethunter/build-scripts/kali-nethunter-kernels
 
 ABORT() {
-  [ "$1" ] && echo "Error: $*" 1>&2
+  [ "$1" ] && echo "Error: $*" >&2
   exit 1
 }
 

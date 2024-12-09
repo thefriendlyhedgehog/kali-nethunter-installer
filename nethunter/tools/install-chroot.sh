@@ -64,7 +64,7 @@ f_kill_pids() {
   fi
 
   if [ -n "$pids" ]; then
-    kill -9 $pids 2> /dev/null
+    kill -9 $pids 2>/dev/null
     return $?
   fi
 
@@ -97,10 +97,10 @@ f_umount_fs() {
 ## Magisk support via do_umount()
 f_restore_setup() {
   ## Set shmmax to 128mb to free memory
-  sysctl -w kernel.shmmax=134217728 2>/dev/null
+  sysctl -w kernel.shmmax=134217728 1>&2
 
   ## Remove all the remaining chroot vnc session pid and log files
-  rm -rf $PRECHROOT/tmp/.X11* $PRECHROOT/tmp/.X*-lock $PRECHROOT/root/.vnc/*.pid $PRECHROOT/root/.vnc/*.log > /dev/null 2>&1
+  rm -rf $PRECHROOT/tmp/.X11* $PRECHROOT/tmp/.X*-lock $PRECHROOT/root/.vnc/*.pid $PRECHROOT/root/.vnc/*.log >/dev/null 2>&1
 }
 
 verify_fs() {

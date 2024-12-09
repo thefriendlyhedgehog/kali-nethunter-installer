@@ -3,7 +3,7 @@
 ##
 ## REF: ./update-recovery:get_bb()
 
-ls $TMP/tools/busybox_nh-* 1> /dev/null 2>&1 || {
+ls $TMP/tools/busybox_nh-* 1>/dev/null 2>&1 || {
   print "! No NetHunter BusyBox found - skipping."
   return 1
 }

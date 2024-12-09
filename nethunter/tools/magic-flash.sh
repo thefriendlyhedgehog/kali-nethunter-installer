@@ -233,9 +233,9 @@ case $(basename "$0") in
   *)
     if [ "$VALUE" == "flash" ]; then
       exec "$@";
-    elif [ ! -z "$1" ]; then
+    elif [ -n "$1" ]; then
       test "$(id -u)" == 0 || abort "Root user only"
-      unshare -m sh "$0" flash "$@";
+      unshare -m sh "$0" flash "$@"
     else
       echo "Flash any recovery zip without using Custom Recovery"
       echo "Flashing will be processed in isolated chroot environment"
