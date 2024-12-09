@@ -33,7 +33,7 @@ supported.versions=
 
 # shell variables
 
-# NetHunter Addition
+## <NetHunter Addition>
 ramdisk_compression=auto
 
 ## AnyKernel methods (DO NOT CHANGE)
@@ -96,42 +96,54 @@ install() {
 }
 
 [ -d $home/vendor/etc/init ] && {
+  ui_print "- Copying additional files to /vendor/etc/init/"
   mount /vendor
   chmod 644 $home/vendor/etc/init/*
   cp -r $home/vendor/etc/init/* /vendor/etc/init/
 }
 
 [ -d $home/ramdisk-patch ] && {
+  ui_print "- Copying ramdisk-patch files to $SYSTEM_ROOT"
   setperm "0755" "0750" "$home/ramdisk-patch"
   chown root:shell $home/ramdisk-patch/*
   cp -rp $home/ramdisk-patch/* "$SYSTEM_ROOT/"
 }
 
-if [ ! "$(grep /init.nethunter.rc $SYSTEM_ROOT/init.rc)" ]; then
-  insert_after_last "$SYSTEM_ROOT/init.rc" "import .*\.rc" "import /init.nethunter.rc"
-fi
+[ -e $SYSTEM_ROOT/init.rc ] && {
+  ui_print "- Checking $SYSTEM_ROOT/init.rc"
+  if [ ! "$(grep /init.nethunter.rc $SYSTEM_ROOT/init.rc)" ]; then
+    ui_print "- Inserting into $SYSTEM_ROOT/init.rc"
+    insert_after_last "$SYSTEM_ROOT/init.rc" "import .*\.rc" "import /init.nethunter.rc"
+  fi
+}
 
-if [ ! "$(grep /dev/hidg* $SYSTEM_ROOT/ueventd.rc)" ]; then
-  insert_after_last "$SYSTEM_ROOT/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root"
-fi
+[ -e $SYSTEM_ROOT/ueventd.rc ] && {
+  ui_print "- Checking $SYSTEM_ROOT/ueventd.rc"
+  if [ ! "$(grep /dev/hidg* $SYSTEM_ROOT/ueventd.rc)" ]; then
+    ui_print "- Inserting into $SYSTEM_ROOT/ueventd.rc"
+    insert_after_last "$SYSTEM_ROOT/ueventd.rc" "/dev/kgsl.*root.*root" "# HID driver\n/dev/hidg* 0666 root root"
+  fi
+}
 
-ui_print "- Applying additional anykernel installation patches"
-for p in $(find ak_patches/ -type f); do
-  ui_print "- Applying $p"
-  source $p
-done
-
-## End NetHunter additions
-
+[ -e ak_patches/* ] && {
+  ui_print "- Found additional anykernel installation patches"
+  for p in $(find ak_patches/ -type f); do
+    ui_print "- Applying $p"
+    source $p
+  done
+}
+## </NetHunter Addition>
 
 ## AnyKernel file attributes
 ##set permissions/ownership for included ramdisk files
+ui_print "- Applying permissions"
 set_perm_recursive 0 0 755 644 $ramdisk/*
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin
-
 
 ## AnyKernel install
 dump_boot
 
 write_boot
 ## end install
+
+ui_print "- AnyKernel done"
