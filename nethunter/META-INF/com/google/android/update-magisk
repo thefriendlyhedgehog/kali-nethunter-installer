@@ -17,14 +17,18 @@ do_flash() {
   unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL" || print "! Failed to extract"
 
   ## #1 - Down side the output isn't formatted
-  #sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 || abort "! magic-flash.sh failed: $ret"
+  #sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 || abort "! magic-flash.sh failed"
 
   ## #2 - Down side the output isn't in real time
   OUT=$( sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 )
   ret=$?
-  ## Replace ui_print, indent output (to signal its a script) and remove empty lines
-  echo "${OUT}" | awk 'gsub(/ui_print /," ") && !/^ $/'
-  [ "$ret" -eq 0 ] || abort "! magic-flash.sh failed: $ret"
+  if [ "$ret" -eq 0 ]; then
+    ## Replace ui_print, indent output (to signal its a script) and remove empty lines
+    echo "${OUT}" | awk 'gsub(/ui_print /," ") && !/^ $/'
+  else
+    echo "${OUT}"   # Will be much more verbose
+    abort "! magic-flash.sh failed: $ret"
+  fi
 
   ## #3 - Can't do this bash trick, as using sh (shell)
   ## Replace ui_print, indent output (to signal its a script) and remove empty lines
