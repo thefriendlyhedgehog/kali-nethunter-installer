@@ -14,11 +14,33 @@ symlink() {
 
 do_flash() {
   ui_print "* Found Kali kernel to be installed: $KERNEL"
-  unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL"
+  unzip -p "$ZIPFILE" "$KERNEL" > "$KERNEL" || print "! Failed to extract"
+
+  ## #1 - Down side the output isn't formatted
+  #sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 || abort "! magic-flash.sh failed"
+
+  ## #2 - Down side not sure if it exits cleanly
   ## Replace ui_print, indent output (to signal its a script) and remove empty lines
-  sh $TMP/tools/magic-flash.sh $KERNEL | awk 'gsub(/ui_print /," ") && !/^ $/'   # Spawn a new session (aka using sh), don't do it in the current session
-  ret=${PIPESTATUS[0]}   # We want magic-flash.sh exit code, not awk!
-  [ "$ret" -eq 0 ] || abort "! magic-flash.sh failed: $ret"
+  sh $TMP/tools/magic-flash.sh $KERNEL | awk 'gsub(/ui_print /," ") && !/^ $/'
+
+  ## #3 - Down side the output isn't in real time
+  #OUT=$( sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 )
+  #ret=$?
+  #if [ "$ret" -eq 0 ]; then
+  #  ## Replace ui_print, indent output (to signal its a script) and remove empty lines
+  #  echo "${OUT}" | awk 'gsub(/ui_print /," ") && !/^ $/'
+  #else
+  #  echo "${OUT}"   # Will be much more verbose
+  #  abort "! magic-flash.sh failed: $ret"
+  #fi
+
+  ## #4 - Can't do this bash trick, as using sh (shell)
+  ## Replace ui_print, indent output (to signal its a script) and remove empty lines
+  #sh $TMP/tools/magic-flash.sh $KERNEL 2>&1 | awk 'gsub(/ui_print /," ") && !/^ $/'   # Spawn a new session (aka using sh), don't do it in the current session
+  #ret=${PIPESTATUS[0]}   # We want magic-flash.sh exit code, not awk!
+  #[ "$ret" -eq 0 ] || abort "! magic-flash.sh failed: $ret"
+
+  ## If script wasn't sourced, would it still be an issue?
 }
 
 flash_kernel() {
@@ -53,7 +75,7 @@ api_level_arch_detect
 boot_actions
 
 ## Extract prop file
-unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
+unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2 || print "! Failed to extract"
 [ ! -f $TMPDIR/module.prop ] && abort "! Unable to extract zip file!"
 
 ## Extract post-fd-data script
@@ -88,6 +110,13 @@ if [ -e /data/$ADB/magisk ]; then
   [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox
   [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox)
   [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH"
+  if [ -n "$DEBUG" ]; then
+    [ "$MAGISKBB" ] \
+      && ui_print "@ MAGISKBB: $MAGISKBB" \
+      || ui_print "@ Inside of Magisk without BusyBox"
+  fi
+elif [ -n "$DEBUG" ]; then
+  ui_print "@ Not inside of Magisk"
 fi
 
 ## Define modules target dirs
@@ -124,7 +153,7 @@ mkdir -p $TMPDIR
 cd $TMPDIR
 
 ## Source custom installer functions and configuration
-#unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
+#unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2 || print "! Failed to extract"
 #MODID=$(file_getprop module.prop id) # Alt: MODID=$(grep_prop id $TMPDIR/module.prop)
 
 ## Extract the ZIP
@@ -132,7 +161,7 @@ ui_print "* Unpacking ZIP"
 mkdir -p $TMPDIR/$MODID
 cd $TMPDIR/$MODID
 ## Unpack the ZIP (everything but "kalifs-*")
-unzip -qq "$ZIPFILE" -x "kalifs-*"
+unzip -qq "$ZIPFILE" -x "kalifs-*" || print "! Failed to extract"
 #ui_print "* ZIP unpacked"
 
 #------------------------------------------------------------------------------

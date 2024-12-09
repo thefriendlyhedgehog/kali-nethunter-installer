@@ -64,7 +64,7 @@ f_kill_pids() {
   fi
 
   if [ -n "$pids" ]; then
-    kill -9 $pids 2> /dev/null
+    kill -9 $pids 2>/dev/null
     return $?
   fi
 
@@ -97,10 +97,10 @@ f_umount_fs() {
 ## Magisk support via do_umount()
 f_restore_setup() {
   ## Set shmmax to 128mb to free memory
-  sysctl -w kernel.shmmax=134217728 2>/dev/null
+  sysctl -w kernel.shmmax=134217728 1>&2
 
   ## Remove all the remaining chroot vnc session pid and log files
-  rm -rf $PRECHROOT/tmp/.X11* $PRECHROOT/tmp/.X*-lock $PRECHROOT/root/.vnc/*.pid $PRECHROOT/root/.vnc/*.log > /dev/null 2>&1
+  rm -rf $PRECHROOT/tmp/.X11* $PRECHROOT/tmp/.X*-lock $PRECHROOT/root/.vnc/*.pid $PRECHROOT/root/.vnc/*.log >/dev/null 2>&1
 }
 
 verify_fs() {
@@ -150,9 +150,9 @@ do_install() {
   ## Extract new chroot
   print "- Extracting Kali rootfs (This may take up to 25 minutes)"
   if [ "$1" ]; then
-    unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+    unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "! Failed to extract"
   else
-    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev"
+    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "! Failed to extract"
   fi
 
   [ $? = 0 ] || {
@@ -181,11 +181,11 @@ do_install() {
 ## Chroot common path
 NHSYS=/data/local/nhsystem
 
-## Check zip for kalifs-*.tar.xz first
+## Check inside zip for kalifs-*-*.tar.xz first
 [ -f "$ZIPFILE" ] && {
   KALIFS=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kalifs-/ { print $4; exit }')
 
-  ## If zip contains a chroot/rootfs (kalifs-*.tar.xz)
+  ## If zip contains a chroot/rootfs (kalifs-*-*.tar.xz)
   if [ -n "$KALIFS" ]; then
     FS_SIZE=$(echo "$KALIFS" | awk -F[-.] '{print $2}')
     FS_ARCH=$(echo "$KALIFS" | awk -F[-.] '{print $3}')

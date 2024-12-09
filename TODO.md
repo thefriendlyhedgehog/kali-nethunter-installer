@@ -41,4 +41,4 @@
     - ./nethunter/tools/magic-flash.sh:[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
   - `extract() {[...]}`
     - ./boot-patcher/META-INF/com/google/android/update-binary:extract() {
-    - ./nethunter/META-INF/com/google/android/update-recovery:extract() {
+    - ./nethunter/META-INF/com/google/android/update-binary:extract() {

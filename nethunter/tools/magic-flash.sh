@@ -197,7 +197,7 @@ flash_process() {
   ZIP="$NEWROOT/sideload/$ZIP_NAME"
   ZIP_CHROOT="/sideload/$ZIP_NAME"
 
-  unzip -o "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin"
+  unzip -o "$ZIP" "META-INF/com/google/android/update-binary" -d "$NEWROOT/sbin" || print "! Failed to extract"
   mv "$NEWROOT/sbin/META-INF/com/google/android/update-binary" "$NEWROOT/sbin/update-binary"
 
   echo "Flashing \"$ZIP_NAME\""
@@ -210,7 +210,11 @@ flash_process() {
   exit $ret    # We are using sh, not source
 }
 
-[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
+TMP=$( cd $(dirname $0)/../; pwd )
+if [ ! -f ${TMP}/tools/busybox ]; then
+  echo "Creating: ${TMP}/tools/busybox"
+  ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
+fi
 export PATH=/sbin:/data/adb/modules/magic-flash/busybox:/system/bin:/system/xbin:${TMP}/tools/   # Alt: $XBIN
 #exec 2>/dev/null   # Not sure of the value this brings?
 
@@ -229,9 +233,9 @@ case $(basename "$0") in
   *)
     if [ "$VALUE" == "flash" ]; then
       exec "$@";
-    elif [ ! -z "$1" ]; then
+    elif [ -n "$1" ]; then
       test "$(id -u)" == 0 || abort "Root user only"
-      unshare -m sh "$0" flash "$@";
+      unshare -m sh "$0" flash "$@"
     else
       echo "Flash any recovery zip without using Custom Recovery"
       echo "Flashing will be processed in isolated chroot environment"

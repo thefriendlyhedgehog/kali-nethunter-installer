@@ -70,13 +70,6 @@ installapp_system() {
   print "* Failed to install $1!" && return 1
 }
 
-extract() {
-  rm -rf "$2"
-  mkdir -p "$2"
-  unzip -o "$1" -d "$2" -x "$3" ||
-    abort "Unable to extract! The zip may be corrupt or your device may not have enough RAM to proceed. Consider using a smaller installer if it is available"
-}
-
 setperm() {
   find "$3" -type d -exec chmod "$1" {} \;
   find "$3" -type f -exec chmod "$2" {} \;
@@ -317,6 +310,8 @@ restore_env() {
   cleanup
 }
 
+## This gets the latest NetHunter BusyBox
+##   Magisk may have BusyBox ($MAGISKBB)
 get_bb() {
   cd $TMP/tools/
   BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
@@ -384,7 +379,7 @@ install_supersu() {
     echo "SYSTEMLESS=detect" > "/system/.supersu"
   fi
 
-  sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" || print "update-binary/supersu.zip failed"
+  sh "$supersu_tmp/META-INF/com/google/android/update-binary" dummy 1 "$TMP/supersu.zip" 2>&1 || print "update-binary/supersu.zip failed" # Spawn a new session (aka using sh), don't do it in the current session
 
   print "* SuperSU successfully installed"
 }
@@ -546,12 +541,12 @@ if [ $SDK -ge 26 ]; then
     check_freespace ${SYSTEM}/app/com.offsec.nhterm/
 
     print "** Extracting NetHunterTerminal.apk"
-    unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/
+    unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nhterm/ || print "! Failed to extract"
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nhterm/lib ] || {
       print "** Extracting NetHunterTerminal.apk #2"
       mkdir -p /tmp/NetHunter-Terminal/
-      unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/
+      unzip -qo ${SYSTEM}/app/com.offsec.nhterm/NetHunterTerminal.apk -d /tmp/NetHunter-Terminal/ || print "! Failed to extract"
       mv /tmp/NetHunter-Terminal/lib ${SYSTEM}/app/com.offsec.nhterm/
     }
     mv ${SYSTEM}/app/com.offsec.nhterm/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nhterm/lib/arm
@@ -572,16 +567,16 @@ if [ $SDK -ge 26 ]; then
         ;;
       esac;
       print "** Extracting NetHunterKeX.apk ($ARCH / $x)"
-      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/$x/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/$x/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/ || print "! Failed to extract"
     else
       print "** Extracting NetHunterKeX.apk"
-      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk "lib/*" -d ${SYSTEM}/app/com.offsec.nethunter.kex/ || print "! Failed to extract"
     fi
     ## Some newer TWRP versions ship an unzip that does not support the above line so we might need plan B
     [ -d ${SYSTEM}/app/com.offsec.nethunter.kex/lib ] || {
       print "** Extracting NetHunterKeX.apk #2"
       mkdir -p /tmp/com.offsec.nethunter.kex/
-      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/
+      unzip -qo ${SYSTEM}/app/com.offsec.nethunter.kex/NetHunterKeX.apk -d /tmp/com.offsec.nethunter.kex/ || print "! Failed to extract"
       mv /tmp/com.offsec.nethunter.kex/lib ${SYSTEM}/app/com.offsec.nethunter.kex/
     }
     [ -f ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ] && mv ${SYSTEM}/app/com.offsec.nethunter.kex/lib/armeabi-v7a ${SYSTEM}/app/com.offsec.nethunter.kex/lib/arm
@@ -707,7 +702,7 @@ progress 0.8
 
 [ -d "$bootpatcher_tmp" ] && {
   print "* Running boot-patcher script"
-  sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" || abort "Boot-Patcher script failed"   # As it can be its own item, not using source
+  sh "$bootpatcher_tmp/META-INF/com/google/android/update-binary" 2>&1 || abort "Boot-Patcher script failed"   # Spawn a new session (aka using sh), don't do it in the current session
   #print "* Done running boot-patcher"
 
   ## Setup environment again due to boot-patcher (possibly) altering
