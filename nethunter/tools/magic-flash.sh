@@ -210,7 +210,11 @@ flash_process() {
   exit $ret    # We are using sh, not source
 }
 
-[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
+TMP=$( cd $(dirname $0)/../; pwd )
+if [ ! -f ${TMP}/tools/busybox ]; then
+  echo "Creating: ${TMP}/tools/busybox"
+  ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
+fi
 export PATH=/sbin:/data/adb/modules/magic-flash/busybox:/system/bin:/system/xbin:${TMP}/tools/   # Alt: $XBIN
 #exec 2>/dev/null   # Not sure of the value this brings?
 
