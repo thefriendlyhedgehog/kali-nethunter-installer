@@ -44,41 +44,43 @@ for bb in busybox_nh-*; do
 done
 cd - >/dev/null
 
-rm -f $XBIN/busybox_nh
-cd $XBIN/
-busybox_nh=$( (ls -v busybox_nh-* || ls busybox_nh-*) | tail -n 1 ) # Alt: BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-[ -z "$busybox_nh" ] && print "! Failed to find busybox_nh in $XBIN" && return 1
-#BB=$XBIN/$busybox_nh # Use NetHunter BusyBox from ./arch/<arch>/tools/ # Alt: export BB=$TMP/$busybox_nh
-print "- Setting $busybox_nh as default"
-ln -sf $XBIN/$busybox_nh busybox_nh # Alt: $XBIN/$busybox_nh ln -sf $busybox_nh busybox_nh
-$XBIN/busybox_nh --install -s $XBIN
+if ! [ $BOOTMODE ]; then
+  rm -f $XBIN/busybox_nh
+  cd $XBIN/
+  busybox_nh=$( (ls -v busybox_nh-* || ls busybox_nh-*) | tail -n 1 ) # Alt: BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
+  [ -z "$busybox_nh" ] && print "! Failed to find busybox_nh in $XBIN" && return 1
+  #BB=$XBIN/$busybox_nh # Use NetHunter BusyBox from ./arch/<arch>/tools/ # Alt: export BB=$TMP/$busybox_nh
+  print "- Setting $busybox_nh as default"
+  ln -sf $XBIN/$busybox_nh busybox_nh # Alt: $XBIN/$busybox_nh ln -sf $busybox_nh busybox_nh
+  $XBIN/busybox_nh --install -s $XBIN
 
-## Create symlink for applets
-print "- Creating symlinks for BusyBox applets"
-sysbin="$(ls /system/bin)"
-existbin="$(ls $BIN 2>/dev/null || true)"
-for applet in $($XBIN/busybox_nh --list); do
-  case $XBIN in
-    */bin)
-      if [ "$(echo "$sysbin" | $XBIN/busybox_nh grep "^$applet$")" ]; then
-        if [ "$(echo "$existbin" | $XBIN/busybox_nh grep "^$applet$")" ]; then
-          $XBIN/busybox_nh ln -sf busybox_nh $applet
+  ## Create symlink for applets
+  print "- Creating symlinks for BusyBox applets"
+  sysbin="$(ls /system/bin)"
+  existbin="$(ls $BIN 2>/dev/null || true)"
+  for applet in $($XBIN/busybox_nh --list); do
+   case $XBIN in
+      */bin)
+        if [ "$(echo "$sysbin" | $XBIN/busybox_nh grep "^$applet$")" ]; then
+          if [ "$(echo "$existbin" | $XBIN/busybox_nh grep "^$applet$")" ]; then
+            $XBIN/busybox_nh ln -sf busybox_nh $applet
+          fi
+       else
+         $XBIN/busybox_nh ln -sf busybox_nh $applet
         fi
-      else
-        $XBIN/busybox_nh ln -sf busybox_nh $applet
-      fi
-      ;;
-      *) $XBIN/busybox_nh ln -sf busybox_nh $applet
-      ;;
-    esac
-done
+        ;;
+     *) $XBIN/busybox_nh ln -sf busybox_nh $applet
+       ;;
+      esac
+  done
 
-[ -e $XBIN/busybox ] || {
-  print "- $XBIN/busybox not found! Symlinking"
-  ln -s $XBIN/busybox_nh $XBIN/busybox # Alt: $XBIN/$busybox_nh ln -sf busybox_nh busybox
-}
+  [ -e $XBIN/busybox ] || {
+    print "- $XBIN/busybox not found! Symlinking"
+    ln -s $XBIN/busybox_nh $XBIN/busybox # Alt: $XBIN/$busybox_nh ln -sf busybox_nh busybox
+  }
 
-cd - >/dev/null
+  cd - >/dev/null
+fi
 
 ## Magisk, not recovery/TWRP
 set_perm_recursive >/dev/null 2>&1 && {
