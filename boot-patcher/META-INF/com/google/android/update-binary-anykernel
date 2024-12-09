@@ -481,12 +481,15 @@ if [ $? != 0 -o -z "$(ls bin)" ]; then
 fi;
 
 KERNEL_STRING="$(file_getprop anykernel.sh kernel.string)";
-ui_print "$KERNEL_STRING";
+#ui_print "@ Kernel Script: $KERNEL_STRING";
+
 if [ -f version ]; then
+  ui_print "@ Found version"
   ui_print " ";
   ui_printfile version;
   ui_print " ";
 fi;
+
 ui_print "- AnyKernel3 by osm0sis @ xda-developers";
 
 if [ -e "$NN_DIR/tools" ]; then
