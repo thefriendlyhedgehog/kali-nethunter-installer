@@ -11,12 +11,12 @@
 #------------------------------------------------------------------------------
 
 ## AnyKernel setup
-# begin properties
+# begin properties (./build.py will set these)
 properties() { '
 kernel.string=
 do.devicecheck=0   # Use value 1 while using boot-patcher standalone
 do.modules=0
-do.systemless=0 #Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
+do.systemless=0    # Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
 do.cleanup=0
 do.cleanuponabort=0
 device.name1=
