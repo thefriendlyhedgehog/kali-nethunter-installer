@@ -4,7 +4,6 @@
 - `./build.py`: When downloading Kali chroot/rootfs, add SHA512 retrieval function
 - Sync external scripts with their upstream
   - https://github.com/Magisk-Modules-Alt-Repo/magic-flash
-  - https://github.com/jcadduono/lazyflasher
   - https://github.com/osm0sis/AnyKernel3/
 - Improve `--uninstall`
   - Remove our Bootanimation & restore defaults

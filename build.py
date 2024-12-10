@@ -421,7 +421,6 @@ def setup_installer():
     global YAML
     global kernel
     global android
-    global flasher
     global args
     global tmp_path
 
@@ -452,76 +451,35 @@ def setup_installer():
 
     print("[i] Installer: Configuring installer script for " + kernel)
 
-    if flasher == "anykernel":
-        # Replace LazyFlasher with AnyKernel3
-        print("[i] Replacing LazyFlasher with AnyKernel3")
-        shutil.move(
-            os.path.join(
-                out_path,
-                "META-INF",
-                "com",
-                "google",
-                "android",
-                "update-binary-anykernel",
-            ),
-            os.path.join(
-                out_path, "META-INF", "com", "google", "android", "update-binary"
-            ),
-        )
+    # Set up variables in AnyKernel3 (./boot-patcher/anykernel.sh)
+    update_config(
+        os.path.join(out_path, "anykernel.sh"),
+        {
+            "kernel.string": kernelstring,
+            "do.modules": modules,
+            "block": block + ";",
+            "is_slot_device": slot_device + ";",
+            "ramdisk_compression": ramdisk + ";",
+        },
+        True,
+    )
 
-        # Set up variables in the AnyKernel3 script
-        update_config(
-            os.path.join(out_path, "anykernel.sh"),
-            {
-                "kernel.string": kernelstring,
-                "do.modules": modules,
-                "block": block + ";",
-                "is_slot_device": slot_device + ";",
-                "ramdisk_compression": ramdisk + ";",
-            },
-            True,
-        )
+    i = 1
+    for devicename in devicenames.split(","):
+        print('[i] AnyKernel3 devicename: ' + devicename)
+        key = "device.name" + str(i)
+        update_config(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
+        i += 1
 
-        i = 1
-        for devicename in devicenames.split(","):
-            print('[i] AnyKernel3 devicename: ' + devicename)
-            key = "device.name" + str(i)
-            update_config(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
-            i += 1
-
-        update_config(
-            os.path.join(out_path, "banner"),
-            {
-                "   Kernel": kernelstring,
-                "   Version": str(version),
-                "   Author": author,
-            },
-            True,
-        )
-    else:
-        print("[i] Using LazyFlasher")
-        # Set up variables in the kernel installer script
-        update_config(
-            os.path.join(
-                out_path, "META-INF", "com", "google", "android", "update-binary"
-            ),
-            {
-                "kernel_string": kernelstring,
-                "kernel_author": author,
-                "kernel_version": str(version),
-                "device_names": devicenames,
-            },
-        )
-
-        # Set up variables in boot-patcher.sh
-        print("[i] Installer: Configuring LazyFlasher's boot-patcher.sh script for " + kernel)
-        update_config(
-            os.path.join(out_path, "boot-patcher.sh"),
-            {
-                "boot_block": block,
-                "ramdisk_compression": ramdisk,
-            },
-        )
+    update_config(
+        os.path.join(out_path, "banner"),
+        {
+            "   Kernel": kernelstring,
+            "   Version": str(version),
+            "   Author": author,
+        },
+        True,
+    )
 
     scan_kernel_image()
 
@@ -725,7 +683,6 @@ def main():
     global arch
     global android
     global kernelstring
-    global flasher
     global resolution
     global devicenames
     global ramdisk
@@ -950,9 +907,7 @@ def main():
     kernelstring = read_key("kernelstring", "NetHunter kernel")
     devicenames = read_key("devicenames")
     arch = args.generic if args.generic else read_key("arch", "armhf")
-    flasher = read_key("flasher", "LazyFlasher")
-    x = 'auto' if flasher == "anykernel" else 'gzip'
-    ramdisk = read_key("ramdisk", x)
+    ramdisk = read_key("ramdisk", 'auto')
     resolution = read_key("resolution")
     block = read_key("block")
     version = read_key("version", "1.0")
@@ -1012,11 +967,9 @@ def main():
     # Feedback with values from devices.yml
     print("[i] From: " + devices_yml)
     print("[i]   kernelstring: " + kernelstring)
-    x = devicenames if devicenames else '-'
-    x = x.split(",") if flasher == "anykernel" else x
+    x = devicenames if devicenames.split(",") else '-'
     print("[i]   devicenames : " , x)
     print("[i]   arch        : " + arch)
-    print("[i]   flasher     : " + flasher)
     print("[i]   ramdisk     : " + ramdisk)
     x = resolution if resolution else '-'
     print("[i]   resolution  : " + x)
@@ -1025,9 +978,8 @@ def main():
     print("[i]   version     : " + str(version))
     x = supersu if supersu else '-'
     print("[i]   supersu     : " + x)
-    if flasher == "anykernel":
-        print("[i]   modules     : " + modules)
-        print("[i]   slot_device : " + slot_device)
+    print("[i]   modules     : " + modules)
+    print("[i]   slot_device : " + slot_device)
     print("[i]   author      : " + author)
 
     #
