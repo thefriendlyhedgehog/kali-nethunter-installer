@@ -483,6 +483,8 @@ def setup_installer(standalone=False):
         True,
     )
 
+    # Feedback if there are other android versions for the selected kernel
+    #   Purely for end-user, as doesn't assign android (should of already happened)
     scan_kernel_image()
 
     device_path = os.path.join("kernels", android, kernel)
@@ -499,7 +501,9 @@ def setup_installer(standalone=False):
         "Image.lz4-dtb",
         "Image.fit",
     ]
+
     kernel_found = False
+
     for kernel_image in kernel_images:
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
@@ -980,7 +984,7 @@ def main():
     print("[i] From: " + devices_yml)
     print("[i]   kernelstring: " + kernelstring)
     x = devicenames.split(",") if devicenames else '-'
-    print("[i]   devicenames : " , x)
+    print("[i]   devicenames :" , x)
     print("[i]   arch        : " + arch)
     print("[i]   ramdisk     : " + ramdisk)
     x = resolution if resolution else '-'
