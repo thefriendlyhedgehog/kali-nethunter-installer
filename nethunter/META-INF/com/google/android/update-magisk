@@ -45,8 +45,8 @@ do_flash() {
 
 flash_kernel() {
   [ -e "$ZIPFILE" ] && {
-    ## Check zip for kernel-*.zip first
-    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
+    ## Check zip for kernel-nethunter.zip
+    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-nethunter/ { print $4; exit }')
     ## If zip didn't contain a kernel-*.zip
     [ "$KERNEL" ] || {
       ui_print "* No kernel found. Skipping"
