@@ -466,11 +466,13 @@ def setup_installer(standalone=False):
 
     i = 1
     for devicename in devicenames.split(","):
-        print('[i] AnyKernel3 devicename: ' + devicename)
+        print('[i] AnyKernel3 devicename[' + str(i) + ']: ' + devicename)
         key = "device.name" + str(i)
         update_config(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
         i += 1
 
+    ## We have this hidden (aka removed) in anykernel
+    print("[i] Installer: Configuring installer banner")
     update_config(
         os.path.join(out_path, "banner"),
         {
@@ -481,6 +483,8 @@ def setup_installer(standalone=False):
         True,
     )
 
+    # Feedback if there are other android versions for the selected kernel
+    #   Purely for end-user, as doesn't assign android (should of already happened)
     scan_kernel_image()
 
     device_path = os.path.join("kernels", android, kernel)
@@ -497,7 +501,9 @@ def setup_installer(standalone=False):
         "Image.lz4-dtb",
         "Image.fit",
     ]
+
     kernel_found = False
+
     for kernel_image in kernel_images:
         kernel_location = os.path.join(device_path, kernel_image)
         if os.path.exists(kernel_location):
@@ -977,8 +983,8 @@ def main():
     # Feedback with values from devices.yml
     print("[i] From: " + devices_yml)
     print("[i]   kernelstring: " + kernelstring)
-    x = devicenames if devicenames.split(",") else '-'
-    print("[i]   devicenames : " , x)
+    x = devicenames.split(",") if devicenames else '-'
+    print("[i]   devicenames :" , x)
     print("[i]   arch        : " + arch)
     print("[i]   ramdisk     : " + ramdisk)
     x = resolution if resolution else '-'
