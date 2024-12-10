@@ -1,44 +1,44 @@
 ## TO-DO
 
-- `./build.py`: If `resolution` is set in `./kernels/devices.yml`, only copy those wallpapers when generating nethunter ZIP
-- `./build.py`: When downloading Kali chroot/rootfs, add SHA512 retrieval function
-- Sync external scripts with their upstream
-  - https://github.com/Magisk-Modules-Alt-Repo/magic-flash
-  - https://github.com/osm0sis/AnyKernel3/
-- Improve `--uninstall`
+- [ ] `./build.py`: If `resolution` is set in `./kernels/devices.yml`, only copy those wallpapers when generating nethunter ZIP
+- [ ] `./build.py`: When downloading Kali chroot/rootfs, add SHA512 retrieval function
+- [ ] Sync external scripts with their upstream
+  - <https://github.com/Magisk-Modules-Alt-Repo/magic-flash>
+  - <https://github.com/osm0sis/AnyKernel3>
+- [ ] Improve `--uninstall`
   - Remove our Bootanimation & restore defaults
   - Remove our wallpaper & restore defaults
-  - Add Magisk support (https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh // https://github.com/topjohnwu/Magisk/blob/master/scripts/uninstaller.sh)
-- Create Magisk JSON
-  - https://topjohnwu.github.io/Magisk/guides.html
+  - Add Magisk support (<https://github.com/topjohnwu/Magisk/blob/master/scripts/update_binary.sh> / <https://github.com/topjohnwu/Magisk/blob/master/scripts/uninstaller.sh>)
+- [ ] Create Magisk JSON
+  - <https://topjohnwu.github.io/Magisk/guides.html>
   - `updateJson=https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/raw/main/magisk.json`
-- Create a "core" or "functions" file in `./common/tools/`:
+- [ ] Create a "core" or "functions" file in `./common/tools/`:
   - `print() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:print() {
-    - ./nethunter/META-INF/com/google/android/update-binary:print() {
-    - ./uninstaller/META-INF/com/google/android/update-binary:print() {
+    - `./boot-patcher/META-INF/com/google/android/update-binary:print() {`
+    - `./nethunter/META-INF/com/google/android/update-binary:print() {`
+    - `./uninstaller/META-INF/com/google/android/update-binary:print() {`
   - `setperm() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:setperm() {
-    - ./nethunter/META-INF/com/google/android/update-recovery:setperm() {
+    - `./boot-patcher/META-INF/com/google/android/update-binary:setperm() {`
+    - `./nethunter/META-INF/com/google/android/update-recovery:setperm() {`
   - `cleanup() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:cleanup() {
-    - ./nethunter/META-INF/com/google/android/update-recovery:cleanup() {
-    - ./uninstaller/META-INF/com/google/android/update-binary:cleanup() {
+    - `./boot-patcher/META-INF/com/google/android/update-binary:cleanup() {`
+    - `./nethunter/META-INF/com/google/android/update-recovery:cleanup() {`
+    - `./uninstaller/META-INF/com/google/android/update-binary:cleanup() {`
   - `install() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:install() {
-    - ./nethunter/META-INF/com/google/android/update-recovery:install() {
+    - `./boot-patcher/META-INF/com/google/android/update-binary:install() {`
+    - `./nethunter/META-INF/com/google/android/update-recovery:install() {`
   - `symlink() {[...]}`
-    - ./nethunter/META-INF/com/google/android/update-magisk:symlink() {
-    - ./nethunter/META-INF/com/google/android/update-recovery:symlink() {
+    - `./nethunter/META-INF/com/google/android/update-magisk:symlink() {`
+    - `./nethunter/META-INF/com/google/android/update-recovery:symlink() {`
   - `install_recovery_bb() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:install_recovery_bb() {
-    - ./nethunter/META-INF/com/google/android/update-recovery:install_recovery_bb() {
+    - `./boot-patcher/META-INF/com/google/android/update-binary:install_recovery_bb() {`
+    - `./nethunter/META-INF/com/google/android/update-recovery:install_recovery_bb() {`
   - `get_bb() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:get_bb() {
-    - ./common/tools/install-busybox.sh:## REF: ./update-recovery:get_bb()
-    - ./nethunter/META-INF/com/google/android/update-recovery:get_bb() {
-    - ./nethunter/tools/magic-flash.sh:[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()
+    - `./boot-patcher/META-INF/com/google/android/update-binary:get_bb() {`
+    - `./common/tools/install-busybox.sh:## REF: ./update-recovery:get_bb()`
+    - `./nethunter/META-INF/com/google/android/update-recovery:get_bb() {`
+    - `./nethunter/tools/magic-flash.sh:[ ! -f ${TMP}/tools/busybox ] && ln -sf $( ls -1 ${TMP}/tools/busybox* | head -n 1 ) ${TMP}/tools/busybox   # See: ./update-recovery:get_bb()`
   - `extract() {[...]}`
-    - ./boot-patcher/META-INF/com/google/android/update-binary:extract() {
-    - ./nethunter/META-INF/com/google/android/update-binary:extract() {
-- Rename `--installer` to `--boot-patcher`
+    - `./boot-patcher/META-INF/com/google/android/update-binary:extract() {`
+    - `./nethunter/META-INF/com/google/android/update-binary:extract() {`
+- [ ] Rename `--installer` to `--boot-patcher`
