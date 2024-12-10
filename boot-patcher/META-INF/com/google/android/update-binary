@@ -151,9 +151,9 @@ BB=$(get_bb)
 ## Install BusyBox applets if they haven't been installed by nethunter already
 [ -e $TMP/tools/busybox_tmp ] || install_recovery_bb
 
-print "$prefix Running boot patcher"
-sh "META-INF/com/google/android/update-binary-anykernel" 2>&1 || abort "boot patcher failed" # Spawn a new session (aka using sh), don't do it in the current session
-#print "$prefix Boot patcher done"
+print "$prefix Running boot image patcher"
+sh "META-INF/com/google/android/update-binary-anykernel" 2>&1 || abort "boot image patcher failed" # Spawn a new session (aka using sh), don't do it in the current session
+#print "$prefix Boot image patcher done"
 
 print "$prefix Boot image patching complete"
 cleanup
