@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 
 # NetHuner additions
-OUTFD=$(cat /tmp/console);
+[ -f "/tmp/console" ] && OUTFD=$(cat /tmp/console);
 [ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
 ZIPFILE="$3";
 
