@@ -437,7 +437,7 @@ do_modules() {
 
       ## Adjusted for NetHunter: Remove old modules directories
       if [ "$do_clean" = true ]; then
-	existing_moddir=$(echo $modtarget | $BB sed 's/lib\/modules\/.*$/lib\/modules\//')
+        existing_moddir=$(echo $modtarget | $BB sed 's/lib\/modules\/.*$/lib\/modules\//')
         ui_print "- Removing existing modules directories in ${existing_moddir}";
         rm -rf ${existing_moddir}/../modules
         do_clean=false
