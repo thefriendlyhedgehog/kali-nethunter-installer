@@ -42,3 +42,5 @@
     - `./boot-patcher/META-INF/com/google/android/update-binary:extract() {`
     - `./nethunter/META-INF/com/google/android/update-binary:extract() {`
 - [ ] Rename `--installer` to `--boot-patcher`
+- [ ] Reduce amount of duplicate code between: `./nethunter/post-fs-data.sh` & `./nethunter/tools/install-chroot.sh`
+  - Re-check commit <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/commit/128e18895d5d0ee4fed21404c7f3d16d3c6f3560> (MR: <https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/merge_requests/14>)

@@ -1,7 +1,9 @@
 ## [Magisk & recovery/TWRP] [boot-patcher & nethunter] [This is sourced, not a standalone script]
 ## Install NetHunter's BusyBox
 ##
-## REF: ./update-recovery:get_bb()
+## REF: ./nethunter/META-INF/com/google/android/update-recovery:get_bb() & $MAGISKBB
+##      ./nethunter/post-fs-data.sh
+##      ./nethunter/tools/install-chroot.sh
 
 ls $TMP/tools/busybox_nh-* 1>/dev/null 2>&1 || {
   print "! No NetHunter BusyBox found - skipping."
