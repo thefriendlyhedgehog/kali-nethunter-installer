@@ -109,6 +109,8 @@ if [ -e /data/$ADB/magisk ]; then
   [ -e /sbin/.core/busybox ] && MAGISKBB=/sbin/.core/busybox
   [ -e /sbin/.magisk/busybox ] && MAGISKBB=/sbin/.magisk/busybox
   [ -e /dev/*/.magisk/busybox ] && MAGISKBB=$(echo /dev/*/.magisk/busybox)
+  [ -e /data/$ADB/ksu/bin/busybox ] && MAGISKBB=/data/$ADB/ksu/bin/busybox
+  [ -e /data/$ADB/ap/bin/busybox ] && MAGISKBB=/data/$ADB/ap/bin/busybox
   [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH"
   if [ -n "$DEBUG" ]; then
     [ "$MAGISKBB" ] \
