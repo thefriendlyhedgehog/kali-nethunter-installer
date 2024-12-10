@@ -7,6 +7,8 @@
 
 #set -x
 
+#------------------------------------------------------------------------------
+
 # NetHuner additions
 OUTFD=$(cat /tmp/console);
 [ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
@@ -24,6 +26,8 @@ NN_DIR=$TMPDIR/nethunter/
 TMP=$TMPDIR/nethunter/boot-patcher
 [ "$AKHOME" ] || AKHOME=$TMP
 [ "$ANDROID_ROOT" ] || ANDROID_ROOT=/system;
+
+#------------------------------------------------------------------------------
 
 ui_print() {
   until [ ! "$1" ]; do
@@ -457,6 +461,8 @@ do_modules() {
   fi;
   cd $AKHOME;
 }
+
+#------------------------------------------------------------------------------
 
 mkdir -p $AKHOME/bin;
 cd $AKHOME;
