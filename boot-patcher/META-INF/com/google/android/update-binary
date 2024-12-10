@@ -1,5 +1,8 @@
 #!/sbin/sh
-## Kali NetHunter kernel installer
+## Kali NetHunter boot image patcher (aka kernel installer)
+##   This mostly does prep work, ready to call AnyKernel3
+
+#set -x
 
 #------------------------------------------------------------------------------
 

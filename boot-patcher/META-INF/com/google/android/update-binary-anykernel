@@ -1,4 +1,6 @@
 #!/sbin/sh
+## [Magisk & recovery/TWRP] [boot-patcher] [This is standalone script, not sourced]
+##
 ## AnyKernel3 Backend
 ##   Modified for NetHunter
 ##
