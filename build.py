@@ -977,7 +977,7 @@ def main():
     # Feedback with values from devices.yml
     print("[i] From: " + devices_yml)
     print("[i]   kernelstring: " + kernelstring)
-    x = devicenames if devicenames.split(",") else '-'
+    x = devicenames.split(",") if devicenames else '-'
     print("[i]   devicenames : " , x)
     print("[i]   arch        : " + arch)
     print("[i]   ramdisk     : " + ramdisk)
