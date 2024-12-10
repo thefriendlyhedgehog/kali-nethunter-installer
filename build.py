@@ -417,7 +417,7 @@ def setup_common(out_path=""):
     print("[+] Finished setting up common files")
 
 
-def setup_installer():
+def setup_installer(standalone=False):
     global YAML
     global kernel
     global android
@@ -604,6 +604,16 @@ def setup_installer():
     if os.path.exists(ak_patches_path):
         print("[+] Found additional AnyKernel3 patches: " + ak_patches_path)
         copytree(ak_patches_path, os.path.join(out_path, "ak_patches"))
+
+    if standalone:
+        print("[+] Setting AnyKernel3 to be standalone")
+        update_config(
+            os.path.join(out_path, "anykernel.sh"),
+            {
+                "do.devicecheck": 1,
+            },
+            True,
+        )
 
     print("[+] Finished setting up kernel installer (boot-patcher)")
 
@@ -1131,7 +1141,7 @@ def main():
         print("[+] Created uninstaller: " + file_tag)
     # Only build a boot-patch/kernel installer zip and exit if --installer is specified
     elif args.installer:
-        setup_installer()
+        setup_installer(True)
 
         zip(os.path.join(tmp_path, "boot-patcher"), file_tag)
 
