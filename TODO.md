@@ -41,3 +41,4 @@
   - `extract() {[...]}`
     - ./boot-patcher/META-INF/com/google/android/update-binary:extract() {
     - ./nethunter/META-INF/com/google/android/update-binary:extract() {
+- Rename `--installer` to `--boot-patcher`
