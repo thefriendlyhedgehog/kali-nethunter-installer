@@ -11,10 +11,10 @@ do_umount() {
   esac
 
   if [ -z "$(cat /proc/mounts | grep $PRECHROOT)" ]; then
-    print "- Umount all done"
+    print "  - Umount all done"
     isAllunmounted=0
   else
-    print "- There are still mounted points not unmounted yet"
+    print "  - There are still mounted points not unmounted yet"
     isAllunmounted=1
   fi
 
@@ -33,11 +33,11 @@ f_is_mntpoint() {
 f_dir_umount() {
   sync
 
-  print "- Killing all running pids"
+  print "  - Killing all running pids"
   f_kill_pids
   f_restore_setup
 
-  print "- Removing all fs mounts"
+  print "  - Removing all fs mounts"
   for i in "dev/pts" "dev/shm" dev proc sys system; do
     f_umount_fs "$i"
   done
@@ -121,7 +121,7 @@ verify_fs() {
 
 ## do_install [optional zip containing kalifs chroot/rootfs]
 do_install() {
-  print "- Found Kali chroot to be installed: $KALIFS"
+  print "  - Found Kali chroot to be installed: $KALIFS"
 
   mkdir -p "$NHSYS"
 
@@ -132,32 +132,32 @@ do_install() {
 
   ## Remove previous chroot
   [ -d "$PRECHROOT" ] && {
-    print "- Previous chroot detected"
+    print "  - Previous chroot detected"
     if $BOOTMODE; then
       do_umount # Magisk support
       [ $? == 1 ] && {
-        print "! Error: Aborting chroot install"
-        print "- Remove the previous chroot and install the new chroot via NetHunter app"
+        print "  ! Error: Aborting chroot install"
+        print "  - Remove the previous chroot and install the new chroot via NetHunter app"
         return 1
       }
     fi
 
-    print "- Removing previous chroot"
+    print "  - Removing previous chroot"
     rm -rf "$PRECHROOT"
     rm -f "$ROOTFS"
   }
 
   ## Extract new chroot
-  print "- Extracting Kali rootfs (This may take up to 25 minutes)"
+  print "  - Extracting Kali rootfs (This may take up to 25 minutes)"
   if [ "$1" ]; then
-    unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "! Failed to extract"
+    unzip -p "$1" "$KALIFS" | $BB tar -xJf - -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "  ! Failed to extract"
   else
-    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "! Failed to extract"
+    $BB tar -xJf "$KALIFS" -C "$NHSYS" --exclude "kali-$FS_ARCH/dev" || print "  ! Failed to extract"
   fi
 
   [ $? = 0 ] || {
-    print "! Error: Kali $FS_ARCH $FS_SIZE chroot failed to install!"
-    print "- Maybe you ran out of space on your data partition?"
+    print "  ! Error: Kali $FS_ARCH $FS_SIZE chroot failed to install!"
+    print "  - Maybe you ran out of space on your data partition?"
     return 1
   }
 
@@ -167,11 +167,11 @@ do_install() {
   ln -sf "$CHROOT" "$ROOTFS"
 
   mkdir -p -m 0755 "$CHROOT/dev"
-  print "- Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
+  print "  - Kali $FS_ARCH $FS_SIZE chroot installed successfully!"
 
   ## We should remove the rootfs archive to free up device memory or storage space (if not zip install)
   if [ -z "$1" ]; then
-    print "- Cleaning up old chroot/rootfs ($KALIFS)"
+    print "  - Cleaning up old chroot/rootfs ($KALIFS)"
     rm -f "$KALIFS"
   fi
 }
@@ -213,4 +213,4 @@ for fsdir in "$TMP" "/data/local" "/sdcard" "/external_sd"; do
   done
 done
 
-print "- No Kali rootfs archive found. Skipping"
+print "  - No Kali rootfs archive found. Skipping"

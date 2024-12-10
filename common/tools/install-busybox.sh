@@ -6,14 +6,14 @@
 ##      ./nethunter/tools/install-chroot.sh
 
 ls $TMP/tools/busybox_nh-* 1>/dev/null 2>&1 || {
-  print "! No NetHunter BusyBox found - skipping."
+  print "  ! No NetHunter BusyBox found - skipping"
   return 1
 }
 
 if $BOOTIMAGE; then
   ## util_functions.sh to get grep_prop() working
   ##   boot-patcher doesn't (yet?) support Magisk, but Magisk's file should be there due to nethunter pre-extracting/setting up
-  source /data/adb/magisk/util_functions.sh || print "! Issue with util_functions.sh"
+  source /data/adb/magisk/util_functions.sh || print "  ! Issue with util_functions.sh"
 
   [ -z $TMPDIR ] && TMPDIR=/dev/tmp
 
@@ -36,10 +36,10 @@ else
 fi
 [ -d $XBIN ] || mkdir -p $XBIN
 
-print "- Installing NetHunter BusyBox"
+print "  - Installing NetHunter BusyBox"
 cd "$TMP/tools/"
 for bb in busybox_nh-*; do
-  print "- Installing $bb"
+  print "  - Installing $bb"
   rm -f $XBIN/$bb
   cp -f $bb $XBIN/$bb
   chmod 0755 $XBIN/$bb
@@ -50,14 +50,14 @@ if ! [ $BOOTMODE ]; then
   rm -f $XBIN/busybox_nh
   cd $XBIN/
   busybox_nh=$( (ls -v busybox_nh-* || ls busybox_nh-*) | tail -n 1 ) # Alt: BB_latest=$( (ls -v busybox_nh-* 2>/dev/null || ls busybox_nh-*) | tail -n 1)
-  [ -z "$busybox_nh" ] && print "! Failed to find busybox_nh in $XBIN" && return 1
+  [ -z "$busybox_nh" ] && print "  ! Failed to find busybox_nh in $XBIN" && return 1
   #BB=$XBIN/$busybox_nh # Use NetHunter BusyBox from ./arch/<arch>/tools/ # Alt: export BB=$TMP/$busybox_nh
-  print "- Setting $busybox_nh as default"
+  print "  - Setting $busybox_nh as default"
   ln -sf $XBIN/$busybox_nh busybox_nh # Alt: $XBIN/$busybox_nh ln -sf $busybox_nh busybox_nh
   $XBIN/busybox_nh --install -s $XBIN
 
   ## Create symlink for applets
-  print "- Creating symlinks for BusyBox applets"
+  print "  - Creating symlinks for BusyBox applets"
   sysbin="$(ls /system/bin)"
   existbin="$(ls $BIN 2>/dev/null || true)"
   for applet in $($XBIN/busybox_nh --list); do
@@ -77,7 +77,7 @@ if ! [ $BOOTMODE ]; then
   done
 
   [ -e $XBIN/busybox ] || {
-    print "- $XBIN/busybox not found! Symlinking"
+    print "  - $XBIN/busybox not found! Symlinking"
     ln -s $XBIN/busybox_nh $XBIN/busybox # Alt: $XBIN/$busybox_nh ln -sf busybox_nh busybox
   }
 
@@ -89,4 +89,4 @@ set_perm_recursive >/dev/null 2>&1 && {
   set_perm_recursive "$XBIN" 0 0 0755 0755
 }
 
-print "- BusyBox successfully installed"
+print "  - BusyBox successfully installed"

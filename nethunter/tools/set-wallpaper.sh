@@ -41,18 +41,18 @@ fi
 
 ## Give up...
 [ -z $res ] && {
-  print "! Can't get screen resolution of device! Skipping"
+  print "  ! Can't get screen resolution of device! Skipping"
   return 1
 }
 
 #------------------------------------------------------------------------------
 
-print "- Found screen resolution: $res"
+print "  - Found screen resolution: $res"
 res_w=$(echo "$res" | cut -f1 -dx)
 res_h=$(echo "$res" | cut -f2 -dx)
 
 if [ ! -f "$TMP/wallpaper/$res.png" ]; then
-  print "! No wallpaper found for your screen resolution. Skipping"
+  print "  ! No wallpaper found for your screen resolution. Skipping"
   return 1
 fi
 
@@ -70,4 +70,4 @@ if [ "$setup_wp" ]; then
   chcon "u:object_r:system_data_file:s0" "$wpinfo"
 fi
 
-print "- NetHunter wallpaper applied successfully"
+print "  - NetHunter wallpaper applied successfully"

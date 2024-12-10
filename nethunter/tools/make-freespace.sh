@@ -43,18 +43,18 @@ AndroidV=$(grep 'ro.build.version.release=' ${SYSTEM}/build.prop | cut -d'=' -f2
 FreeSpace=$($BB df -m $SYSTEM | tail -n 1 | tr -s ' ' | cut -d' ' -f4)
 
 if [ -z $FreeSpace ]; then
-  print "! Warning: Could not get free space status. Skipping"
+  print "  ! Warning: Could not get free space status. Skipping"
 elif [ "$FreeSpace" -gt "$SpaceRequired" ]; then
   ## We have enough space! Return/exit
-  print "- $SYSTEM free space: $FreeSpace MB"
+  print "  - $SYSTEM free space: $FreeSpace MB"
 else
-  print "- You don't have enough free space on ${SYSTEM}: $FreeSpace MB"
-  print "- Trying to free up some space"
+  print "  - You don't have enough free space on ${SYSTEM}: $FreeSpace MB"
+  print "  - Trying to free up some space"
 
   if [ "$AndroidV" -gt "7" ]; then
-    print "- Android Version: Android $AndroidV"
-    print "- Starting from Android 8 'Oreo', we can't move apps from /system to /data"
-    print "! Aborting installation"
+    print "  - Android Version: Android $AndroidV"
+    print "  - Starting from Android 8 'Oreo', we can't move apps from /system to /data"
+    print "  ! Aborting installation"
     return 1
   else
     for app in $MoveableApps; do
@@ -64,32 +64,32 @@ else
 
       if [ -d "$SYSTEM_APP/$app/" ]; then
         if [ -d "$DATA_APP/$app/" ] || [ -f "$DATA_APP/$app.apk" ]; then
-          print "-- Removing $SYSTEM_APP/$app/ (extra)"
+          print "  -- Removing $SYSTEM_APP/$app/ (extra)"
           rm -rf "$SYSTEM_APP/$app/"
         else
-          print "-- Moving $app/ to $DATA_APP"
+          print "  -- Moving $app/ to $DATA_APP"
           mv "$SYSTEM_APP/$app/" "$DATA_APP/"
         fi
       fi
 
       if [ -f "$SYSTEM_APP/$app.apk" ]; then
         if [ -d "$DATA_APP/$app/" ] || [ -f "$DATA_APP/$app.apk" ]; then
-          print "-- Removing $SYSTEM_APP/$app.apk (extra)"
+          print "  -- Removing $SYSTEM_APP/$app.apk (extra)"
           rm -f "$SYSTEM_APP/$app.apk"
         else
-          print "-- Moving $app.apk to $DATA_APP"
+          print "  -- Moving $app.apk to $DATA_APP"
           mv "$SYSTEM_APP/$app.apk" "$DATA_APP/"
         fi
       fi
     done
 
-    print "- Free space (after): $FreeSpace MB"
+    print "  - Free space (after): $FreeSpace MB"
 
     if [ ! "$FreeSpace" -gt "$SpaceRequired" ]; then
-      print "! Unable to free up $SpaceRequired MB of space on '$SYSTEM'!"
+      print "  ! Unable to free up $SpaceRequired MB of space on '$SYSTEM'!"
       return 1
     fi
   fi
 fi
 
-print "- Freespace done"
+print "  - Freespace done"
