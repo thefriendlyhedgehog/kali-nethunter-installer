@@ -466,11 +466,13 @@ def setup_installer(standalone=False):
 
     i = 1
     for devicename in devicenames.split(","):
-        print('[i] AnyKernel3 devicename: ' + devicename)
+        print('[i] AnyKernel3 devicename[' + str(i) + ']: ' + devicename)
         key = "device.name" + str(i)
         update_config(os.path.join(out_path, "anykernel.sh"), {key: devicename}, True)
         i += 1
 
+    ## We have this hidden (aka removed) in anykernel
+    print("[i] Installer: Configuring installer banner")
     update_config(
         os.path.join(out_path, "banner"),
         {
