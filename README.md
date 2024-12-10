@@ -4,7 +4,7 @@ This [Kali NetHunter](https://www.kali.org/get-kali/#kali-mobile) installer is b
 
 Follow the instructions below to create the Kali NetHunter installer zip.
 
-All you have to do is flash it through **TWRP** (or **Magisk**) for a complete Kali NetHunter environment and chroot<!--/rootfs --> on your device.
+All you have to do is flash it through Recovery/**TWRP** (or **Magisk**) for a complete Kali NetHunter environment and chroot<!-- aka rootfs --> on your device.
 
 The default boot image patching script is based on [LazyFlasher](https://github.com/jcadduono/lazyflasher/tree/kernel-flasher)'s kernel-flasher branch, otherwise its [AnyKernel3](https://github.com/osm0sis/AnyKernel3).
 

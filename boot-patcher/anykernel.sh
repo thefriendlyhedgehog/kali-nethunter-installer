@@ -1,16 +1,22 @@
+## [Magisk & recovery/TWRP] [boot-patcher] [This is standalone script, not sourced] - uses ash
+##
 ## AnyKernel3 Ramdisk Mod Script
 ##   Modified for NetHunter
 ##
 ## CREDITS to osm0sis @ xda-developers
 ##   REF: https://github.com/osm0sis/AnyKernel3/blob/ad53675d2e13e2b52adc706fb8492bfe5b76440b/anykernel.sh
 
+#set -x
+
+#------------------------------------------------------------------------------
+
 ## AnyKernel setup
-# begin properties
+# begin properties (./build.py will set these)
 properties() { '
 kernel.string=
-do.devicecheck=0 #Use value 1 while using boot-patcher standalone
+do.devicecheck=0   # Use value 1 while using boot-patcher standalone
 do.modules=0
-do.systemless=0 #Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
+do.systemless=0    # Never use this for NetHunter kernels as it prevents us from writing to /lib/modules
 do.cleanup=0
 do.cleanuponabort=0
 device.name1=

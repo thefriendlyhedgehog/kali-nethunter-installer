@@ -45,8 +45,8 @@ do_flash() {
 
 flash_kernel() {
   [ -e "$ZIPFILE" ] && {
-    ## Check zip for kernel-*.zip first
-    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-/ { print $4; exit }')
+    ## Check zip for kernel-nethunter.zip
+    KERNEL=$(unzip -lqq "$ZIPFILE" | awk '$4 ~ /^kernel-nethunter/ { print $4; exit }')
     ## If zip didn't contain a kernel-*.zip
     [ "$KERNEL" ] || {
       ui_print "* No kernel found. Skipping"
@@ -364,11 +364,11 @@ fi
 ## May need to start up NetHunter.apk first!
 if [ -e /data/data/com.offsec.nethunter/assets/scripts/ ]; then
   ui_print "* Symlinking NetHunter.apk boot scripts"
-  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali" "$TARGET/bin/bootkali" || ui_print "[!] Missing bootkali"
-  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_init" "$TARGET/bin/bootkali_init" || ui_print "[!] Missing bootkali_init"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali"       "$TARGET/bin/bootkali"       || ui_print "[!] Missing bootkali"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_init"  "$TARGET/bin/bootkali_init"  || ui_print "[!] Missing bootkali_init"
   symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_login" "$TARGET/bin/bootkali_login" || ui_print "[!] Missing bootkali_login"
-  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_bash" "$TARGET/bin/bootkali_bash" || ui_print "[!] Missing bootkali_bash"
-  symlink "/data/data/com.offsec.nethunter/assets/scripts/killkali" "$TARGET/bin/killkali" || ui_print "[!] Missing killkali"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/bootkali_bash"  "$TARGET/bin/bootkali_bash"  || ui_print "[!] Missing bootkali_bash"
+  symlink "/data/data/com.offsec.nethunter/assets/scripts/killkali"       "$TARGET/bin/killkali"       || ui_print "[!] Missing killkali"
 else
   ui_print "[!] Magisk doesn't have permission to access boot scripts"
 fi

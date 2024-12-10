@@ -1,4 +1,6 @@
 #!/sbin/sh
+## [Magisk & recovery/TWRP] [boot-patcher] [This is standalone script, not sourced]
+##
 ## AnyKernel3 Backend
 ##   Modified for NetHunter
 ##
@@ -7,8 +9,10 @@
 
 #set -x
 
+#------------------------------------------------------------------------------
+
 # NetHuner additions
-OUTFD=$(cat /tmp/console);
+[ -f "/tmp/console" ] && OUTFD=$(cat /tmp/console);
 [ "$OUTFD" ] || OUTFD=/proc/$$/fd/1;
 ZIPFILE="$3";
 
@@ -24,6 +28,8 @@ NN_DIR=$TMPDIR/nethunter/
 TMP=$TMPDIR/nethunter/boot-patcher
 [ "$AKHOME" ] || AKHOME=$TMP
 [ "$ANDROID_ROOT" ] || ANDROID_ROOT=/system;
+
+#------------------------------------------------------------------------------
 
 ui_print() {
   until [ ! "$1" ]; do
@@ -433,7 +439,7 @@ do_modules() {
 
       ## Adjusted for NetHunter: Remove old modules directories
       if [ "$do_clean" = true ]; then
-	existing_moddir=$(echo $modtarget | $BB sed 's/lib\/modules\/.*$/lib\/modules\//')
+        existing_moddir=$(echo $modtarget | $BB sed 's/lib\/modules\/.*$/lib\/modules\//')
         ui_print "- Removing existing modules directories in ${existing_moddir}";
         rm -rf ${existing_moddir}/../modules
         do_clean=false
@@ -457,6 +463,8 @@ do_modules() {
   fi;
   cd $AKHOME;
 }
+
+#------------------------------------------------------------------------------
 
 mkdir -p $AKHOME/bin;
 cd $AKHOME;
@@ -517,3 +525,5 @@ restore_env;
 if [ "$(file_getprop anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
+
+ui_print "- AnyKernel complete"
