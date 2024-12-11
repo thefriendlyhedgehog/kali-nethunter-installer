@@ -996,8 +996,7 @@ def main():
     x = block if block else '-'
     print("[i]   block       : " + x)
     print("[i]   version     : " + str(version))
-    x = supersu if supersu else '-'
-    print("[i]   supersu     : " + x)
+    print("[i]   supersu     : " + supersu) # Not sure if this should be visible without if args.supersu
     print("[i]   modules     : " + modules)
     print("[i]   slot_device : " + slot_device)
     print("[i]   author      : " + author)
