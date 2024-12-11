@@ -298,17 +298,21 @@ def check_rootfs(fs_size, dst):
         max_size = 2147483648
 
         if fs_size + zip_size >= max_size:
-            print ("[-] Warning: output ZIP is larger than 2 GB for a ARM 32-bit device. The device may fail when extracting.")
+            print ("[-] Warning: Output ZIP will be larger than 2 GB for a ARM 32-bit device. The device may fail when extracting.")
 
             if args.force:
                 print ("[i]   Forcing creation")
             else:
                 rootfs_replacement = "minimal"
+                print ("[i]   Switching rootfs: " + rootfs_replacement + " (use --force to overwrite)")
 
-                print ("[i]   Switching rootfs: minimal (use --force to overwrite)")
+                if os.path.isfile(dst):
+                    os.remove(dst)
+
+                download_rootfs(rootfs_replacement)
+
                 dst = dst.replace("-kalifs_" + args.rootfs, "-kalifs_" + rootfs_replacement)
                 args.rootfs = rootfs_replacement
-                download_rootfs(rootfs_replacement)
         return dst, args
     except Exception as e:
         print("[-] IOError = " + e.reason, file=sys.stderr)
