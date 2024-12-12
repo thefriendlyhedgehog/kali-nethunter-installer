@@ -42,47 +42,46 @@ dl_supersu = {
     ],
 }
 
-# Install updated apps from the staging site (staging.nethunter.com) so that we can prepare images before we go live with a release
+# Install updated apps from the staging site (https://staging.nethunter.com/) so that we can prepare images before we go live with a release
 dl_apps = {
-    # com.offsec.nethunter_2024020400.apk
-    # Alt: https://store.nethunter.com/NetHunter.apk
-    #   https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
-    #   https://store.nethunter.com/packages/com.offsec.nethunter/
+    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
+    # https://store.nethunter.com/packages/com.offsec.nethunter/
+    # https://store.nethunter.com/repo/com.offsec.nethunter_2024040100.apk
     "NetHunter": [
-        "https://store.nethunter.com/repo/com.offsec.nethunter_2024030200.apk",
-        "b807a0aeb5d365453c3150cd23d06bc818b9b2708f288ea0d5e4da4c790ce528c57859e60fbcd44da14d8931409bca6efb9df16d65d825ed14d05b54698d4341",
+        "https://store.nethunter.com/NetHunter.apk",
+        "84c01684bad6ebc308822ecca80cc038bfc3e9fb9f3082bb8992df4d4bd0bcc0860ac18566ecc6f9aa974688457db2e40c50def44a0e5b8417824b5c7adc4769",
     ],
 
-    # com.offsec.nhterm_2023040100.apk
-    #   https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
-    #   https://store.nethunter.com/packages/com.offsec.nhterm/
+    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
+    # https://store.nethunter.com/packages/com.offsec.nhterm/
+    # https://store.nethunter.com/repo/com.offsec.nhterm_2023040100.apk
     "NetHunterTerminal": [
         "https://store.nethunter.com/NetHunterTerminal.apk",
         "3e5524119e55d1217169d368113bc42763f654a8dc69175b6339f93a4f587c335b2a2252d9285d7ebfe3fcc11d5f41fe7a4caf3d1f82d0306d347519340a89a9",
     ],
 
-    # com.offsec.nethunter.kex_11525001.apk
-    #  https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-kex
-    #  https://store.nethunter.com/packages/com.offsec.nethunter.kex/
+    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-kex
+    # https://store.nethunter.com/packages/com.offsec.nethunter.kex/
+    # https://store.nethunter.com/repo/com.offsec.nethunter.kex_11525001.apk
     "NetHunterKeX": [
         "https://store.nethunter.com/NetHunterKeX.apk",
-        "f3e705532d0aa1372c8d19bdece6a1d82fbe6b1845ee6992c984dbe154fdc811230ddb0193a5c42c74926b54a6e0e689ecc3afc5ac5b93780ee0cc67d93a8dc9",
+        "da4dddc0090220f4b05db7a2421a7f90344a19af046d41da8915438dfbef3dcfef6535d34ba3fcaccbd4e1176a06f7472080f31f292bf61d1f8b790bec40126d",
     ],
 
-    # com.offsec.nethunter.store_2019030200.apk
-    #   https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-client
-    #   https://store.nethunter.com/packages/com.offsec.nethunter.store/
+    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-client
+    # https://store.nethunter.com/packages/com.offsec.nethunter.store/
+    # https://store.nethunter.com/repo/com.offsec.nethunter.store_2019030201.apk
     "NetHunterStore": [
         "https://store.nethunter.com/NetHunterStore.apk",
-        "35fed79b55463f64c6b11d19df2ecb4ff099ef1dda1063b87eedaae3ebde32c3720e61cad2da73a46492d19180306adcf5f72d511da817712e1eed32068ec1ef",
+        "78e2e8e3ffe1d9ef60024a2daed733e360e9141dc517da1329e7e7b7db8fc34f2080055566ddde177ecda121c74a394d5aad5aff951d7d9b6aa17e052eb4d341",
     ],
 
-    # com.offsec.nethunter.store.privileged_2110.apk
-    #   https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
-    #   https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
+    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
+    # https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
+    # https://store.nethunter.com/repo/com.offsec.nethunter.store.privileged_2130.apk
     "NetHunterStorePrivilegedExtension": [
         "https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk",
-        "668871f6e3cc03070db4b75a21eb0c208e88b609644bbc1408778217ed716478451ceb487d36bc1d131fa53b1b50c615357b150095c8fb7397db4b8c3e24267a",
+        "7241517d38c3d3aa76c652efbe98e73392f3afd65a230c9d95fe5408b76eb0fc850629c00960a2c73c3b26a9eaf617c2c910996f26f11e42972326c6f1ddd0c8",
     ],
 }
 
