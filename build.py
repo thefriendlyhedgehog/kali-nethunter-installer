@@ -587,7 +587,6 @@ def setup_installer(standalone=False):
 
 def setup_nethunter():
     global arch
-    global resolution
 
     setup_common(tmp_path)
 
@@ -599,6 +598,12 @@ def setup_nethunter():
     print("[i] NetHunter: Copying %s arch specific files" % arch)
     copytree(os.path.join("nethunter", "arch", arch), tmp_path)
 
+    # Move imagemagick architecture-specific files into tools/
+    imagemagick_arch_path = os.path.join("nethunter", "arch", "imagemagick", arch)
+    if os.path.exists(imagemagick_arch_path):
+        print("[i] NetHunter: Copying imagemagick {} specific files".format(arch))
+        copytree(imagemagick_arch_path, os.path.join(tmp_path, "tools", "imagemagick", arch))
+
     print("[i] NetHunter: Copying kernel zip")
     copytree("kernel", tmp_path)
 
@@ -608,13 +613,6 @@ def setup_nethunter():
         os.path.join(tmp_path, "META-INF", "com", "google", "android", "update-binary"),
         {"supersu": supersu},
     )
-
-    # Overwrite screen resolution if defined in ./kernels/devices.yml
-    if resolution:
-        file_name = os.path.join(tmp_path, "wallpaper", "resolution.txt")
-        file_handle = open(file_name, "w")
-        file_handle.write(resolution)
-        file_handle.close()
 
     # Device model specific (pre zip)
     # Change bootanimation folder for product partition devices
@@ -702,7 +700,6 @@ def main():
     global arch
     global android
     global kernelstring
-    global resolution
     global devicenames
     global ramdisk
     global block
@@ -927,7 +924,6 @@ def main():
     devicenames = read_key("devicenames")
     arch = args.generic if args.generic else read_key("arch", "armhf")
     ramdisk = read_key("ramdisk", 'auto')
-    resolution = read_key("resolution")
     block = read_key("block")
     version = read_key("version", "1.0")
     supersu = read_key("supersu", "auto") # REF: See commit 922bea58931a50299e159d222285792303e69005
@@ -990,8 +986,6 @@ def main():
     print("[i]   devicenames :" , x)
     print("[i]   arch        : " + arch)
     print("[i]   ramdisk     : " + ramdisk)
-    x = resolution if resolution else '-'
-    print("[i]   resolution  : " + x)
     x = block if block else '-'
     print("[i]   block       : " + x)
     print("[i]   version     : " + str(version))
