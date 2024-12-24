@@ -612,7 +612,7 @@ progress 0.6
 
 [ -d $TMP/wallpaper ] && {
   print "* Running Kali NetHunter wallpaper script" # Installing Kali NetHunter wallpaper
-  source "$TMP/tools/set-wallpaper.sh" || abort "Set wallpaper failed"   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
+  source "$TMP/tools/set-wallpaper.sh" || true   # Don't spawn a new session (aka using sh), do in current session (able to pass variables/functions)
   #print "* Done installing wallpaper"
 }
 
