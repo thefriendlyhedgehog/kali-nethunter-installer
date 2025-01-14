@@ -34,7 +34,7 @@ The whole setup has been automated. As Kali NetHunter kernels have an immense bi
 $ ./bootstrap.sh
 ```
 
-_This will clone [Kali NetHunter Kernels](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kenrels) into `./kernels/`_
+_This will clone [Kali NetHunter Kernels](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels) into `./kernels/`_
 
 ### Build command examples
 
