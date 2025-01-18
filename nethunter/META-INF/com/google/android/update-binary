@@ -40,6 +40,10 @@ print() {
   fi
 }
 
+debug() {
+  [ -n "$DEBUG" ] && print "@ $1"
+}
+
 # extract <ZIP FILE> <OUT DIR> [<SKIP>]
 extract() {
   rm -rf "$2"
@@ -99,7 +103,7 @@ print "* NetHunter (Magisk)"        # Skipping indent formatting
 else
 print "* NetHunter (Recovery/TWRP)" # Skipping indent formatting
 fi
-[ -n "$DEBUG" ] && print "* Debug Mode: Enabled"
+debug "Debug Mode: Enabled"
 print ""
 
 mount /data || true # May fail, if we don't have /etc/fstab

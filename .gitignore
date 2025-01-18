@@ -8,7 +8,7 @@ tmp_out/
 nethunter-*.zip
 
 ## ./bootstrap.sh - https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels
-kernels/
+kernels
 
 ## ./generate-release.py - output
 release-*.sh

@@ -577,7 +577,7 @@ def setup_installer(standalone=False):
         update_config(
             os.path.join(out_path, "anykernel.sh"),
             {
-                "do.devicecheck": 1,
+                "do.devicecheck": "1",
             },
             True,
         )
