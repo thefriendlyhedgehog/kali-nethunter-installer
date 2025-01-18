@@ -374,8 +374,8 @@ set_perm_recursive "$BIN" 0 0 0755 0755
 
 #------------------------------------------------------------------------------
 
-## Adding required permissions for NetHunter app
-ui_print "* Granting required permissions to NetHunter app"
+## Adding required permissions for apps
+ui_print "* Granting required permissions to apps"
 ## $ aapt d permissions ./data/apps/NetHunter.apk
 ##   Working on LineageOS 18.1/Android 11 (OnePlus 1 64GB)
 for x in ACCESS_BACKGROUND_LOCATION \
@@ -386,6 +386,72 @@ for x in ACCESS_BACKGROUND_LOCATION \
          WRITE_SECURE_SETTINGS; do
   pm grant -g com.offsec.nethunter android.permission.$x 2>/dev/null && echo "** $x success" >&2 || echo "** ! $x failed" >&2
 done
+
+## $ aapt d permissions ./data/apps/NetHunter.apk                           # com.offsec.nethunter_2024040100.apk
+# uses-permission: name='android.permission.ACCESS_BACKGROUND_LOCATION'
+# uses-permission: name='android.permission.ACCESS_COARSE_LOCATION'
+# uses-permission: name='android.permission.ACCESS_FINE_LOCATION'
+# uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+# uses-permission: name='android.permission.ACCESS_NOTIFICATION_POLICY'
+# uses-permission: name='android.permission.ACCESS_WIFI_STATE'
+# uses-permission: name='android.permission.BIND_ACCESSIBILITY_SERVICE'
+# uses-permission: name='android.permission.BLUETOOTH'
+# uses-permission: name='android.permission.BLUETOOTH_ADMIN'
+# uses-permission: name='android.permission.BLUETOOTH_CONNECT'
+# uses-permission: name='android.permission.BLUETOOTH_PRIVILEGED'
+# uses-permission: name='android.permission.CHANGE_NETWORK_STATE'
+# uses-permission: name='android.permission.CHANGE_WIFI_MULTICAST_STATE'
+# uses-permission: name='android.permission.CHANGE_WIFI_STATE'
+# uses-permission: name='android.permission.FOREGROUND_SERVICE'
+# uses-permission: name='android.permission.INTERNET'
+# uses-permission: name='android.permission.POST_NOTIFICATIONS'
+# uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'
+# uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+# uses-permission: name='android.permission.VIBRATE'
+# uses-permission: name='android.permission.WAKE_LOCK'
+# uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'
+# uses-permission: name='android.permission.WRITE_SECURE_SETTINGS'
+# uses-permission: name='android.permission.WRITE_SETTINGS'
+# uses-permission: name='com.offsec.nethunter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+# permission: com.offsec.nethunter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+
+## $ aapt d permissions ./data/apps/NetHunterKeX.apk                        # com.offsec.nethunter.kex_11525001.apk
+# uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+# uses-permission: name='android.permission.INTERNET'
+# uses-permission: name='android.permission.VIBRATE'
+
+## $ aapt d permissions ./data/apps/NetHunterStore.apk                      # com.offsec.nethunter.store_2019030201.apk
+# uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+# uses-permission: name='android.permission.ACCESS_WIFI_STATE'
+# uses-permission: name='android.permission.BLUETOOTH'
+# uses-permission: name='android.permission.BLUETOOTH_ADMIN'
+# uses-permission: name='android.permission.CHANGE_NETWORK_STATE'
+# uses-permission: name='android.permission.CHANGE_WIFI_MULTICAST_STATE'
+# uses-permission: name='android.permission.CHANGE_WIFI_STATE'
+# uses-permission: name='android.permission.INTERNET'
+# uses-permission: name='android.permission.NFC'
+# uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'
+# uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+# uses-permission: name='android.permission.WAKE_LOCK'
+# uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'
+# uses-permission: name='android.permission.WRITE_SETTINGS'
+# uses-permission-sdk-23: name='android.permission.ACCESS_COARSE_LOCATION'
+
+## $ aapt d permissions ./data/apps/NetHunterStorePrivilegedExtension.apk   # com.offsec.nethunter.store.privileged_2130.apk
+# uses-permission: name='android.permission.DELETE_PACKAGES'
+# uses-permission: name='android.permission.INSTALL_PACKAGES'
+
+## $ aapt d permissions ./data/apps/NetHunterTerminal.apk                   # com.offsec.nhterm_2023040100.apk
+# uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+# uses-permission: name='android.permission.FOREGROUND_SERVICE'
+# uses-permission: name='android.permission.INTERNET'
+# uses-permission: name='android.permission.MANAGE_EXTERNAL_STORAGE'
+# uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'
+# uses-permission: name='android.permission.READ_LOGS'
+# uses-permission: name='android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS'
+# uses-permission: name='android.permission.VIBRATE'
+# uses-permission: name='android.permission.WAKE_LOCK'
+# uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'
 
 #------------------------------------------------------------------------------
 
