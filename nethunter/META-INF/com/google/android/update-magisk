@@ -112,13 +112,11 @@ if [ -e /data/$ADB/magisk ]; then
   [ -e /data/$ADB/ksu/bin/busybox ] && MAGISKBB=/data/$ADB/ksu/bin/busybox
   [ -e /data/$ADB/ap/bin/busybox ] && MAGISKBB=/data/$ADB/ap/bin/busybox
   [ "$MAGISKBB" ] && export PATH="$MAGISKBB:$PATH"
-  if [ -n "$DEBUG" ]; then
-    [ "$MAGISKBB" ] \
-      && ui_print "@ MAGISKBB: $MAGISKBB" \
-      || ui_print "@ Inside of Magisk without BusyBox"
-  fi
-elif [ -n "$DEBUG" ]; then
-  ui_print "@ Not inside of Magisk"
+  [ "$MAGISKBB" ] \
+    && debug "MAGISKBB: $MAGISKBB" \
+    || debug "Inside of Magisk without BusyBox"
+else;
+  debug "Not inside of Magisk?"
 fi
 
 ## Define modules target dirs
