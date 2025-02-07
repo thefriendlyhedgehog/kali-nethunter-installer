@@ -115,7 +115,7 @@ if [ -e /data/$ADB/magisk ]; then
   [ "$MAGISKBB" ] \
     && debug "MAGISKBB: $MAGISKBB" \
     || debug "Inside of Magisk without BusyBox"
-else;
+elif [ ! -f "$MAGISKBB" ]; then
   debug "Not inside of Magisk?"
 fi
 
