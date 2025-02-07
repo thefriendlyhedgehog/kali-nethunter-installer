@@ -1,6 +1,5 @@
 ## TO-DO
 
-- [ ] `./build.py`: If `resolution` is set in `./kernels/devices.yml`, only copy those wallpapers when generating nethunter ZIP
 - [ ] `./build.py`: When downloading Kali chroot/rootfs, add SHA512 retrieval function
 - [ ] Sync external scripts with their upstream
   - <https://github.com/Magisk-Modules-Alt-Repo/magic-flash>
