@@ -1049,8 +1049,8 @@ def main():
         IgnoredFiles.append("bootanimation.zip")
         IgnoredFiles.append("NetHunterStorePrivilegedExtension.apk")
         IgnoredFiles.append("NetHunterStore.apk")
-        if args.kernel == "ticwatchpro":
-            IgnoredFiles.append("NetHunterKeX.apk")
+#        if args.kernel == "ticwatchpro": Ignore for all, until there's a smaller build
+        IgnoredFiles.append("NetHunterKeX.apk")
     # Don't include wearos bootanimation by default
     else:
         IgnoredFiles.append("bootanimation_wearos.zip")
