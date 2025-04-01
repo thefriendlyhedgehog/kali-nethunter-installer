@@ -49,7 +49,7 @@ dl_apps = {
     # https://store.nethunter.com/repo/com.offsec.nethunter_2024040100.apk
     "NetHunter": [
         "https://store.nethunter.com/NetHunter.apk",
-        "84c01684bad6ebc308822ecca80cc038bfc3e9fb9f3082bb8992df4d4bd0bcc0860ac18566ecc6f9aa974688457db2e40c50def44a0e5b8417824b5c7adc4769",
+        "59f0ebad5df3a9b00661957c3ea1c13840acfa849ddf211ad6d46566539f65f54fe7840e51db5cfd1b75ab40c0e515cfe901e0725046566947094e6aae93e4cc",
     ],
 
     # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
