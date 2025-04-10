@@ -151,10 +151,10 @@ def generate_manifest(data):
     devices = {}
 
     ## Add Kali NetHunter generic
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Full)", "kali-nethunter-{}-{}-{}-rootfs-{}.zip".format(release, "generic", "arm64", "full"))
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Minimal)", "kali-nethunter-{}-{}-{}-rootfs-{}.zip".format(release, "generic", "arm64", "minimal"))
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Full)", "kali-nethunter-{}-{}-{}-rootfs-{}.zip".format(release, "generic", "armhf", "full"))
-    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Minimal)", "kali-nethunter-{}-{}-{}-rootfs-{}.zip".format(release, "generic", "armhf", "minimal"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Full)", "kali-nethunter-{}-{}-{}-{}.zip".format(release, "generic", "arm64", "full"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARM64 (Minimal)", "kali-nethunter-{}-{}-{}-{}.zip".format(release, "generic", "arm64", "minimal"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Full)", "kali-nethunter-{}-{}-{}-{}.zip".format(release, "generic", "armhf", "full"))
+    jsonarray(devices, "NetHunter Generic", "NetHunter Generic ARMhf (Minimal)", "kali-nethunter-{}-{}-{}-{}.zip".format(release, "generic", "armhf", "minimal"))
 
     # Iterate over all the devices
     for element in data:
@@ -164,7 +164,7 @@ def generate_manifest(data):
                 for image in element[key]['images']:
                     name = image.get('name', default)
                     manufacture = name.split()[0]
-                    filename = "kali-nethunter-{}-{}-{}-rootfs-{}.zip".format(release, image.get('id', default), image.get('android', default), image.get('rootfs', FS_SIZE))
+                    filename = "kali-nethunter-{}-{}-{}-{}.zip".format(release, image.get('id', default), image.get('android', default), image.get('rootfs', FS_SIZE))
                     jsonarray(devices, manufacture, name, filename)
     return json.dumps(devices, indent = 2)
 
