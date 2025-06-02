@@ -239,8 +239,8 @@ def download_nethunter_apps():
         apk_hash = value[1] if len(value) == 2 else False
 
         # For force re-download, remove previous APK
-        if os.path.isfile(apk_path):
-            if args.force_download:
+        if args.force_download:
+            if os.path.isfile(apk_path):
                 print("[i] Deleting: " + apk_path)
                 os.remove(apk_path)
 
