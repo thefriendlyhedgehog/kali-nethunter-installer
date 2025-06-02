@@ -250,7 +250,7 @@ def download_nethunter_apps():
         else:
             download(apk_url, apk_path, apk_hash)
 
-    print("[+] Finished downloading NetHunter all apps")
+    print("[+] Finished downloading all NetHunter apps")
 
 
 def download_rootfs(fs_size):
