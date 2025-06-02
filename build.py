@@ -246,7 +246,12 @@ def download_nethunter_apps():
 
         # Only download apk if we don't have it already
         if os.path.isfile(apk_path):
-            print("[+] Found %s: %s" % (apk_name, apk_path))
+            apk_hash = hashlib.sha512()
+            with open(apk_path, "rb") as f:
+                for chunk in iter(lambda: f.read(4096), b""):
+                    apk_hash.update(chunk)
+
+            print("[+] Found %s: %s (SHA512: %s)" % (apk_name, apk_path, apk_hash.hexdigest()))
         else:
             download(apk_url, apk_path, apk_hash)
 
@@ -278,7 +283,11 @@ def download_rootfs(fs_size):
 
     # Only download Kali rootfs if we don't have it already
     if os.path.isfile(fs_localpath):
-        print("[+] Found local Kali %s %s rootfs: %s" % (fs_arch, fs_size, fs_localpath))
+        fs_hash = hashlib.sha512()
+        with open(fs_localpath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                fs_hash.update(chunk)
+        print("[+] Found local Kali %s %s rootfs: %s (SHA512: %s)" % (fs_arch, fs_size, fs_localpath, fs_hash.hexdigest()))
     else:
         print("[i] Downloading Kali %s %s rootfs (last-snapshot)" % (fs_arch, fs_size))
         download(fs_url, fs_localpath, False)  # TODO: We should add SHA512 retrieval function
