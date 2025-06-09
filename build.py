@@ -46,10 +46,10 @@ dl_supersu = {
 dl_apps = {
     # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
     # https://store.nethunter.com/packages/com.offsec.nethunter/
-    # https://store.nethunter.com/repo/com.offsec.nethunter_2024040100.apk
+    # https://store.nethunter.com/repo/com.offsec.nethunter_2025020100.apk
     "NetHunter": [
         "https://store.nethunter.com/NetHunter.apk",
-        "59f0ebad5df3a9b00661957c3ea1c13840acfa849ddf211ad6d46566539f65f54fe7840e51db5cfd1b75ab40c0e515cfe901e0725046566947094e6aae93e4cc",
+        "4075e414175d91c0b2aa7ae5b2f9e25cdc583c7c28def9a1abb5ac16d1cf56e44a00ff4212e30a3a6997e6e62426afe37606bf7479f5ba4efe1055d851093483",
     ],
 
     # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
