@@ -56,6 +56,22 @@ flash_kernel() {
   }
 }
 
+push_modules() {
+   [ ! -d "$TMP/boot-patcher/modules" ] && {
+      ui_print "  - No modules to push, skipping"
+      return
+   }
+   NHMODULES_DIR=`ls "$TMP/boot-patcher/modules/"`   
+   ui_print "  - Copying modules"
+   cp -r "$TMP/boot-patcher/modules/$NHMODULES_DIR/lib" "$MODPATH/system/"   
+   ui_print "  - Verifying modules folder"
+   if [ -d "$MODPATH/system/lib/modules" ]; then
+     ui_print "  - Modules copied successfully to /system/lib/modules."
+   else
+     abort "- Failed to copy modules to /system/lib/modules."
+   fi
+}
+
 #------------------------------------------------------------------------------
 
 #<REF: ./scripts/util_functions.sh>
@@ -452,6 +468,12 @@ done
 # uses-permission: name='android.permission.VIBRATE'
 # uses-permission: name='android.permission.WAKE_LOCK'
 # uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'
+
+#------------------------------------------------------------------------------
+
+## Install modules
+ui_print "* Pushing modules"
+push_modules || ui_print "[!] Failed to push modules"
 
 #------------------------------------------------------------------------------
 
