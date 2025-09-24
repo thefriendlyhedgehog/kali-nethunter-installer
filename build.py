@@ -129,23 +129,28 @@ def download(url, file_name, verify_sha):
         file_size = 0
         print("[i] Downloading: %s (unknown size) - %s" % (os.path.basename(file_name), url))
 
+    is_tty = sys.stdout.isatty()
+
     sha = hashlib.sha512()
     f = open(file_name, "wb")
     try:
         dl_bytes = 0
         for chunk in u.iter_content(chunk_size=8192):
             if not chunk:
-                continue  # Ignore empty chunks
+                continue   # Ignore empty chunks
             f.write(chunk)
-            sha.update(chunk)
-            dl_bytes += len(chunk)
-            if file_size:
-                status = r"%10d  [%3.2f%%]" % (dl_bytes, dl_bytes * 100.0 / file_size)
-            else:
-                status = r"%10d" % dl_bytes
 
-            status = status + chr(8) * (len(status) + 1)
-            print(status + "\r", end="")
+            if is_tty:
+                sha.update(chunk)
+                dl_bytes += len(chunk)
+
+                if file_size:
+                    status = r"%10d  [%3.2f%%]" % (dl_bytes, dl_bytes * 100.0 / file_size)
+                else:
+                    status = r"%10d" % dl_bytes
+
+                status = status + chr(8) * (len(status) + 1)
+                print(status + "\r", end="")
         download_ok = True
     except requests.exceptions.RequestException as e:
         print()
