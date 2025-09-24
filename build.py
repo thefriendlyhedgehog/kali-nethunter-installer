@@ -660,11 +660,22 @@ def scan_kernel_image():
     i = 0
 
     print("[+] Searching for kernel: " + kernel)
-    subdirectories = [ x.path for x in os.scandir("kernels") if x.is_dir() and not x.path.startswith('{}.'.format("kernels/"))]
+    subdirectories = [
+        x.path for x in os.scandir("kernels")
+        if x.is_dir() and not x.path.startswith('{}.'.format("kernels/"))
+    ]
+
+    # Directories to exclude
+    excludes = [
+        "kernels/bin",
+        "kernels/example_scripts",
+        "kernels/patches"
+    ]
+
     # Remove non Android version directories
-    subdirectories.remove('{}bin'.format("kernels/"))
-    subdirectories.remove('{}example_scripts'.format("kernels/"))
-    subdirectories.remove('{}patches'.format("kernels/"))
+    for ex in excludes:
+        if ex in subdirectories:
+            subdirectories.remove(ex)
 
     for android_version_dir in subdirectories:
         android_version_dir = android_version_dir.lower()
