@@ -139,9 +139,9 @@ def download(url, file_name, verify_sha):
             if not chunk:
                 continue   # Ignore empty chunks
             f.write(chunk)
+            sha.update(chunk)
 
             if is_tty:
-                sha.update(chunk)
                 dl_bytes += len(chunk)
 
                 if file_size:
