@@ -42,43 +42,44 @@ dl_supersu = {
     ],
 }
 
-# Install updated apps from the staging site (https://staging.nethunter.com/) so that we can prepare images before we go live with a release
+# TODO: Install updated apps from the staging site (https://staging.nethunter.com/) so that we can prepare images before we go live with a release
+# $ ls -1 ./repo/com.offsec.n*.apk
 dl_apps = {
-    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
-    # https://store.nethunter.com/packages/com.offsec.nethunter/
-    # https://store.nethunter.com/repo/com.offsec.nethunter_2025090000.apk
+    # Store: https://store.nethunter.com/packages/com.offsec.nethunter/
+    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter_2025090000.apk -> https://store.nethunter.com/NetHunter.apk
+    # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
     "NetHunter": [
         "https://store.nethunter.com/NetHunter.apk",
         "ded0bcc3ba77937254027f6fc98c79f161e988f16e7b24a7420f5660c814012f52b6b5ba89a91a23329ddd5a1b1441c2b2eae7f34bf21670839b492ca4472927",
     ],
 
-    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
-    # https://store.nethunter.com/packages/com.offsec.nhterm/
-    # https://store.nethunter.com/repo/com.offsec.nhterm_2025090000.apk
+    # Store: https://store.nethunter.com/packages/com.offsec.nhterm/
+    # APK  : https://store.nethunter.com/repo/com.offsec.nhterm_2025090000.apk -> https://store.nethunter.com/NetHunterTerminal.apk
+    # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
     "NetHunterTerminal": [
         "https://store.nethunter.com/NetHunterTerminal.apk",
         "57cb0f5054a7c881b7df03abfbe9976044680de3ec3034a6566f6015e125e7a8214fc78916615e82b122d4db5b0cdd93287f907f82315ac0a3e4e4965c95d90b",
     ],
 
-    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-kex
-    # https://store.nethunter.com/packages/com.offsec.nethunter.kex/
-    # https://store.nethunter.com/repo/com.offsec.nethunter.kex_11525001.apk
+    # Store: https://store.nethunter.com/packages/com.offsec.nethunter.kex/
+    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter.kex_11525001.apk -> https://store.nethunter.com/NetHunterKeX.apk
+    # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-kex
     "NetHunterKeX": [
         "https://store.nethunter.com/NetHunterKeX.apk",
         "da4dddc0090220f4b05db7a2421a7f90344a19af046d41da8915438dfbef3dcfef6535d34ba3fcaccbd4e1176a06f7472080f31f292bf61d1f8b790bec40126d",
     ],
 
-    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-client
-    # https://store.nethunter.com/packages/com.offsec.nethunter.store/
-    # https://store.nethunter.com/repo/com.offsec.nethunter.store_2019030201.apk
+    # Store: https://store.nethunter.com/packages/com.offsec.nethunter.store/
+    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter.store_2019030201.apk -> https://store.nethunter.com/NetHunterStore.apk
+    # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-client
     "NetHunterStore": [
         "https://store.nethunter.com/NetHunterStore.apk",
         "78e2e8e3ffe1d9ef60024a2daed733e360e9141dc517da1329e7e7b7db8fc34f2080055566ddde177ecda121c74a394d5aad5aff951d7d9b6aa17e052eb4d341",
     ],
 
-    # https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
-    # https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
-    # https://store.nethunter.com/repo/com.offsec.nethunter.store.privileged_2130.apk
+    # Store: https://store.nethunter.com/packages/com.offsec.nethunter.store.privileged/
+    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter.store.privileged_2130.apk -> https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk
+    # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-store-privileged-extension
     "NetHunterStorePrivilegedExtension": [
         "https://store.nethunter.com/NetHunterStorePrivilegedExtension.apk",
         "7241517d38c3d3aa76c652efbe98e73392f3afd65a230c9d95fe5408b76eb0fc850629c00960a2c73c3b26a9eaf617c2c910996f26f11e42972326c6f1ddd0c8",
