@@ -46,19 +46,19 @@ dl_supersu = {
 # $ ls -1 ./repo/com.offsec.n*.apk
 dl_apps = {
     # Store: https://store.nethunter.com/packages/com.offsec.nethunter/
-    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter_2025090000.apk -> https://store.nethunter.com/NetHunter.apk
+    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter_2025110200.apk -> https://store.nethunter.com/NetHunter.apk
     # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
     "NetHunter": [
         "https://store.nethunter.com/NetHunter.apk",
-        "ded0bcc3ba77937254027f6fc98c79f161e988f16e7b24a7420f5660c814012f52b6b5ba89a91a23329ddd5a1b1441c2b2eae7f34bf21670839b492ca4472927",
+        "212bfe9d01b2182f1cce17b82122008353f844d9a68ae53a579fc6a877442e9187e10ebd7746964e1fcbcd1367882a8f6d16b4546167c86b41eb45264f0eb3bb",
     ],
 
     # Store: https://store.nethunter.com/packages/com.offsec.nhterm/
-    # APK  : https://store.nethunter.com/repo/com.offsec.nhterm_2025090000.apk -> https://store.nethunter.com/NetHunterTerminal.apk
+    # APK  : https://store.nethunter.com/repo/com.offsec.nhterm_2025110300.apk -> https://store.nethunter.com/NetHunterTerminal.apk
     # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-term
     "NetHunterTerminal": [
         "https://store.nethunter.com/NetHunterTerminal.apk",
-        "57cb0f5054a7c881b7df03abfbe9976044680de3ec3034a6566f6015e125e7a8214fc78916615e82b122d4db5b0cdd93287f907f82315ac0a3e4e4965c95d90b",
+        "3eff41a01dedbc396c436dbd0a74b713dfd12595474af5046daf39cb86380940062504f9b109e021e1aed01abeacd065957015171cc7e7ae3a9bfbbb8468635f",
     ],
 
     # Store: https://store.nethunter.com/packages/com.offsec.nethunter.kex/
