@@ -46,11 +46,11 @@ dl_supersu = {
 # $ ls -1 ./repo/com.offsec.n*.apk
 dl_apps = {
     # Store: https://store.nethunter.com/packages/com.offsec.nethunter/
-    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter_2025110300.apk -> https://store.nethunter.com/NetHunter.apk
+    # APK  : https://store.nethunter.com/repo/com.offsec.nethunter_2025120200.apk -> https://store.nethunter.com/NetHunter.apk
     # VCS  : https://gitlab.com/kalilinux/nethunter/apps/kali-nethunter-app
     "NetHunter": [
         "https://store.nethunter.com/NetHunter.apk",
-        "b65c0a02a7a4628b27e60f28bad9a3cda457fda3b0fbc9bf2bfaf97bd17febcfa09a3c0bdaf9e35702942d667bad4b9f87f92c0c87a3679c82a98418e0eae4dc",
+        "89bc7efd2a9c13afcbabc059769198fec72a4430a96ce358e5f8b91218005529b6259b9828ee3bac99e3c56fced79a79d7aa90771869f9768f23452b14f4caec",
     ],
 
     # Store: https://store.nethunter.com/packages/com.offsec.nhterm/
